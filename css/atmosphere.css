@@ -1,0 +1,34 @@
+/* GRIMWICK WORKS — atmosphere.css
+   Restraint on purpose: the art pass is Prompt 5. This file only does what
+   costs nothing and never touches text contrast. */
+
+body::before {
+  /* soot in the air, fixed behind everything */
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(90% 55% at 50% 0%, rgba(216,131,75,.05), transparent 60%),
+    radial-gradient(120% 80% at 50% 110%, rgba(0,0,0,.55), transparent 70%);
+}
+#app { position: relative; z-index: 1; }
+
+.season-WINTER { --rust: #c0a27a; --rust-deep: #5f5747; }
+.season-THAW   { --rust: #b39a6d; --rust-deep: #59503c; }
+
+.phase-NIGHT .stage { background: linear-gradient(180deg, rgba(0,0,0,.28), transparent 220px); }
+
+.fade-in { animation: fade .18s linear; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+.docket-enter { animation: slip .38s cubic-bezier(.2,.7,.3,1); }
+@keyframes slip {
+  from { transform: translateY(-22px) rotate(-.6deg); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in, .docket-enter { animation: none; }
+}

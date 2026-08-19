@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grimwick Works</title>
+<meta name="description" content="A floor hand at the Grimwick Small Arms Works, Year 312 of the Iron Concord.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Inter:wght@400;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/reset.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/atmosphere.css">
+</head>
+<body>
+
+<div id="app">
+  <header id="topbar" class="topbar"></header>
+  <main id="stage" class="stage"></main>
+  <footer class="logbar">
+    <div id="log" aria-live="polite"></div>
+  </footer>
+</div>
+
+<!-- data: plain global consts, no fetch(), so file:// works -->
+<script src="data/strings.js"></script>
+<script src="data/items.js"></script>
+<script src="data/npcs.js"></script>
+<script src="data/locations.js"></script>
+<script src="data/events.js"></script>
+<script src="data/endings.js"></script>
+
+<!-- engine -->
+<script src="js/strings.js"></script>
+<script src="js/state.js"></script>
+<script src="js/economy.js"></script>
+<script src="js/narrative.js"></script>
+<script src="js/empire.js"></script>
+<script src="js/factory.js"></script>
+<script src="js/town.js"></script>
+<script src="js/events.js"></script>
+<script src="js/save.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/loop.js"></script>
+<script src="js/debug.js"></script>
+
+<script>
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { UI.boot(); });
+  } else {
+    UI.boot();
+  }
+</script>
+</body>
+</html>

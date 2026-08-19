@@ -1,0 +1,54 @@
+/* GRIMWICK WORKS — tokens.css
+   Palette is grim. Text is never grim enough to be unreadable:
+   every foreground/background pair used for text is >= 4.5:1.
+   Smallest type in the game is 15px. */
+:root {
+  /* surfaces */
+  --bg:          #121110;
+  --bg-deep:     #0b0a09;
+  --panel:       #1c1a17;
+  --panel-2:     #262320;
+  --panel-3:     #302c27;
+  --line:        #423c34;
+  --line-soft:   #322e28;
+
+  /* ink */
+  --text:        #e4ddd0;   /* 14.4:1 on --bg */
+  --text-dim:    #bdb3a1;   /*  7.5:1 on --panel */
+  --focus:       #e9a35f;
+
+  /* accents */
+  --rust:        #d8834b;
+  --rust-deep:   #8c4a24;
+  --blood:       #e06a5e;
+  --blood-deep:  #7a2c26;
+  --brass:       #d9b76a;
+  --sick:        #a8b06a;
+  --good:        #8fbb85;
+
+  /* paper (the docket) */
+  --paper:       #dbd4c2;
+  --paper-2:     #cfc7b3;
+  --paper-ink:   #17150f;
+  --paper-dim:   #4c4638;
+  --paper-line:  #a89e86;
+  --paper-stamp: #7d2f28;
+
+  /* type */
+  --font-body:   'EB Garamond', Georgia, 'Times New Roman', serif;
+  --font-ui:     'Inter', 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono:   'Courier Prime', 'Courier New', ui-monospace, monospace;
+
+  --fs-base: 17px;
+  --fs-sm:   15px;   /* the floor. nothing smaller ships. */
+  --fs-md:   17px;
+  --fs-lg:   21px;
+  --fs-xl:   27px;
+  --fs-xxl:  38px;
+
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px;
+
+  --shadow: 0 2px 0 rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.45);
+}
+:root { --text-faint: #a79d8a; } /* 5.4:1 on --panel — safe for hints */
