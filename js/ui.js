@@ -377,39 +377,142 @@ var UI = {
   },
 
   eveningPanel: function () {
-    var p = UI.panel(T('town.heading'), 'evening-panel');
-    p._head.appendChild(el('span', null, T('hud.apLeft') + ': ' + S.evening.ap));
-    var body = p._body;
+    var wrap = el('div', 'column');
 
-    if (S.evening.ap <= 0) body.appendChild(el('p', 'prose prose--dim', T('hud.noneLeft')));
-
-    var locs = Town.locations();
-    for (var i = 0; i < locs.length; i++) {
-      var loc = locs[i];
-      var sec = el('div', 'panel panel--flag');
-      var head = el('div', 'panel__head');
-      head.appendChild(el('span', null, T(loc.nameKey)));
-      sec.appendChild(head);
-      var sb = el('div', 'panel__body');
-      sb.appendChild(el('p', 'prose prose--dim', T(loc.blurbKey)));
-
-      var list = el('div', 'actions');
-      for (var j = 0; j < loc.actions.length; j++) {
-        var d = Town.describe(loc.actions[j]);
-        if (!d) continue;
-        list.appendChild(UI.button({
-          label: d.label,
-          hint: d.hint,
-          reason: d.disabledReason,
-          onClick: (function (id) { return function () { Loop.act(id); }; })(d.id)
-        }));
-      }
-      sb.appendChild(list);
-      sec.appendChild(sb);
-      body.appendChild(sec);
+    if (S.destitution.workhouse) {
+      wrap.appendChild(UI.workhousePanel());
+      return wrap;
     }
 
-    body.appendChild(UI.actions([
+    /* ---- where you are, and what is left of the evening ---- */
+    var map = UI.panel(T('town.heading'), 'evening-panel');
+    map._head.appendChild(el('span', null, T('hud.apLeft') + ': ' + S.evening.ap + ' / ' + S.evening.apMax));
+    var body = map._body;
+
+    if (!S.house.housed) {
+      body.appendChild(el('div', 'destitute-note', T('destitution.note')));
+    }
+
+    var where = el('div', 'where');
+    where.appendChild(el('span', null, T('town.youAre')));
+    var hereLoc = Town.location(Town.here());
+    where.appendChild(el('span', 'where__name', hereLoc ? hereLoc.name : ''));
+    where.appendChild(el('span', null, T('town.district.' + Town.districtOf(Town.here()))));
+    body.appendChild(where);
+
+    body.appendChild(UI.mapNode());
+
+    if (S.evening.ap <= 0) body.appendChild(el('p', 'prose prose--dim', T('hud.noneLeft')));
+    wrap.appendChild(map);
+
+    /* ---- the place itself ---- */
+    wrap.appendChild(UI.placePanel());
+
+    var turn = UI.panel(T('phases.NIGHT'), 'evening-end');
+    turn._body.appendChild(UI.actions([
+      UI.button({
+        id: 'btn-turn-in', primary: true,
+        label: T('town.actions.endEvening'), hint: T('town.actions.endEveningHint'),
+        onClick: function () { Loop.endEvening(); }
+      })
+    ]));
+    wrap.appendChild(turn);
+    return wrap;
+  },
+
+  /* The node map. Roads are drawn; the labels are buttons over the top so
+     they stay legible at any width, and collapse to a list on a phone. */
+  mapNode: function () {
+    var box = el('div', 'map');
+    var inner = el('div', 'map__inner');
+    var here = Town.here();
+    var meta = { visible: {}, reach: {}, far: {} };
+    var locs = Town.locations(), i;
+
+    for (i = 0; i < locs.length; i++) {
+      var l = locs[i];
+      meta.visible[l.id] = Town.visible(l);
+      meta.far[l.id] = l.district;
+      meta.reach[l.id] = Town.canTravel(l.id) === true;
+    }
+    var svgHost = el('div', 'map__svg');
+    Art.into(svgHost, Art.townMap(meta, here));
+    box.appendChild(svgHost);
+
+    for (i = 0; i < locs.length; i++) {
+      (function (loc) {
+        if (!Town.visible(loc)) return;
+        var isHere = loc.id === here;
+        var can = Town.canTravel(loc.id);
+        var cost = Town.travelCost(loc.id);
+        var b = UI.button({
+          label: loc.name,
+          hint: '',
+          reason: (isHere || can === true) ? null : T(can),
+          onClick: function () { Loop.travel(loc.id); }
+        });
+        b.className = 'map__node' + (isHere ? ' map__node--here' : '');
+        clear(b);
+        b.appendChild(el('span', null, loc.name));
+        b.appendChild(el('span', 'map__cost', isHere ? T('town.hereNow')
+          : (cost === 0 ? T('town.nearby') : T('town.hoursWalk', { n: cost }))));
+        if (isHere) { b.disabled = true; b.title = T('town.hereNow'); }
+        var pos = Art.mapPositions[loc.id];
+        if (pos) {
+          b.style.left = (pos.x / 640 * 100) + '%';
+          b.style.top = (pos.y / 360 * 100) + '%';
+        }
+        inner.appendChild(b);
+      })(locs[i]);
+    }
+    box.appendChild(inner);
+    return box;
+  },
+
+  placePanel: function () {
+    var loc = Town.location(Town.here());
+    if (!loc) return el('div');
+    var p = UI.panel(loc.name, 'place-panel');
+    p._head.appendChild(el('span', null, loc.sub));
+    var b = p._body;
+    b.appendChild(el('p', 'prose prose--dim',
+      (loc.id === 'rows' && !S.house.housed) ? loc.blurbStreet : loc.blurb));
+
+    var ids = Town.actionsAt(loc.id);
+    var list = el('div', 'actions');
+    for (var i = 0; i < ids.length; i++) {
+      var d = Town.describe(ids[i]);
+      if (!d) continue;
+      (function (desc) {
+        list.appendChild(UI.button({
+          label: desc.label + (desc.free ? '' : ''),
+          hint: desc.hint,
+          reason: desc.disabledReason,
+          onClick: function () { Loop.act(desc.id); }
+        }));
+      })(d);
+    }
+    b.appendChild(list);
+    return p;
+  },
+
+  workhousePanel: function () {
+    var p = UI.panel(T('destitution.workhouseHeading'), 'workhouse-panel');
+    p._body.appendChild(el('p', 'prose', T('destitution.workhouseBlurb')));
+    p._body.appendChild(UI.kv(T('destitution.daysInside'), String(S.destitution.workhouseDays)));
+    var list = el('div', 'actions');
+    for (var i = 0; i < WORKHOUSE_ACTIONS.length; i++) {
+      var d = Town.describe(WORKHOUSE_ACTIONS[i]);
+      if (!d) continue;
+      (function (desc) {
+        list.appendChild(UI.button({
+          label: desc.label, hint: desc.hint, reason: desc.disabledReason,
+          onClick: function () { Loop.act(desc.id); }
+        }));
+      })(d);
+    }
+    p._body.appendChild(list);
+    p._body.appendChild(UI.actions([
       UI.button({
         id: 'btn-turn-in', primary: true,
         label: T('town.actions.endEvening'), hint: T('town.actions.endEveningHint'),
@@ -417,6 +520,149 @@ var UI = {
       })
     ]));
     return p;
+  },
+
+  /* ---------------------------------------------------- the market board */
+  showBoard: function () {
+    var scrim;
+    var m = UI.modal(T('board.heading'), function (body) {
+      body.appendChild(el('p', 'prose prose--dim', T('board.war.' + Empire.newsBand())));
+      var t = document.createElement('table');
+      t.className = 'board';
+      var head = document.createElement('tr');
+      [T('board.item'), T('board.lastWeek'), T('board.thisWeek'), T('board.change'), T('board.store')]
+        .forEach(function (h) {
+          var th = document.createElement('th');
+          th.textContent = h;
+          head.appendChild(th);
+        });
+      t.appendChild(head);
+      var rows = Economy.board();
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        var tr = document.createElement('tr');
+        function cell(text, cls) {
+          var td = document.createElement('td');
+          td.textContent = text;
+          if (cls) td.className = cls;
+          tr.appendChild(td);
+        }
+        cell(T('board.items.' + r.id));
+        cell(Economy.money(r.was));
+        cell(Economy.money(r.now));
+        cell((r.delta > 0 ? '+' : '') + (r.delta === 0 ? T('board.same') : Economy.money(r.delta)),
+          r.delta > 0 ? 'up' : (r.delta < 0 ? 'down' : 'flat'));
+        cell(Economy.money(r.store), 'board__store');
+        t.appendChild(tr);
+      }
+      body.appendChild(t);
+      body.appendChild(el('p', 'prose prose--dim', T('board.storeNote')));
+      body.appendChild(UI.actions([
+        UI.button({ label: T('app.close'), primary: true, onClick: function () { UI.closeModal(scrim); } })
+      ]));
+    });
+    scrim = UI.openModal(m, { dismissible: true });
+  },
+
+  showLedger: function () {
+    var scrim;
+    var m = UI.modal(T('ledger.heading'), function (body) {
+      body.appendChild(el('p', 'prose', T('ledger.blurb')));
+      body.appendChild(UI.kv(T('ledger.owed'), Economy.money(S.purse.debt), S.purse.debt > 0 ? 'bad' : null));
+      body.appendChild(UI.kv(T('ledger.interest'),
+        Economy.money(Math.ceil(S.purse.debt * WAGE.debtInterestPct / 100)) + ' · ' + WAGE.debtInterestPct + '%'));
+      body.appendChild(UI.kv(T('ledger.stopped'), Economy.money(S.storeTakeThisDay || 0)));
+      body.appendChild(el('p', 'prose prose--dim', T('ledger.note')));
+      body.appendChild(UI.actions([
+        UI.button({ label: T('app.close'), primary: true, onClick: function () { UI.closeModal(scrim); } })
+      ]));
+    });
+    scrim = UI.openModal(m, { dismissible: true });
+  },
+
+  showAdvice: function () {
+    var scrim;
+    var m = UI.modal(T('advice.heading'), function (body) {
+      body.appendChild(el('p', 'prose', T('advice.opening')));
+      var lines = [];
+      if (S.body.dust > 40) lines.push(T('advice.dust'));
+      if (S.body.tremor > 40) lines.push(T('advice.tremor'));
+      if (S.body.lead > 40) lines.push(T('advice.lead'));
+      if (S.body.injury && S.body.injury.fever) lines.push(T('advice.fever'));
+      else if (S.body.injury) lines.push(T('advice.wound'));
+      if (S.body.hunger > 70) lines.push(T('advice.hunger'));
+      if (!lines.length) lines.push(T('advice.nothingYet'));
+      for (var i = 0; i < lines.length; i++) body.appendChild(el('p', 'prose', lines[i]));
+      body.appendChild(el('p', 'prose prose--dim', T('advice.closing')));
+      body.appendChild(UI.actions([
+        UI.button({ label: T('app.close'), primary: true, onClick: function () { UI.closeModal(scrim); } })
+      ]));
+    });
+    scrim = UI.openModal(m, { dismissible: true });
+  },
+
+  /* ------------------------------------------------------ Ostrek's window */
+  showPawn: function (mode) {
+    var scrim;
+    var title = mode === 'redeem' ? T('pawn.redeemHeading') : (mode === 'sell' ? T('pawn.sellHeading') : T('pawn.heading'));
+    var m = UI.modal(title, function (body) {
+      body.appendChild(el('p', 'prose prose--dim', T(mode === 'redeem' ? 'pawn.redeemBlurb' : 'pawn.blurb')));
+      var items = mode === 'redeem' ? Town.pawnedList() : Town.pawnList();
+      if (!items.length) body.appendChild(el('p', 'prose', T('pawn.nothing')));
+      var list = el('div', 'actions');
+      for (var i = 0; i < items.length; i++) {
+        (function (it) {
+          var price = mode === 'redeem' ? it.redeem : (mode === 'sell' ? it.pawn + 2 : it.pawn);
+          var reason = null;
+          if (S.evening.ap < 1) reason = T('disabled.noAp');
+          else if (mode === 'redeem' && !Economy.canAfford(it.redeem)) reason = T('disabled.noPennies');
+          list.appendChild(UI.button({
+            label: it.name + ' — ' + Economy.money(price),
+            hint: mode === 'redeem' ? T('pawn.redeemHint') : (it.note + ' ' + T('pawn.backFor', { p: Economy.money(it.redeem) })),
+            reason: reason,
+            onClick: function () {
+              var res = mode === 'redeem' ? Town.redeemItem(it.id) : Town.pawnItem(it.id, mode === 'sell');
+              UI.closeModal(scrim);
+              if (res) UI.showResult(res, function () { UI.render(); });
+              else UI.render();
+            }
+          }));
+        })(items[i]);
+      }
+      body.appendChild(list);
+      body.appendChild(UI.actions([
+        UI.button({ label: T('app.close'), onClick: function () { UI.closeModal(scrim); } })
+      ]));
+    });
+    scrim = UI.openModal(m, { dismissible: true });
+  },
+
+  /* ------------------------------------------------------ who you keep */
+  showCreation: function (onDone) {
+    var scrim;
+    var m = UI.modal(T('creation.heading'), function (body) {
+      body.appendChild(el('p', 'prose', T('creation.blurb')));
+      var wrap = el('div', 'creation');
+      for (var i = 0; i < KIN_OPTIONS.length; i++) {
+        (function (opt) {
+          var b = el('button', 'creation__opt');
+          b.type = 'button';
+          b.dataset.acts = '1';
+          b.title = opt.label;
+          b.appendChild(el('div', 'creation__who', opt.label + ' — ' + opt.who));
+          b.appendChild(el('div', 'creation__blurb', opt.blurb));
+          b.appendChild(el('div', 'creation__cost', opt.cost));
+          b.addEventListener('click', function () {
+            UI.closeModal(scrim);
+            Audio.unlock();
+            if (onDone) onDone(opt.id);
+          });
+          wrap.appendChild(b);
+        })(KIN_OPTIONS[i]);
+      }
+      body.appendChild(wrap);
+    });
+    scrim = UI.openModal(m);
   },
 
   nightPanel: function () {
@@ -552,11 +798,28 @@ var UI = {
     body.appendChild(UI.kv(T('hud.larder'), T('hud.mealsLeft', { n: S.house.larder }), S.house.larder <= 0 ? 'bad' : null));
     body.appendChild(UI.kv(T('hud.coal'), T('hud.daysLeft', { n: S.house.coal }), S.house.coal <= 0 ? 'bad' : null));
 
+    body.appendChild(UI.kv(T('hud.roof'),
+      S.destitution.workhouse ? T('hud.roofWorkhouse') : (S.house.housed ? T('hud.roofRoom') : T('hud.roofStreet')),
+      S.house.housed ? null : 'bad'));
+    if (S.house.goods.length) {
+      var gn = [];
+      for (var gi = 0; gi < S.house.goods.length; gi++) {
+        var gd = GOODS[S.house.goods[gi].id];
+        if (gd) gn.push(gd.name + (S.house.goods[gi].stashed ? T('hud.stashed') : ''));
+      }
+      body.appendChild(UI.kv(T('hud.goods'), gn.join(', ')));
+    }
+    if (S.house.pawned.length) {
+      body.appendChild(UI.kv(T('hud.pawned'), String(S.house.pawned.length), 'bad'));
+    }
+
     var k = State.kin();
     if (k) {
       body.appendChild(el('div', 'divider'));
-      body.appendChild(UI.kv(k.name, T('hud.kinStatus.' + k.status), k.status === 'FEVERED' || k.status === 'DEAD' ? 'bad' : null));
-      if (k.status !== 'DEAD') {
+      body.appendChild(UI.kv(k.name + ', ' + k.relation, T('hud.kinStatus.' + k.status),
+        (k.status === 'FEVERED' || k.status === 'DEAD' || k.status === 'TAKEN') ? 'bad' : null));
+      if (k.working) body.appendChild(UI.kv(T('hud.kinWorking'), T('hud.kinTremor', { n: Math.round(k.tremor || 0) }), 'bad'));
+      if (k.status !== 'DEAD' && k.status !== 'TAKEN') {
         var stats = el('div', 'stats');
         stats.appendChild(UI.statRow('stats.health', k.health, 'health', { fillClass: k.health < 40 ? 'bad' : 'good' }));
         body.appendChild(stats);
@@ -611,21 +874,21 @@ var UI = {
   /* ---- event modal ---- */
   showEvent: function (evt, onDone) {
     var scrim;
-    var m = UI.modal(T(evt.titleKey), function (body) {
-      body.appendChild(el('p', 'prose', T(evt.textKey)));
-      var choices = Events.describeChoices(evt);
+    var here = (S.time.phase === 'EVENING') ? Town.here() : null;
+    var m = UI.modal(Events.titleOf(evt), function (body) {
+      body.appendChild(el('p', 'prose', Events.textOf(evt)));
+      var choices = Events.describeChoices(evt, here);
       var wrap = el('div', 'actions');
       for (var i = 0; i < choices.length; i++) {
         (function (c) {
           wrap.appendChild(UI.button({
             label: c.label, hint: c.hint, reason: c.disabledReason,
             onClick: function () {
-              var resultKey = Events.choose(evt, c.id);
+              var result = Events.choose(evt, c.id, here);
               UI.closeModal(scrim);
               Audio.thunk();
-              if (resultKey) {
-                UI.showResult(T(resultKey), onDone);
-              } else if (onDone) onDone();
+              if (result) UI.showResult(result, onDone);
+              else if (onDone) onDone();
             }
           }));
         })(choices[i]);
@@ -687,6 +950,7 @@ var UI = {
     d.appendChild(el('div', 'docket__rule'));
     d.appendChild(item(T('docket.gross'), docket.gross));
     if (docket.bonus) d.appendChild(item(T('docket.bonusLine'), docket.bonus));
+    if (docket.kinWage) d.appendChild(item(T('docket.kinWage', { name: docket.kinName }), docket.kinWage));
     d.appendChild(el('div', 'docket__section', T('docket.deductions')));
 
     if (docket.lines.length === 0) {
@@ -858,7 +1122,10 @@ var UI = {
       body.appendChild(UI.actions([
         UI.button({
           label: T('app.openingButton'), primary: true,
-          onClick: function () { UI.closeModal(scrim); if (onDone) onDone(); }
+          onClick: function () {
+            UI.closeModal(scrim);
+            UI.showCreation(function (kinId) { if (onDone) onDone(kinId); });
+          }
         })
       ]));
     });
@@ -872,7 +1139,7 @@ var UI = {
     Audio.init();
     var auto = Save.peek('auto');
     if (auto && !auto.corrupt) UI.showStart(auto);
-    else UI.showOpening(function () { Loop.newGame(); });
+    else UI.showOpening(function (kinId) { Loop.newGame(null, kinId); });
   },
 
   showStart: function (auto) {
@@ -890,7 +1157,10 @@ var UI = {
         }),
         UI.button({
           label: T('app.newGame'), hint: T('app.dateline'),
-          onClick: function () { UI.closeModal(scrim); Loop.newGame(); }
+          onClick: function () {
+            UI.closeModal(scrim);
+            UI.showCreation(function (kinId) { Loop.newGame(null, kinId); });
+          }
         })
       ]));
     });

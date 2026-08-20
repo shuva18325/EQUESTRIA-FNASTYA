@@ -128,19 +128,30 @@ function newState(seed) {
 
     standing: { foreman: 0, workmates: 6, garrison: 0, notice: 3 },
 
+    /* what the empire is doing somewhere else, and what it costs here */
+    empire: { war: 24, glut: 12, levy: 0, week: 0, lastNews: null },
+
     house: {
+      cloth: 0,
+      housed: true,
+      node: 'rows',            /* 'rows' | 'street' | 'workhouse' */
       rentDue: 7,
       rentAmount: WAGE.rent,
       arrears: 0,
       rentMissed: 0,
+      deposit: WAGE.rent + 20,
       coal: 2,
       larder: 2,
       physic: 0,
+      laudanum: 0,
       coatMended: false,
-      kin: Util.deepClone(STARTING_KIN)
+      goods: Util.deepClone(STARTING_GOODS),
+      pawned: [],              /* {id, day, redeem} */
+      stash: [],               /* ids under the floorboard */
+      kin: []
     },
 
-    job: { employed: true, shiftsMissed: 0, warnings: 0 },
+    job: { employed: true, shiftsMissed: 0, warnings: 0, lastWarningDay: 0 },
 
     factory: {
       station: 'CAP_BENCH',
@@ -151,7 +162,7 @@ function newState(seed) {
       shift: null,
       transfer: null,
       guardsOffShifts: 0,
-      quota: { week: 1, target: 5900, made: 0, lastTarget: 0, weeksBeaten: 0, weeksMissed: 0, lastResult: null, lastMade: 0, unseen: false },
+      quota: { week: 1, target: 5200, made: 0, lastTarget: 0, weeksBeaten: 0, weeksMissed: 0, lastResult: null, lastMade: 0, unseen: false },
       floor: []
     },
 
@@ -166,17 +177,27 @@ function newState(seed) {
       inspectorVisited: false
     },
 
-    evening: { ap: 2, ended: false, rested: false },
+    evening: { ap: 2, apMax: 2, at: 'rows', ended: false, rested: false, travelled: 0 },
 
     night: { resolved: false, share: null },
+
+    /* the town's prices, and what the empire is doing to them */
+    market: { week: 0, prices: {}, last: {}, wageMult: 1 },
+
+    /* the road down, and the road back up */
+    destitution: {
+      ever: false, days: 0, begs: 0, scavenges: 0, casualDays: 0,
+      workhouse: false, workhouseDays: 0, applied: false, kinTaken: false
+    },
 
     /* narrative.js reads this map and nothing else writes English into it */
     flags: {},
 
     /* accrued charges for tonight's docket, cleared each dawn */
-    pending: { fines: [], breakages: 0, extra: [], pieceWage: 0, bonus: 0, quotaFine: 0 },
+    pending: { fines: [], breakages: 0, extra: [], pieceWage: 0, kinWage: 0, bonus: 0, quotaFine: 0 },
 
     eventsSeen: {},
+    eventsRecent: {},        /* id -> day fired; nothing repeats inside 15 days */
     lastEventId: null,
 
     docket: null,
@@ -196,6 +217,7 @@ function newState(seed) {
   s.time.season = Util.seasonFor(1);
   s.time.act = Util.actFor(1);
   s.factory.floor = Util.deepClone(FLOOR_HANDS);
+  s.house.kin = [Util.deepClone(KIN_OPTIONS[0].kin)];
   return s;
 }
 
@@ -240,9 +262,22 @@ var State = {
     if (!d || !S.house.kin.length) return;
     var k = S.house.kin[0];
     if (k.status === 'DEAD') return;
+    var taken = k.status === 'TAKEN';
     if (typeof d.health === 'number') k.health = Util.clamp100(k.health + d.health);
     if (typeof d.mood === 'number') k.mood = Util.clamp100(k.mood + d.mood);
-    k.status = k.health <= 0 ? 'DEAD' : (k.health < 35 ? 'FEVERED' : (k.health < 60 ? 'AILING' : 'WELL'));
+    if (k.health <= 0) {
+      /* wherever it happens — an event, a night, a week without medicine —
+         a death in the house is announced once and changes the ending set */
+      k.status = 'DEAD';
+      if (!S.flags.kinDied) {
+        S.flags.kinDied = true;
+        S.mind.resolve = Util.clamp100(S.mind.resolve - 25);
+        if (typeof UI !== 'undefined' && UI.log) UI.log(T('night.kinDied'), 'bad');
+      }
+      return;
+    }
+    if (taken) return;   /* the poorhouse keeps them; their health still moves */
+    k.status = k.health < 35 ? 'FEVERED' : (k.health < 60 ? 'AILING' : 'WELL');
   },
   injure: function (inj) {
     /* a worse wound overwrites a lighter one; the body only has the one hand */
@@ -260,6 +295,43 @@ var State = {
   },
   kin: function () { return S.house.kin.length ? S.house.kin[0] : null; },
   isDead: function () { return S.dead || S.body.health <= 0; },
+
+  /* ---- goods, which are also warmth, and also the rent when it comes to it */
+  hasGood: function (id) {
+    for (var i = 0; i < S.house.goods.length; i++) if (S.house.goods[i].id === id) return true;
+    return false;
+  },
+  takeGood: function (id) {
+    for (var i = 0; i < S.house.goods.length; i++) {
+      if (S.house.goods[i].id === id) return S.house.goods.splice(i, 1)[0];
+    }
+    return null;
+  },
+  giveGood: function (id) {
+    if (GOODS[id] && !State.hasGood(id)) S.house.goods.push({ id: id, stashed: false });
+  },
+  goodsWarmth: function () {
+    var w = 0;
+    for (var i = 0; i < S.house.goods.length; i++) {
+      var g = GOODS[S.house.goods[i].id];
+      if (g && g.warmth) w += g.warmth;
+    }
+    return w;
+  },
+
+  /* ---- kin */
+  kinAlive: function () {
+    var k = State.kin();
+    return !!k && k.status !== 'DEAD' && k.status !== 'TAKEN' && k.status !== 'GONE';
+  },
+  kinPresent: function () {
+    var k = State.kin();
+    return !!k && k.status !== 'DEAD' && k.status !== 'TAKEN';
+  },
+
+  /* ---- the two ways down */
+  destitute: function () { return !S.house.housed || !S.job.employed; },
+  onStreet: function () { return !S.house.housed && !S.destitution.workhouse; },
 
   /* Everything a scar takes off your output, forever. */
   scarPenalty: function () {
@@ -304,5 +376,9 @@ function applyEffects(fx) {
   if (typeof fx.coal === 'number') S.house.coal = Math.max(0, S.house.coal + fx.coal);
   if (typeof fx.physic === 'number') S.house.physic = Math.max(0, S.house.physic + fx.physic);
   if (fx.injure) State.injure(fx.injure);
+  if (fx.giveGood) State.giveGood(fx.giveGood);
+  if (fx.takeGood) State.takeGood(fx.takeGood);
+  if (typeof fx.cloth === 'number') S.house.cloth = Math.max(0, (S.house.cloth || 0) + fx.cloth);
+  if (typeof fx.laudanum === 'number') S.house.laudanum = Math.max(0, S.house.laudanum + fx.laudanum);
   if (typeof fx.breakages === 'number') S.pending.breakages += fx.breakages;
 }

@@ -608,3 +608,101 @@
   .works-banner .gw-svg { height: 120px; }
   .ratchet-big__arrow { transform: rotate(90deg); }
 }
+
+/* ==========================================================================
+   GRIMWICK — the town, Build 3
+   ========================================================================== */
+.map {
+  position: relative;
+  border: 1px solid var(--line);
+  background: #181410;
+  overflow: hidden;
+}
+.map .gw-map { width: 100%; height: 300px; display: block; }
+.map__node {
+  position: absolute;
+  max-width: 34%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  letter-spacing: .04em;
+  color: var(--text);
+  background: rgba(18, 15, 12, .92);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 5px 9px;
+  min-height: 0;
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.25;
+}
+.map__node:hover:not([disabled]) { border-color: var(--rust); background: var(--panel-3); }
+.map__node[disabled] { color: var(--text-faint); border-style: dashed; background: rgba(18,15,12,.8); }
+.map__node--here { border-color: var(--rust); color: var(--focus); box-shadow: 0 0 0 2px rgba(216,131,75,.25); }
+.map__cost {
+  display: block;
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+  font-size: var(--fs-sm);
+}
+.map__node--here .map__cost { color: var(--rust); }
+
+.node-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: var(--sp-2); }
+@media (max-width: 760px) {
+  .map .gw-map { display: none; }
+  .map__node { position: static; transform: none; display: block; width: 100%; white-space: normal; }
+  .map { border: 0; }
+  .map__inner { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: var(--sp-2); }
+}
+
+.where {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: baseline;
+  flex-wrap: wrap;
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  letter-spacing: .1em;
+  color: var(--text-dim);
+}
+.where__name { color: var(--rust); font-weight: 700; }
+
+.board { width: 100%; font-family: var(--font-mono); font-size: var(--fs-sm); }
+.board th {
+  text-align: right;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  letter-spacing: .1em;
+  font-weight: 700;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--line);
+}
+.board th:first-child, .board td:first-child { text-align: left; }
+.board td { text-align: right; padding: 5px 6px; border-bottom: 1px dotted var(--line-soft); color: var(--text); }
+.board .up { color: var(--blood); }
+.board .down { color: var(--good); }
+.board .flat { color: var(--text-faint); }
+.board__store { color: var(--brass); }
+
+.creation { display: grid; gap: var(--sp-3); }
+.creation__opt {
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  padding: var(--sp-4);
+  text-align: left;
+  display: block;
+  width: 100%;
+}
+.creation__opt:hover { border-color: var(--rust); background: var(--panel-3); }
+.creation__who { font-family: var(--font-ui); font-size: var(--fs-md); font-weight: 700; color: var(--focus); letter-spacing: .06em; }
+.creation__blurb { font-size: var(--fs-md); color: var(--text); margin-top: var(--sp-2); line-height: 1.5; }
+.creation__cost { font-size: var(--fs-sm); color: var(--brass); margin-top: var(--sp-2); font-family: var(--font-ui); }
+
+.destitute-note {
+  border-left: 3px solid var(--blood);
+  background: #1c1512;
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-md);
+}
+.goods-row { display: flex; justify-content: space-between; gap: var(--sp-3); font-size: var(--fs-sm); }
+.goods-row__note { color: var(--text-faint); font-size: var(--fs-sm); }

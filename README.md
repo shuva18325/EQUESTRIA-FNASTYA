@@ -6,11 +6,11 @@ You are a floor hand at the Grimwick Small Arms Works in the year 312 of the Iro
 Concord. You fill percussion caps, cast ball, stamp helmet shells and grind
 bayonets. You are a cog. The game's job is to make being a cog feel like something.
 
-**Build 2 of 6 — THE SHIFT.** The twelve hours are now the best-designed part
-of the game; everything else in Grimwick is what the shift does to you. The
-factory also has its graphics and its sound, brought forward from Build 5 at
-the designer's request — all of it drawn and synthesised at runtime, so there
-is still nothing to download and nothing that can fail on `file://`.
+**Build 3 of 6 — GRIMWICK ITSELF.** The town is a node map of eleven places
+and you have two hours, and the works is an hour's walk from the square. The
+factory's graphics and sound arrived in Build 2, brought forward at the
+designer's request — all of it drawn and synthesised at runtime, so there is
+still nothing to download and nothing that can fail on `file://`.
 
 ## Running it
 
@@ -59,6 +59,51 @@ The shift resolves as a short column of beat-lines — *"the ladle comes up full
 and the light off it is the best light in Grimwick"* — paced at under four
 seconds, skippable at any point, then the tally.
 
+## The town (Build 3)
+
+Eleven nodes in three districts: the Rows, the Works, Market Square, the
+Company Store, Ostrek's pawnshop, the Apothecary on Kell Street, the Black
+Ewe, St. Aulder's, the Rail Yard, the Garrison Post, and — from Act 2 — the
+Cut, where the men who are not there for the drink meet on Tuesdays. The
+centre is walkable; the works up the hill and the sidings out past the cut
+cost an hour of your evening each way, and you only have two.
+
+**Who is in the room with you** is chosen once, at the start, and never again:
+a younger sister who *can* go on the cap bench for sixpence a shift and take
+the shake permanently; an aging father whose lungs are already gone, who needs
+medicine every week and who taught you a trade worth real money; or a small
+child who cannot work, cannot be left, and halves your evening unless you pay
+a neighbour to mind her. Kin sicken, recover, work, are taken by the parish,
+and die, and a death changes the ending set.
+
+**The household** ticks whether you attend to it: rent every seven days, coal
+against the frost, a larder that feeds both of you. Miss the rent twice and
+the bailiffs come; what is not under the floorboard goes into Cinder Row and
+is gone within the hour.
+
+**The destitution track** is a real sub-loop, not a fail state. Off the roll
+and out of the room, you can beg the doorways, pick over the ash pits, stand
+for the hiring at the works gate, load crates at the sidings, or present
+yourself at the workhouse — which feeds you, houses you, and puts your kin in
+a separate ward. Climbing back out means three days at the gate, sixty pence
+for a room, and asking Coom for your number back.
+
+**Prices move with the war.** A board by the pump chalks this week's prices
+against last week's, and the war is why: bread and coal rise as the frontier
+opens, and a labour glut cuts what a day's count is worth. The company store
+is fifteen per cent under the market on every line, takes no money, and adds
+twelve in the hundred to your number on a Sunday. It is meant to look like
+mercy.
+
+**Seventy events** across street, factory floor, household, kin, soldiers,
+crime, sickness and folklore. Nothing fires with its requirements unmet and
+nothing repeats inside fifteen days. The folklore never resolves
+supernaturally: the ghost in the night shed is a broken pane and a draught,
+the saint's medals are struck off works scrap by a man with a fly press, the
+unlucky bench is a guide bent by a sixteenth of an inch, and the corpse candle
+over the cut is a smuggler with a dark lantern. The omen is always
+coincidence, fraud, or grief.
+
 ## Graphics and sound
 
 Both are generated at runtime and shipped as code, not assets:
@@ -97,9 +142,9 @@ Both are generated at runtime and shipped as code, not assets:
 - **Tutorial**, five steps across days 1–2, interruptible, skippable, and
   replayable from the menu.
 
-Not yet: the town map and destitution track (Build 3), empire events and the
-Act 2 retooling for the rifled musket (Build 4), the full art and audio pass
-beyond the factory (Builds 5–6).
+Not yet: empire events and the Act 2 retooling for the rifled musket
+(Build 4), the full art and audio pass beyond the factory (Build 5), endings
+(Build 6).
 
 ## Shape of the thing
 
@@ -166,3 +211,18 @@ Verified by running the real thing in Chromium off `file://`
 | 8 | Reporting to the Inspector fires the full chain | PASS — visit, substantial compliance, workmates −30, then twelve days of spite and skimming |
 | 9 | Resolution reads in under 8 seconds and is skippable | PASS — 3.9s in full, 0.1s to skip |
 | 10 | Build 1's checks all still pass | PASS — all eleven, re-run against this build |
+
+### Build 3
+
+| # | Check | Result |
+|---|-------|--------|
+| 1 | All 11 nodes reachable, ≥3 actions each | PASS — 4 to 7 actions per node, 51 in total |
+| 2 | 2 action points enforced; travel costs between distant nodes | PASS — centre free, hill and sidings 1 hour; a child to mind halves the evening |
+| 3 | Rent, coal and food all tick and all can kill | PASS — starved by day 20, frozen by day 59, evicted on day 23 |
+| 4 | Kin sicken, recover, work, leave and die | PASS — each verified, including her wage on your docket and her shake at 50 |
+| 5 | Destitution entered and exited in a test run | PASS — evicted → begging → workhouse → discharge → re-housed → back on the roll |
+| 6 | Market board shows real deltas driven by empire state | PASS — bread 5d→7d from war 10→92; glut cuts wages to 0.72× |
+| 7 | 70+ events load; 500-draw distribution logged | PASS — 70 events, 62 distinct in 500 draws across 8 categories |
+| 8 | No event fires with unmet requirements | PASS — 550 hostile-state draws, 0 violations, asserted in the draw itself |
+| 9 | No folklore event produces a supernatural effect | PASS — every one carries its mundane explanation; no omen ever mends the body |
+| 10 | Builds 1–2 checks all still pass | PASS — all 21, re-run against this build |

@@ -353,6 +353,7 @@ var Factory = {
       S.pending.quotaFine += QUOTA.fine;
       q.weeksMissed += 1;
       S.job.warnings += 1;
+      S.job.lastWarningDay = S.time.day;
       result.warnings = S.job.warnings;
       State.applyStanding({ foreman: -6 });
       State.applyMind({ resolve: -5 });
@@ -361,6 +362,12 @@ var Factory = {
         S.flags.sacked = true;
         result.dismissed = true;
       }
+    }
+
+    /* a warning three weeks clean falls off the book. Coom does not mention it. */
+    if (S.job.warnings > 0 && S.time.day - (S.job.lastWarningDay || 0) >= 21) {
+      S.job.warnings -= 1;
+      result.warnings = S.job.warnings;
     }
 
     q.lastTarget = q.target;

@@ -76,8 +76,19 @@ var STR = {
       WELL: 'well enough',
       AILING: 'ailing',
       FEVERED: 'fevered',
-      DEAD: 'buried'
+      DEAD: 'buried',
+      TAKEN: 'in the poorhouse',
+      GONE: 'gone from Grimwick'
     },
+    roof: 'Where you sleep',
+    roofRoom: 'two rooms, Cinder Row',
+    roofStreet: 'a doorway, and the grating',
+    roofWorkhouse: 'the long ward',
+    goods: 'What you own',
+    stashed: ' (under the floor)',
+    pawned: 'Tickets at Ostrek\u2019s',
+    kinWorking: 'On the cap bench',
+    kinTremor: 'the shake at {n}',
     nothing: 'nothing'
   },
 
@@ -393,6 +404,15 @@ var STR = {
 
   town: {
     heading: 'GRIMWICK, AFTER THE BELL',
+    youAre: 'You are at',
+    hereNow: 'you are here',
+    nearby: 'a few streets',
+    hoursWalk: '{n} hour walking',
+    district: {
+      CENTRE: 'the centre',
+      HILL: 'up the hill',
+      SIDINGS: 'out at the sidings'
+    },
     market: {
       name: 'Sallow Street Market',
       blurb: 'Barrows under wet canvas. Bread, coal, and things sold by people who need to sell them more than you need to buy them.'
@@ -502,6 +522,7 @@ var STR = {
     stamp: 'CHECKED',
     pieces: 'Passed at inspection',
     bonusLine: 'Count bonus',
+    kinWage: '{name}, cap bench',
     press: 'Press on',
     clerkNote: 'Errors to be reported within the day. They are not corrected.',
     lines: {
@@ -519,6 +540,8 @@ var STR = {
       doctorsBook: 'Doctor’s book',
       dustAllowance: 'Wheel allowance',
       bonusLine: 'Count bonus',
+    kinWage: '{name}, cap bench',
+      kinWageLine: 'Second hand, same household',
       quotaFine: 'Fine \u2014 count short of the week',
       coomCharge: 'Overlooker\u2019s charge',
       skimBench: 'Bench hire',
@@ -538,6 +561,89 @@ var STR = {
       idle: 'A day not worked still costs. That is the arrangement.',
       broke: 'You count it twice on the stairs. It is the same the second time.'
     }
+  },
+
+  destitution: {
+    note: 'You have no room. Whatever is not under a floorboard is gone, and the nights are the length of the nights.',
+    sleptRough: 'You sleep in a doorway with your knees up and your hands inside your coat.',
+    evicted: 'Kell has the bailiffs up the stair at eight. {n} things of yours go out into Cinder Row and are not there an hour later.',
+    discharged: 'They give you back your clothes, baked hard and smelling of sulphur, and put you out at the gate.',
+    workhouseNight: 'Skilly at six, prayers at seven, the long ward, and forty men breathing in the dark.',
+    workhouseHeading: 'THE UNION WORKHOUSE',
+    workhouseBlurb: 'Whitewash, a bell, and a rule about talking. The wards are separated by sex and by age, which is how they separate you from your own, and it is done kindly, by people who believe it is kind.',
+    daysInside: 'Days inside'
+  },
+
+  kin: {
+    tremorNoted: '{name} cannot hold a cup steady any more. She is nine, and it is not going to get better.',
+    medicineGiven: 'The week\u2019s draught goes into {name} and he sleeps through the night for once.',
+    medicineMissed: 'There is no medicine for {name} this week. You listen to him through the wall.',
+    leftAlone: '{name} was alone in the room for the whole of the evening. She was still awake when you came in.',
+    takenByParish: 'The parish takes {name} to the poorhouse. Two men, a form, and no argument that anybody is obliged to hear.'
+  },
+
+  board: {
+    heading: 'THE BOARD BY THE PUMP',
+    item: 'Article',
+    lastWeek: 'Last week',
+    thisWeek: 'This week',
+    change: 'Change',
+    store: 'At the store',
+    same: 'no change',
+    storeNote: 'The company store is cheaper on every line. It takes no money. It takes your number, and the number goes to the Works, and the Works adds twelve in the hundred on a Sunday.',
+    items: {
+      bread: 'Bread, the quartern loaf',
+      coal: 'Coal, the quarter sack',
+      cloth: 'Fustian, the yard',
+      physic: 'Physic, the bottle',
+      laudanum: 'Laudanum, the drachm',
+      surgeon: 'A surgeon\u2019s dressing'
+    },
+    war: {
+      quiet: 'Nothing from the frontier this week, which the papers report as a victory.',
+      rumour: 'Talk of a levy in the eastern provinces. Bread has heard the talk before you did.',
+      open: 'Open war on the colonial frontier. The Works is on double order and the bakers know it.',
+      hard: 'Two regiments gone east and a third being raised. Coal is at the mercy of the transport, and the transport is at the mercy of the army.',
+      total: 'Total war on three frontiers. Everything that burns has been requisitioned, and everything that feeds costs what they say it costs.'
+    }
+  },
+
+  ledger: {
+    heading: 'THE STORE BOOK',
+    blurb: 'The clerk turns it round on the counter so you can see it, because you are entitled to see it, and because seeing it has never once helped anybody.',
+    owed: 'Standing against your number',
+    interest: 'Added on Sunday',
+    stopped: 'Stopped from your last docket',
+    note: 'Fifteen in the hundred cheaper than the market on every article. Twelve in the hundred added every week you do not clear it. Those two figures are on the same page and nobody has ever put them side by side for you before.'
+  },
+
+  advice: {
+    heading: 'MRS. BLIGH, KELL STREET',
+    opening: 'She looks at your hands, then your eyes, then your hands again, and tells you the truth, which is what she is for and what nobody pays her for.',
+    dust: 'Your chest has stone in it. It does not come out. Every month in that shed puts more in.',
+    tremor: 'The shake is the fulminate. It is in your nerves, not your muscles, and there is no course of anything that reverses it.',
+    lead: 'The blue line on your gums is lead. You have the colic and you will have the fog after it, and the only physic is to leave the casting floor.',
+    fever: 'That wound has gone bad and the badness is moving up the arm. This is the part where it is still cheaper to treat than to bury.',
+    wound: 'Keep it clean and keep it covered. I know what that costs. I am telling you anyway.',
+    hunger: 'You are not ill. You are hungry, and being hungry for long enough is the same thing as being ill.',
+    nothingYet: 'There is nothing on you yet that a month of eating and a warm room would not mend. I am aware of how that sounds.',
+    closing: 'She writes none of it down, and charges you nothing for it, and that is the last free thing in Grimwick.'
+  },
+
+  pawn: {
+    heading: 'OSTREK\u2019S COUNTER',
+    redeemHeading: 'REDEEM A TICKET',
+    sellHeading: 'SELL OUTRIGHT',
+    blurb: 'He gives you what he gives you. He is not cruel about it, which somehow makes the figure worse.',
+    redeemBlurb: 'Everything is where he said it would be, wrapped in paper with your number on it.',
+    nothing: 'There is nothing here to leave with him.',
+    redeemHint: 'Back on the shelf at home, where it was.',
+    backFor: 'Back for {p}.'
+  },
+
+  creation: {
+    heading: 'WHO IS IN THE ROOM WITH YOU',
+    blurb: 'You are twenty-six, a floor hand at the Grimwick Small Arms Works, and you are not the only one eating out of the wage. Somebody is upstairs. Which of them it is decides what the next sixty days cost you.'
   },
 
   foreman: {
@@ -789,7 +895,10 @@ var STR = {
     act1_hungry: 'There is nothing in the larder. Get bread into the house.',
     act1_cold: 'No coal. A frost night in an unfired room takes something off you that does not come back.',
     act1_hurt: 'You are carrying an injury. Untended, wounds here go bad and then they go fatal.',
-    act1_sacked: 'You are off the roll. Find work or find another way to eat.',
+    act1_sacked: 'You are off the roll. Stand at the gate for the hiring, or find another way to eat.',
+    act1_evicted: 'You have no room. Sixty pence takes one again; the grating behind the bakehouse is warm until four.',
+    act1_workhouse: 'You are in the long ward and {name} is in another. Apply for discharge, and then find a room, and then get them back.',
+    act1_kinTaken: 'The parish has {name}. A room of your own is the only argument that works on a poorhouse.',
     act2_retool: 'The Works retools for the rifled musket. Nobody has said what happens to the hands who cannot keep the new count.',
     act3_end: 'What is left of the winter is what is left of you.',
     deadline_rent: 'Rent, day {d} — {amt}',
@@ -841,7 +950,38 @@ var STR = {
     dialsLocked: 'The shift is set. The bell has gone.',
     noScribe: 'You cannot write, and the scribe wants paying.',
     reportedAlready: 'The letter is already sent.',
-    sacked: 'You are off the roll.'
+    sacked: 'You are off the roll.',
+    noRoom: 'You have no floor to lift a board out of.',
+    haveRoom: 'You have a room. Use it.',
+    kinCannotWork: 'They cannot work. Not at any age the Works will write down.',
+    kinAlreadyWorks: 'She is already on the bench.',
+    noMinding: 'There is nobody who needs minding.',
+    alreadyMinded: 'Mother Ashen has her already.',
+    notDestitute: 'You are not there yet.',
+    alreadyNight: 'You have taken the night shift already.',
+    tooTired: 'You would not last the first hour.',
+    haveWork: 'You are on the roll. You do not stand for the hiring.',
+    nothingToPawn: 'You have nothing he would take.',
+    nothingPawned: 'There are no tickets out.',
+    noBrass: 'You have no scrap to sell.',
+    alreadyInformer: 'You have given him a name already. There is only one first time.',
+    noName: 'You have no name to give him yet.',
+    haveBundle: 'You are carrying a bundle already.',
+    nothingYet: 'Nothing there yet. Not this act.',
+    doleTaken: 'You have had the dole this week.',
+    alreadyPaid: 'Paid this week.',
+    askedThisWeek: 'You have asked him this week.',
+    notEnoughDays: 'Three days at the gate first. He wants to see you stand there.',
+    alreadyApplied: 'The application is in. It takes a day, as everything here takes a day.',
+    inWorkhouse: 'You are inside. The town is not available to you.',
+    noSuchPlace: 'There is no such place in Grimwick.',
+    notYet: 'Nothing there for you yet.',
+    alreadyHere: 'You are already standing in it.',
+    noTimeToWalk: 'Not enough of the evening left to walk it.',
+    noLaudanum: 'There is no laudanum in the house.',
+    noCoal: 'There is no coal.',
+    noFood: 'There is nothing in the larder.',
+    notNow: 'Not something you can do just now.'
   },
 
   log: {

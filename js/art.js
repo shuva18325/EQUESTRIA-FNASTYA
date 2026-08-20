@@ -528,6 +528,58 @@ var Art = {
     return { CASTING: 'ball', CAP_BENCH: 'cap', GRINDING: 'blade', STAMPING: 'helmet' }[station] || 'ball';
   },
 
+  /* ------------------------------------------------------------ town map
+     Roads and nodes only — the labels are real HTML buttons laid over this,
+     so they stay at a readable size at every width.
+     ------------------------------------------------------------------- */
+  townMap: function (nodes, hereId) {
+    var pos = Art.mapPositions;
+    var edges = [
+      ['rows', 'ewe'], ['rows', 'market'], ['market', 'store'], ['market', 'pawn'],
+      ['market', 'chapel'], ['market', 'apothecary'], ['market', 'works'],
+      ['works', 'garrison'], ['market', 'railyard'], ['railyard', 'cut'], ['works', 'railyard']
+    ];
+    var g = ['<svg class="gw-svg gw-map" viewBox="0 0 640 360" preserveAspectRatio="none" role="presentation">'];
+    g.push(Art.defs());
+    g.push('<rect width="640" height="360" fill="#181410"/>');
+    /* the cut, the river of soot everything is built along */
+    g.push('<path d="M-10 300 q160 -40 320 -10 t330 -30" stroke="#241d16" stroke-width="26" fill="none" opacity=".8"/>');
+    var i, a, b;
+    for (i = 0; i < edges.length; i++) {
+      a = pos[edges[i][0]]; b = pos[edges[i][1]];
+      if (!a || !b) continue;
+      var far = nodes.far[edges[i][0]] !== nodes.far[edges[i][1]];
+      g.push('<path d="M' + a.x + ' ' + a.y + ' Q' + ((a.x + b.x) / 2 + 14) + ' ' + ((a.y + b.y) / 2 - 18) +
+        ' ' + b.x + ' ' + b.y + '" stroke="' + (far ? '#5a4a33' : '#3d342a') + '" stroke-width="' + (far ? 5 : 7) +
+        '" fill="none" stroke-linecap="round"' + (far ? ' stroke-dasharray="12 8"' : '') + '/>');
+    }
+    for (var id in pos) {
+      if (!Object.prototype.hasOwnProperty.call(pos, id)) continue;
+      if (!nodes.visible[id]) continue;
+      var p = pos[id];
+      var here = id === hereId;
+      g.push('<circle cx="' + p.x + '" cy="' + p.y + '" r="' + (here ? 16 : 11) + '" fill="' +
+        (here ? '#d8834b' : (nodes.reach[id] ? '#6b5c40' : '#39322a')) + '" stroke="#120e0a" stroke-width="3"/>');
+      if (here) g.push('<circle class="gw-here" cx="' + p.x + '" cy="' + p.y + '" r="24" fill="none" stroke="#d8834b" stroke-width="2" opacity=".7"/>');
+    }
+    g.push('</svg>');
+    return g.join('');
+  },
+
+  mapPositions: {
+    rows:       { x: 96,  y: 250 },
+    ewe:        { x: 52,  y: 314 },
+    market:     { x: 250, y: 214 },
+    store:      { x: 336, y: 168 },
+    pawn:       { x: 196, y: 136 },
+    chapel:     { x: 306, y: 92  },
+    apothecary: { x: 372, y: 262 },
+    works:      { x: 498, y: 78  },
+    garrison:   { x: 566, y: 152 },
+    railyard:   { x: 500, y: 302 },
+    cut:        { x: 616, y: 248 }
+  },
+
   /* Mount SVG into a host element. Art is authored here, never user text. */
   into: function (node, markup) {
     if (!node) return;

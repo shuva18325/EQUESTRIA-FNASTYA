@@ -6,15 +6,50 @@
 
 var Loop = {
 
+  /* A child who cannot be left alone costs you an hour of every evening. */
+  apMax: function () {
+    var base = 2;
+    var k = State.kin();
+    if (k && k.needsMinding && k.status !== 'DEAD' && k.status !== 'TAKEN') base -= 1;
+    return Math.max(1, base);
+  },
+
+  /* Discharge is processed overnight, because everything there is. */
+  workhouseMorning: function () {
+    if (!S.destitution.workhouse) return;
+    S.destitution.workhouseDays += 1;
+    if (S.destitution.applied) {
+      S.destitution.workhouse = false;
+      S.destitution.applied = false;
+      S.house.node = 'street';
+      S.evening.at = 'rows';
+      UI.log(T('destitution.discharged'), 'good');
+    }
+  },
+
   /* ---- boot ----------------------------------------------------------- */
-  newGame: function (seed) {
+  newGame: function (seed, kinId) {
     S = newState(seed);
+    Loop.chooseKin(kinId || 'sister');
+    Economy.recomputeMarket();
     UI.log(T('log.dayBegins', {
       d: S.time.day,
       season: T('seasons.' + S.time.season),
       weather: T('weather.' + S.time.weather)
     }), 'head');
     Loop.startDay(true);
+  },
+
+  /* Chosen once, at the start, and never chosen again. */
+  chooseKin: function (kinId) {
+    var opt = null;
+    for (var i = 0; i < KIN_OPTIONS.length; i++) if (KIN_OPTIONS[i].id === kinId) opt = KIN_OPTIONS[i];
+    if (!opt) opt = KIN_OPTIONS[0];
+    S.house.kin = [Util.deepClone(opt.kin)];
+    S.flags.kinKind = opt.id;
+    if (opt.apply) opt.apply(S);
+    S.evening.apMax = Loop.apMax();
+    S.evening.ap = S.evening.apMax;
   },
 
   resumeLoaded: function () {
@@ -31,7 +66,10 @@ var Loop = {
 
     S.factory.worked = false;
     S.factory.lastOutcome = null;
-    S.evening.ap = 2;
+    S.evening.apMax = Loop.apMax();
+    S.evening.ap = S.evening.apMax;
+    S.evening.at = S.destitution.workhouse ? 'workhouse' : 'rows';
+    S.evening.travelled = 0;
     S.evening.ended = false;
     S.evening.rested = false;
     S.night.resolved = false;
@@ -40,8 +78,14 @@ var Loop = {
     S.docket = null;
     if (S.time.day % 7 === 1) S.house.coatMended = false;
 
+    /* the week turns: the war moves, and the market with it */
+    if ((S.time.day - 1) % 7 === 0 || !S.market.prices || !S.market.prices.bread) {
+      Empire.week();
+      S.flags.drinksThisWeek = 0;
+    }
     Empire.tick();
     Coom.tick();
+    Loop.workhouseMorning();
     Factory.assignStation();
     S.pending.pieceWage = 0;
 
@@ -127,16 +171,30 @@ var Loop = {
     UI.log(T('log.phaseEvening'));
     UI.render();
     Tutorial.onPhase('EVENING');
-    var evt = Events.roll('EVENING');
+    var evt = Events.roll('EVENING', Town.here());
     if (evt) UI.showEvent(evt, function () { Loop.checkDeath(); UI.render(); });
   },
 
   /* ---- evening -------------------------------------------------------- */
+  travel: function (nodeId) {
+    if (S.time.phase !== 'EVENING') return;
+    if (Town.travelTo(nodeId)) UI.render();
+  },
+
   act: function (actionId) {
     if (S.time.phase !== 'EVENING') return;
-    var key = Town.perform(actionId);
-    if (!key) { UI.render(); return; }
-    UI.showResult(T(key), function () { Loop.checkDeath(); UI.render(); });
+    var res = Town.perform(actionId);
+    if (!res) { UI.render(); return; }
+    if (res.open) {
+      if (res.open === 'board') UI.showBoard();
+      else if (res.open === 'ledger') UI.showLedger();
+      else if (res.open === 'advice') UI.showAdvice();
+      else UI.showPawn(res.open);
+      UI.render();
+      return;
+    }
+    if (!res.text) { UI.render(); return; }
+    UI.showResult(res.text, function () { Loop.checkDeath(); UI.render(); });
   },
 
   endEvening: function () {
@@ -212,18 +270,32 @@ var Loop = {
       UI.log(T('night.secondHelping'));
     }
 
-    /* --- fire --- */
-    if (S.house.coal > 0) {
+    /* --- no room, no fire, no argument --- */
+    if (!S.house.housed && !S.destitution.workhouse) {
+      var rough = Math.round(bite * 1.5) - (S.flags.grateTonight ? 8 : 0) - State.goodsWarmth();
+      State.applyBody({ warmth: -Math.max(4, rough), health: -3, fatigue: 6 });
+      if (S.body.warmth < 30) S.body.lastHarm = 'cold';
+      S.destitution.days += 1;
+      if (State.kinPresent()) State.applyKin({ health: -6, mood: -8 });
+      UI.log(T('destitution.sleptRough'), 'bad');
+      S.flags.grateTonight = false;
+      Loop.poorhouseRisk();
+    } else if (S.destitution.workhouse) {
+      /* the house feeds you, houses you, and takes everything else */
+      State.applyBody({ hunger: -30, warmth: 30, health: 1, fatigue: -20 });
+      State.applyMind({ resolve: -4 });
+      UI.log(T('destitution.workhouseNight'));
+    } else if (S.house.coal > 0) {
       S.house.coal -= 1;
       State.applyBody({ warmth: 24 - Math.floor(bite / 3) });
       UI.log(T('night.burned'));
     } else {
-      State.applyBody({ warmth: -bite, health: bite > 12 ? -3 : -1 });
+      State.applyBody({ warmth: -bite + State.goodsWarmth(), health: bite > 12 ? -3 : -1 });
       if (S.body.warmth < 30) S.body.lastHarm = 'cold';
       if (alive) State.applyKin({ health: bite > 12 ? -5 : -2 });
       UI.log(T('night.noCoal'), 'bad');
     }
-    State.applyBody({ warmth: -Math.floor(bite / 2) });
+    if (S.house.housed) State.applyBody({ warmth: -Math.floor(bite / 2) });
 
     /* --- sleep --- */
     var rest = 34;
@@ -251,7 +323,11 @@ var Loop = {
         inj.daysLeft = Math.max(1, inj.daysLeft - 2);
       } else {
         var care = S.flags.dressedToday || 0;          /* 0 nothing, 1 rag, 2 bottle */
-        var gain = Util.rndInt(12, 22) - care * 8;
+        var gain = Util.rndInt(11, 19) - care * 10;
+        /* a clean dressing on a warm, fed body holds the line. that is the
+           whole of nineteenth-century wound care and it is nearly enough.
+           An undressed wound gets no benefit from any of it. */
+        if (care > 0 && S.body.warmth > 50 && S.body.hunger < 62) gain -= 4;
         if (S.house.physic > 0) gain -= 2;
         if (S.body.warmth < 30) gain += 5;
         if (S.body.hunger > 70) gain += 5;
@@ -301,16 +377,14 @@ var Loop = {
       } else if (k.health < 55) {
         UI.log(T('night.kinWorse'));
       }
-      if (k.health <= 0) {
-        k.status = 'DEAD';
-        State.applyMind({ resolve: -25 });
-        S.flags.kinDied = true;
-        UI.log(T('night.kinDied'), 'bad');
-      }
+      /* a death in the house is announced by State.applyKin, wherever it falls */
     }
 
+    /* --- what the kin did with the day --- */
+    Loop.kinUpkeep();
+
     /* --- rent --- */
-    if (S.time.day === S.house.rentDue) {
+    if (S.house.housed && S.time.day === S.house.rentDue) {
       if (S.house.rentPaidFor === S.house.rentDue) {
         S.flags.rentPaidEarly = false;
         UI.log(T('night.rentPaid'));
@@ -326,6 +400,7 @@ var Loop = {
         S.flags.rentAtSource = true;
         State.applyMind({ resolve: -6 });
         UI.log(T('night.rentMissed'), 'bad');
+        if (S.house.rentMissed >= RENT.missesToEviction) Loop.evict();
       }
       S.house.rentDue += WAGE.rentEvery;
     }
@@ -342,6 +417,82 @@ var Loop = {
     S.night.resolved = true;
     Loop.checkDeath();
     Loop.issueDocket();
+  },
+
+  /* ---- the household -------------------------------------------------- */
+  kinUpkeep: function () {
+    var k = State.kin();
+    if (!k || k.status === 'DEAD' || k.status === 'TAKEN') return;
+
+    /* the sister on the cap bench: six pence, and the shake, which is hers now */
+    if (k.working && S.job.employed) {
+      S.pending.kinWage = (S.pending.kinWage || 0) + 6;
+      k.tremor = Util.clamp((k.tremor || 0) + 2, 0, 100);
+      State.applyKin({ health: -1, mood: -1 });
+      if (k.tremor >= 40 && !S.flags.kinTremorNoted) {
+        S.flags.kinTremorNoted = true;
+        UI.log(T('kin.tremorNoted', { name: k.name }), 'bad');
+      }
+    }
+
+    /* the father's lungs: a week's medicine, or the week takes it out of him */
+    if (k.chronic === 'lungs') {
+      if (S.time.day % 7 === 0) {
+        if (S.house.physic > 0) {
+          S.house.physic -= 1;
+          State.applyKin({ health: 6, mood: 3 });
+          UI.log(T('kin.medicineGiven', { name: k.name }));
+        } else {
+          State.applyKin({ health: -9, mood: -4 });
+          UI.log(T('kin.medicineMissed', { name: k.name }), 'bad');
+        }
+      } else {
+        State.applyKin({ health: -1 });
+      }
+    }
+
+    /* the child, left alone all evening */
+    if (k.needsMinding && S.evening.travelled > 0 && S.flags.mindedDay !== S.time.day) {
+      State.applyKin({ mood: -6, health: -2 });
+      UI.log(T('kin.leftAlone', { name: k.name }), 'bad');
+    }
+
+    if (S.flags.tendedToday) { S.flags.tendedToday = false; }
+  },
+
+  evict: function () {
+    if (!S.house.housed) return;
+    S.house.housed = false;
+    S.house.node = 'street';
+    S.destitution.ever = true;
+    S.house.rentMissed = 0;
+    S.house.coatMended = false;
+    /* what was not under the floorboard is on the street, and then it is gone */
+    var kept = [], lost = 0, i;
+    for (i = 0; i < S.house.goods.length; i++) {
+      if (S.house.goods[i].stashed) kept.push(S.house.goods[i]); else lost++;
+    }
+    S.house.goods = kept;
+    S.house.coal = 0;
+    S.flags.evicted = (S.flags.evicted || 0) + 1;
+    State.applyMind({ resolve: -18 });
+    UI.log(T('destitution.evicted', { n: lost }), 'bad');
+    Loop.poorhouseRisk();
+  },
+
+  /* Children of the destitute are taken. It is lawful and it is routine. */
+  poorhouseRisk: function () {
+    var k = State.kin();
+    if (!k || k.status === 'DEAD' || k.status === 'TAKEN') return;
+    if (S.house.housed) return;
+    var risk = 0.12 + (k.health < 40 ? 0.15 : 0) + (S.destitution.days > 4 ? 0.12 : 0);
+    if (Util.chance(risk)) {
+      k.status = 'TAKEN';
+      S.destitution.kinTaken = true;
+      S.flags.kinTaken = true;
+      State.applyMind({ resolve: -20 });
+      UI.log(T('kin.takenByParish', { name: k.name }), 'bad');
+    }
   },
 
   /* ---- the docket ----------------------------------------------------- */

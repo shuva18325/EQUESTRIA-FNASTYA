@@ -24,6 +24,10 @@ var Narrative = {
   /* STANDING ORDERS — what is wanted of you, right now. Most urgent wins. */
   goal: function () {
     var k = State.kin();
+    var kk = State.kin();
+    if (S.destitution.workhouse) return { key: 'goals.act1_workhouse', params: { name: kk ? kk.name : '' } };
+    if (kk && kk.status === 'TAKEN') return { key: 'goals.act1_kinTaken', params: { name: kk.name } };
+    if (!S.house.housed) return { key: 'goals.act1_evicted' };
     if (!S.job.employed) return { key: 'goals.act1_sacked' };
     if (S.body.injury && S.body.injury.fever) return { key: 'goals.act1_fever' };
     if (S.body.injury) return { key: 'goals.act1_hurt' };

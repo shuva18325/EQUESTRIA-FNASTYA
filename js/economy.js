@@ -21,14 +21,59 @@ var Economy = {
     return (neg ? '−' : '') + parts.join(' ');
   },
 
+  /* ---- the market -----------------------------------------------------
+     Prices move weekly, and they move because of the war. The board by the
+     pump shows the player exactly that, in chalk.
+     -------------------------------------------------------------------- */
   priceOf: function (id) {
-    var item = ITEMS[id];
-    if (!item) return 0;
-    var p = item.price;
-    if (id === 'apothecary') return p;
-    if (id === 'coal' && (S.time.season === 'WINTER' || S.time.season === 'AUTUMN')) p += 2;
-    if (id === 'bread' && S.time.season === 'WINTER') p += 1;
-    return p;
+    if (S.market && S.market.prices && typeof S.market.prices[id] === 'number') return S.market.prices[id];
+    return BASE_PRICES[id] || (ITEMS[id] ? ITEMS[id].price : 0);
+  },
+
+  storePrice: function (id) {
+    return Math.max(1, Math.round(Economy.priceOf(id) * STORE_DISCOUNT));
+  },
+
+  /* Recomputed at the top of every week. Last week is kept for the board. */
+  recomputeMarket: function () {
+    var week = Math.floor((S.time.day - 1) / 7) + 1;
+    S.market.last = Util.deepClone(S.market.prices || {});
+    var prices = {};
+    var seasonMods = SEASON_PRICE[S.time.season] || {};
+    for (var id in BASE_PRICES) {
+      if (!Object.prototype.hasOwnProperty.call(BASE_PRICES, id)) continue;
+      var base = BASE_PRICES[id];
+      var sens = PRICE_SENSITIVITY[id] || 0.5;
+      var warPush = 1 + (S.empire.war / 100) * 0.55 * sens;
+      var season = seasonMods[id] || 1;
+      var noise = 0.95 + Util.rnd() * 0.11;
+      prices[id] = Math.max(1, Math.round(base * warPush * season * noise));
+    }
+    S.market.prices = prices;
+    S.market.week = week;
+    /* a labour glut is the other half of a war: more hands than places */
+    S.market.wageMult = Util.clamp(1 - S.empire.glut / 260, 0.72, 1);
+    if (!S.market.last || !Object.keys(S.market.last).length) S.market.last = Util.deepClone(prices);
+    return prices;
+  },
+
+  /* What the board by the pump actually says. */
+  board: function () {
+    var rows = [], id;
+    var order = ['bread', 'coal', 'cloth', 'physic', 'laudanum', 'surgeon'];
+    for (var i = 0; i < order.length; i++) {
+      id = order[i];
+      var now = Economy.priceOf(id);
+      var was = (S.market.last && S.market.last[id]) || now;
+      rows.push({
+        id: id,
+        now: now,
+        was: was,
+        delta: now - was,
+        store: Economy.storePrice(id)
+      });
+    }
+    return rows;
   },
 
   canAfford: function (pence) { return S.purse.pennies >= pence; },
@@ -58,8 +103,17 @@ var Economy = {
 
     /* Piece work. The count you made is the wage you get, and the day money
        is the floor beneath a ruined shift. */
-    if (worked) gross = Math.max(WAGE.dayFloor, S.pending.pieceWage || 0);
+    if (worked) {
+      /* the glut does not change your count, only what a count is worth */
+      var piece = Math.round((S.pending.pieceWage || 0) * (S.market.wageMult || 1));
+      gross = Math.max(WAGE.dayFloor, piece);
+    } else if (S.pending.pieceWage > 0) {
+      /* a night shift taken while off the roll still pays */
+      gross = Math.round(S.pending.pieceWage * (S.market.wageMult || 1));
+    }
     if (S.pending.bonus > 0) gross += S.pending.bonus;
+    /* a child's wage is paid to the head of the household. that is the law. */
+    if (S.pending.kinWage > 0) gross += S.pending.kinWage;
 
     var lines = [];
     function add(key, amount, params) {
@@ -135,6 +189,8 @@ var Economy = {
       pieces: S.factory.shift ? S.factory.shift.good : 0,
       unitKey: 'shift.stations.' + S.factory.station + '.units',
       bonus: S.pending.bonus,
+      kinWage: S.pending.kinWage,
+      kinName: State.kin() ? State.kin().name : '',
       gross: gross,
       lines: lines,
       deducted: deducted,
@@ -176,6 +232,7 @@ var Economy = {
     S.pending.breakages = 0;
     S.pending.extra = [];
     S.pending.pieceWage = 0;
+    S.pending.kinWage = 0;
     S.pending.bonus = 0;
     S.pending.quotaFine = 0;
     return docket;
