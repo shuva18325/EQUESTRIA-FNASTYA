@@ -6,7 +6,11 @@ You are a floor hand at the Grimwick Small Arms Works in the year 312 of the Iro
 Concord. You fill percussion caps, cast ball, stamp helmet shells and grind
 bayonets. You are a cog. The game's job is to make being a cog feel like something.
 
-**Build 4 of 6 — PRESSURE AND CONSEQUENCE.** The world moves without you and
+**Build 5 of 6 — ART, ATMOSPHERE, AUDIO.** Printed in 1851 and left in a wet
+cellar — and still legible at every point, which was the whole brief. Plus the
+four bench minigames.
+
+**Build 4 —** The world moves without you and
 then arrives at your door. Three acts, five roads out of the second one, nine
 endings, and an Ordnance Division that decides each morning whether you are
 making common ball or a breech block for a pattern that does not have a name. The
@@ -64,6 +68,70 @@ fact.
 The shift resolves as a short column of beat-lines — *"the ladle comes up full
 and the light off it is the best light in Grimwick"* — paced at under four
 seconds, skippable at any point, then the tally.
+
+## The look (Build 5)
+
+**Palette.** Soot `#14161A`, slate `#22272D`, brick `#6B3A2E`, ash `#C9C4B8`,
+and two rationed colours: gaslight `#E0A24A` for the one warm light in the
+game, verdigris `#4E6B5E` for the union thread. Brick, rust and verdigris are
+*structural* — measured as type they run 2–3:1, so each has a text-safe
+sibling derived from it, and the type uses the sibling. Every text/ground pair
+in the game clears 4.5:1 with the soot grain composited in; the tightest is
+4.91:1.
+
+**Type.** Three faces and no more: **Big Shoulders Display** for headings and
+labels (uppercase, wood type), **Bitter** for prose at 16px/1.6, **Courier
+Prime** for every figure in the game. Money is monospace everywhere, including
+inside a button label.
+
+**Six atmospheric layers, each with its own switch**, and one master switch
+that takes all of them off:
+
+| Layer | What it does | Where it sits |
+|---|---|---|
+| Soot grain | 1.5% noise, CSS only, no canvas | over the page (costs <0.1:1 of contrast) |
+| Gaslight | a 4s flicker on lamps, furnace mouths and lit windows | in the art only, never on type |
+| Smoke | one drifting haze across the top | **behind** the app |
+| Rain | outdoors only, and only when it is raining | **behind** the app |
+| Season wash | moves the *ground*, not the ink; winter is a fifth darker | token level |
+| Vignette | edges down | **behind** the app |
+
+The three heavy layers live behind `#app`, so they are structurally incapable
+of dimming a glyph — that is a guarantee, not a tuning. **PLAIN LEDGER MODE**
+strips all of it and leaves type, figures and controls.
+
+**The docket** got the craft: aged stock with fibre texture, a torn head and
+foot cut with an SVG mask, a slight rotation, typewriter columns, a smudged
+company stamp, and the deduction figures bleeding into the paper. It arrives
+from the bottom of the screen and has to be taken out of your hands.
+
+**The map** is an inked survey of the borough: hand-drawn blocks, hatching over
+the works district, the cut running through it as a black scar, chimneys that
+are still going, and eleven nodes stamped as paper seals rather than drawn as
+buttons.
+
+**Audio** is a bed per kind of place (factory clatter, street rain, tavern
+murmur, the cold of the chapel), four stingers (the bell, the press, the
+docket landing on a counter, a knock at the door), and exactly one piece of
+music — a falling D-minor phrase over a drone, used for endings and nowhere
+else. Nothing here is scored except grief.
+
+## The bench (Build 5)
+
+Four short canvas games, one per floor, on top of the existing sim:
+
+- **THE POUR** (casting) — hold to pour, let go on the line. Over the line and
+  it goes across the flags.
+- **THE SCOOP** (cap bench) — keep the scoop in the lane, while the tremor you
+  have already earned physically pushes it about. The stat is the difficulty.
+- **THE EDGE** (grinding) — hold the blade where the wheel wants it. Off the
+  mark and you burn the temper blue.
+- **THE PRESS** (stamping) — feed the blank on the beat. The red window is the
+  ram, and the ram does not know your hand is there.
+
+Each is worth at most ±10% of the day's output, is skippable at any moment,
+and is switchable off in Settings — with it off, the hand multiplier is
+exactly 1.00 and the shift resolves to the same figures it did in Build 4.
 
 ## The world moving (Build 4)
 
@@ -305,3 +373,18 @@ Verified by running the real thing in Chromium off `file://`
 | 8 | Notice thresholds fire with visible consequences | PASS — 30/55/75/90, each with its own screen; arrest costs shifts and a warning |
 | 9 | Literacy gates the broadsheet and pamphlets | PASS — and paying the scribe is the way round it |
 | 10 | Builds 1–3 checks all still pass | PASS — all 31, re-run against this build |
+
+### Build 5
+
+| # | Check | Result |
+|---|-------|--------|
+| 1 | Contrast audit, every pair ≥ 4.5:1 | PASS — 33 pairs with the grain composited in; lowest 4.91:1. Heavy layers sit behind `#app` |
+| 2 | No body text under 15px | PASS — nothing under 15px declared in the CSS or rendered on the page |
+| 3 | Every layer toggles independently; PLAIN LEDGER strips all | PASS |
+| 4 | prefers-reduced-motion disables every animation | PASS — every element resolves to 0.001ms |
+| 5 | No console errors, no layout shift | PASS — CLS 0.0000 |
+| 6 | 390px: no horizontal scroll, no clipped UI | PASS |
+| 7 | Docket renders with texture, rotation and stamp | PASS |
+| 8 | All audio mutable, game playable silent | PASS |
+| 9 | 60fps with all layers on | PASS — 60.0 fps average, 95th-percentile frame 16.8ms |
+| 10 | Builds 1–4 pass, and no game logic changed | PASS — all 41 re-run; every changed line in a logic file audited against a presentation-hook allowlist |

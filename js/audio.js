@@ -230,6 +230,161 @@ var Audio = {
     Audio.ambient.station = null;
   },
 
+
+  /* ---------------------------------------------------------- stingers ---
+     Four sounds the game uses as punctuation, and nothing else. */
+  docketSlap: function () {
+    /* paper on a counter, then the counter */
+    Audio.burst({ filter: 'highpass', cutoff: 1800, gain: 0.14, dur: 0.14, sweepTo: 4200 });
+    Audio.tone({ type: 'sine', freq: 132, slideTo: 64, dur: 0.22, gain: 0.16, filter: 'lowpass', cutoff: 500 });
+  },
+  knock: function () {
+    /* three on a door that does not have to be opened */
+    for (var i = 0; i < 3; i++) {
+      (function (n) {
+        setTimeout(function () {
+          Audio.tone({ type: 'sine', freq: 168 - n * 8, slideTo: 74, dur: 0.16, gain: 0.22, filter: 'lowpass', cutoff: 420 });
+          Audio.burst({ filter: 'lowpass', cutoff: 700, gain: 0.10, dur: 0.09 });
+        }, n * 230);
+      })(i);
+    }
+  },
+
+  /* ------------------------------------------------------ ambient beds ---
+     One per kind of place. Silence is the default state of this game; these
+     are quiet, and they stop the moment you leave. */
+  PLACE_BEDS: {
+    works:     'factory',
+    rows:      'room',
+    market:    'street',
+    store:     'room',
+    pawn:      'room',
+    apothecary:'room',
+    ewe:       'tavern',
+    chapel:    'chapel',
+    railyard:  'street',
+    garrison:  'street',
+    cut:       'alley',
+    street:    'street',
+    workhouse: 'room'
+  },
+
+  place: function (nodeId) {
+    if (!Audio.enabled) { Audio.stopAmbience(); return; }
+    var bed = Audio.PLACE_BEDS[nodeId] || 'room';
+    if (Audio.ambient.station === 'place:' + bed) return;   /* already there */
+    var ctx = Audio.ensure();
+    if (!ctx) return;
+    Audio.stopAmbience();
+    Audio.ambient.station = 'place:' + bed;
+    try {
+      var nodes = [];
+      function noiseLayer(type, freq, q, gain) {
+        var src = ctx.createBufferSource();
+        src.buffer = Audio.noise();
+        src.loop = true;
+        var f = ctx.createBiquadFilter();
+        f.type = type; f.frequency.value = freq; if (q) f.Q.value = q;
+        var g = ctx.createGain(); g.gain.value = gain;
+        src.connect(f); f.connect(g); g.connect(Audio.master);
+        src.start();
+        nodes.push(src, g);
+        return g;
+      }
+      function every(ms, fn, skip) {
+        var id = setInterval(function () {
+          if (!Audio.enabled) return;
+          if (skip && Math.random() < skip) return;
+          fn();
+        }, ms);
+        Audio.ambient.timers.push(id);
+      }
+
+      if (bed === 'factory') {
+        noiseLayer('lowpass', 190, 0, 0.20);
+        every(1600, Audio.press);
+        every(420, Audio.tick, 0.5);
+      } else if (bed === 'street') {
+        noiseLayer('lowpass', 320, 0, 0.10);
+        /* rain, if it is raining */
+        if (S.time.weather === 'rain' || S.time.weather === 'sleet') {
+          noiseLayer('bandpass', 2600, 0.7, 0.10);
+          noiseLayer('highpass', 5200, 0, 0.05);
+        }
+        every(5200, function () {
+          Audio.tone({ type: 'triangle', freq: 300 + Math.random() * 120, dur: 0.09, gain: 0.02 });
+        }, 0.4);
+      } else if (bed === 'tavern') {
+        noiseLayer('bandpass', 420, 0.5, 0.09);
+        every(1700, function () {
+          /* voices, none of them saying anything */
+          Audio.tone({ type: 'sawtooth', freq: 100 + Math.random() * 90, dur: 0.3, gain: 0.022, filter: 'lowpass', cutoff: 620 });
+        }, 0.2);
+        every(6400, function () {
+          Audio.tone({ type: 'triangle', freq: 720, dur: 0.14, gain: 0.03 });
+        }, 0.35);
+      } else if (bed === 'chapel') {
+        noiseLayer('lowpass', 140, 0, 0.06);
+        every(9000, function () {
+          Audio.tone({ type: 'sine', freq: 196, dur: 2.2, gain: 0.035 });
+        }, 0.3);
+      } else if (bed === 'alley') {
+        noiseLayer('lowpass', 240, 0, 0.08);
+        every(4200, function () { Audio.burst({ filter: 'lowpass', cutoff: 500, gain: 0.03, dur: 0.4 }); }, 0.4);
+      } else {
+        /* a room: the fire if there is one, and the wall */
+        noiseLayer('lowpass', 160, 0, 0.07);
+        if (S.house.coal > 0) every(2600, function () {
+          Audio.burst({ filter: 'bandpass', cutoff: 1400, q: 1.2, gain: 0.03, dur: 0.18 });
+        }, 0.3);
+      }
+      Audio.ambient.nodes = nodes;
+    } catch (e) { }
+  },
+
+  /* ----------------------------------------------------------- the cue ---
+     One piece of music in the whole game, and it only plays when it is over.
+     Nothing here is scored except grief. */
+  endingCue: function () {
+    if (!Audio.enabled || !(S.settings && S.settings.music)) return;
+    var ctx = Audio.ensure();
+    if (!ctx) return;
+    Audio.stopAmbience();
+    try {
+      var t0 = ctx.currentTime + 0.15;
+      /* a drone under it */
+      var drone = ctx.createOscillator(), dg = ctx.createGain(), df = ctx.createBiquadFilter();
+      drone.type = 'sine'; drone.frequency.value = 73.42;          /* D2 */
+      df.type = 'lowpass'; df.frequency.value = 320;
+      dg.gain.setValueAtTime(0.0001, t0);
+      dg.gain.exponentialRampToValueAtTime(0.075, t0 + 2.2);
+      dg.gain.exponentialRampToValueAtTime(0.0001, t0 + 15);
+      drone.connect(df); df.connect(dg); dg.connect(Audio.master);
+      drone.start(t0); drone.stop(t0 + 15.4);
+      Audio.ambient.nodes.push(drone, dg);
+
+      /* D minor, falling, unhurried, unresolved */
+      var phrase = [
+        [293.66, 0.0, 1.5], [349.23, 1.4, 1.4], [440.00, 2.7, 2.1],
+        [392.00, 4.6, 1.5], [349.23, 5.9, 2.4], [293.66, 8.1, 2.0],
+        [261.63, 10.0, 2.6], [220.00, 12.2, 3.0]
+      ];
+      for (var i = 0; i < phrase.length; i++) {
+        var f = phrase[i][0], at = t0 + phrase[i][1], dur = phrase[i][2];
+        var o = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter();
+        o.type = 'triangle';
+        o.frequency.value = f;
+        lp.type = 'lowpass'; lp.frequency.value = 1100;
+        g.gain.setValueAtTime(0.0001, at);
+        g.gain.exponentialRampToValueAtTime(0.062, at + 0.28);
+        g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+        o.connect(lp); lp.connect(g); g.connect(Audio.master);
+        o.start(at); o.stop(at + dur + 0.1);
+        Audio.ambient.nodes.push(o, g);
+      }
+    } catch (e) { }
+  },
+
   /* ---------------------------------------------------------- shift hooks */
   shiftStart: function (station) {
     if (!Audio.enabled) return;

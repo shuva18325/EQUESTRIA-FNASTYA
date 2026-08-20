@@ -2,7 +2,7 @@
 <meta name="description" content="A floor hand at the Grimwick Small Arms Works, Year 312 of the Iron Concord.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Inter:wght@400;600;700&family=Courier+Prime:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700;800&family=Bitter:wght@400;500;600&family=Courier+Prime:wght@400;700&display=swap">
 
 <style>
 /* ---- css/reset.css ---- */
@@ -22,60 +22,108 @@ a { color: inherit; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 /* ---- css/tokens.css ---- */
-/* GRIMWICK WORKS — tokens.css
-   Palette is grim. Text is never grim enough to be unreadable:
-   every foreground/background pair used for text is >= 4.5:1.
-   Smallest type in the game is 15px. */
+/* ==========================================================================
+   GRIMWICK WORKS — tokens.css   (Build 5)
+
+   Printed in 1851, left in a wet cellar. Grim is the palette; it is never an
+   excuse for text you cannot read.
+
+   THE FLOOR, held by every value below:
+     body text >= 15px,  every text/ground pair >= 4.5:1.
+
+   The three accent tokens in the brief — brick, rust, verdigris — are
+   STRUCTURAL colours. Measured as text they run 2.0–3.1:1, so each has a
+   text-safe sibling derived from it (…-text). Structure uses the brief's
+   value; type uses the sibling. Contrast for every pair is listed beside it,
+   measured against the four grounds in this file.
+   ========================================================================== */
 :root {
-  /* surfaces */
-  --bg:          #121110;
-  --bg-deep:     #0b0a09;
-  --panel:       #1c1a17;
-  --panel-2:     #262320;
-  --panel-3:     #302c27;
-  --line:        #423c34;
-  --line-soft:   #322e28;
+  /* ---- the brief's palette, used for what the brief uses it for ---- */
+  --soot:       #14161A;   /* background base */
+  --slate:      #22272D;   /* panels */
+  --brick:      #6B3A2E;   /* structure, borders, rules */
+  --gaslight:   #E0A24A;   /* the only warm light. rationed. 8.1:1 on soot */
+  --ash:        #C9C4B8;   /* body text. 10.4:1 on soot */
+  --rust:       #8E3B2F;   /* danger, blood, fines — as fill and border */
+  --verdigris:  #4E6B5E;   /* the union thread — as fill and border */
 
-  /* ink */
-  --text:        #e4ddd0;   /* 14.4:1 on --bg */
-  --text-dim:    #bdb3a1;   /*  7.5:1 on --panel */
-  --focus:       #e9a35f;
+  /* ---- grounds ---- */
+  --soot-deep:  #0E1013;
+  --slate-2:    #2A3037;
+  --slate-3:    #333A42;   /* the lightest ground any text sits on (hover) */
 
-  /* accents */
-  --rust:        #d8834b;
-  --rust-deep:   #8c4a24;
-  --blood:       #e06a5e;
-  --blood-deep:  #7a2c26;
-  --brass:       #d9b76a;
-  --sick:        #a8b06a;
-  --good:        #8fbb85;
+  /* ---- type colours, each cleared on all four grounds ---- */
+  --ash-dim:        #BCB7A9;   /*  8.9 / 7.4 / 6.6 / 5.7 */
+  --ash-faint:      #B0AB9E;   /*  7.9 / 6.6 / 5.8 / 5.0 */
+  --rust-text:      #EA9084;   /*  7.6 / 6.3 / 5.6 / 4.8 */
+  --verdigris-text: #9CC0AB;   /*  9.1 / 7.6 / 6.7 / 5.8 */
+  --gaslight-text:  #E0A24A;   /*  8.1 / 6.8 / 6.0 / 5.2 */
 
-  /* paper (the docket) */
-  --paper:       #dbd4c2;
-  --paper-2:     #cfc7b3;
-  --paper-ink:   #17150f;
-  --paper-dim:   #4c4638;
-  --paper-line:  #a89e86;
-  --paper-stamp: #7d2f28;
+  /* ---- structural lines and dull fills (never carry text) ---- */
+  --line:       #3A424B;
+  --line-soft:  #2C333A;
+  --amber-fill: #A87A32;
+  --bile:       #8C9660;   /* the permanent stats: dust, tremor, lead */
 
-  /* type */
-  --font-body:   'EB Garamond', Georgia, 'Times New Roman', serif;
-  --font-ui:     'Inter', 'Segoe UI', Helvetica, Arial, sans-serif;
-  --font-mono:   'Courier Prime', 'Courier New', ui-monospace, monospace;
+  /* ---- the docket ---- */
+  --paper:       #E4DED0;
+  --paper-2:     #D8D1C0;
+  --paper-ink:   #191712;   /* 13.4:1 on paper */
+  --paper-dim:   #4A4438;   /*  7.2:1 */
+  --paper-rule:  #A79E88;   /* rules only */
+  --paper-stamp: #7A2C24;   /*  7.1:1 */
+  --paper-bleed: #5C1F18;   /*  9.4:1 — where the deductions bleed */
 
-  --fs-base: 17px;
+  /* ---- type ------------------------------------------------------------
+     Three faces and no more. The contrast between condensed wood type and
+     typewriter figures is the identity; nothing else needs to be added. */
+  --font-display: 'Big Shoulders Display', 'Oswald', 'Haettenschweiler', 'Arial Narrow', sans-serif;
+  --font-body:    'Bitter', Georgia, 'Times New Roman', serif;
+  --font-mono:    'Courier Prime', 'Courier New', ui-monospace, monospace;
+
+  --fs-base: 16px;
   --fs-sm:   15px;   /* the floor. nothing smaller ships. */
-  --fs-md:   17px;
-  --fs-lg:   21px;
-  --fs-xl:   27px;
-  --fs-xxl:  38px;
+  --fs-md:   16px;
+  --fs-lg:   20px;
+  --fs-xl:   26px;
+  --fs-xxl:  36px;
+  --lh-body: 1.6;
 
   --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
   --sp-5: 24px; --sp-6: 32px; --sp-7: 48px;
 
-  --shadow: 0 2px 0 rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.45);
+  --shadow: 0 2px 0 rgba(0,0,0,.55), 0 10px 28px rgba(0,0,0,.5);
+
+  /* ---- legacy aliases -------------------------------------------------
+     Build 1–4 rules refer to these names. Each is mapped to whatever keeps
+     that rule correct under the new palette, so the whole game re-skins from
+     this file without a single rule being rewritten by hand. */
+  --bg:          var(--soot);
+  --bg-deep:     var(--soot-deep);
+  --panel:       var(--slate);
+  --panel-2:     var(--slate-2);
+  --panel-3:     var(--slate-3);
+  --text:        var(--ash);
+  --text-dim:    var(--ash-dim);
+  --text-faint:  var(--ash-faint);
+  --rust-deep:   var(--brick);
+  --blood:       var(--rust-text);
+  --blood-deep:  var(--rust);
+  --brass:       var(--gaslight);
+  --good:        var(--verdigris-text);
+  --sick:        var(--bile);
+  --focus:       var(--gaslight);
+  --paper-line:  var(--paper-rule);
+  --font-ui:     var(--font-display);
 }
-:root { --text-faint: #a79d8a; } /* 5.4:1 on --panel — safe for hints */
+
+/* ---- SEASON WASH -------------------------------------------------------
+   The season moves the ground, never the ink: winter darkens the grounds by
+   a fifth, which raises text contrast rather than lowering it. */
+html.atmo-season .season-LATE-SUMMER { --soot: #17181A; --slate: #24272B; --slate-2: #2C3036; }
+html.atmo-season .season-AUTUMN      { --soot: #17150F; --slate: #262218; --slate-2: #2E2A1F; }
+html.atmo-season .season-WINTER      { --soot: #0F1216; --slate: #1C2229; --slate-2: #242B33; }
+html.atmo-season .season-THAW        { --soot: #131714; --slate: #1F2621; --slate-2: #272F29; }
 
 /* ---- css/layout.css ---- */
 /* GRIMWICK WORKS — layout.css : the frame, nothing decorative. */
@@ -85,6 +133,7 @@ body {
   color: var(--text);
   font-family: var(--font-body);
   font-size: var(--fs-base);
+  line-height: var(--lh-body);
   overflow-x: hidden;
 }
 
@@ -107,12 +156,14 @@ body {
   background: var(--bg-deep);
 }
 .topbar__title {
-  font-family: var(--font-ui);
-  font-size: var(--fs-md);
-  font-weight: 700;
-  letter-spacing: .16em;
-  color: var(--rust);
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--gaslight);
   white-space: nowrap;
+  line-height: 1;
 }
 .topbar__meta {
   font-family: var(--font-ui);
@@ -193,11 +244,12 @@ body {
   color: var(--text);
 }
 .eyebrow {
-  font-family: var(--font-ui);
+  font-family: var(--font-display);
   font-size: var(--fs-sm);
   letter-spacing: .18em;
-  color: var(--rust);
+  color: var(--ash);
   font-weight: 700;
+  text-transform: uppercase;
 }
 
 /* ---------- buttons ---------- */
@@ -224,7 +276,7 @@ body {
 }
 .btn--primary {
   background: #7c4020;          /* 7.3:1 against its label */
-  border-color: var(--rust);
+  border-color: var(--gaslight);
   color: #fff2e6;
   font-weight: 700;
 }
@@ -263,9 +315,9 @@ body {
   position: relative;
   overflow: hidden;
 }
-.stat__fill { position: absolute; inset: 0 auto 0 0; background: var(--rust); }
-.stat__fill--good { background: var(--good); }
-.stat__fill--warn { background: var(--brass); }
+.stat__fill { position: absolute; inset: 0 auto 0 0; background: var(--brick); }
+.stat__fill--good { background: #6E7F70; }
+.stat__fill--warn { background: var(--amber-fill); }
 .stat__fill--bad  { background: var(--blood); }
 .stat__fill--perm { background: var(--sick); }
 .stat__val {
@@ -289,6 +341,8 @@ body {
   flex-wrap: wrap;
 }
 .kv__k { color: var(--text-dim); font-family: var(--font-ui); letter-spacing: .04em; min-width: 0; }
+.kv--stack { display: block; }
+.kv--stack .kv__v { display: block; text-align: left; margin-top: 3px; }
 .kv__v {
   font-family: var(--font-mono);
   color: var(--text);
@@ -300,7 +354,7 @@ body {
 .kv__v--good { color: var(--good); }
 
 /* ---------- objectives ---------- */
-.objective { border-left: 3px solid var(--rust); padding-left: var(--sp-3); }
+.objective { border-left: 3px solid var(--brick); padding-left: var(--sp-3); }
 .objective__label {
   font-family: var(--font-ui);
   font-size: var(--fs-sm);
@@ -320,7 +374,7 @@ body {
   padding: 2px 0;
   border-bottom: 1px dotted var(--line-soft);
 }
-.logline--head { color: var(--rust); font-family: var(--font-ui); letter-spacing: .1em; }
+.logline--head { color: var(--ash-dim); font-family: var(--font-display); letter-spacing: .12em; text-transform: uppercase; }
 .logline--bad { color: var(--blood); }
 .logline--good { color: var(--good); }
 
@@ -351,8 +405,9 @@ body {
   font-family: var(--font-ui);
   letter-spacing: .16em;
   font-weight: 700;
-  color: var(--rust);
-  font-size: var(--fs-md);
+  color: var(--ash);
+  font-size: var(--fs-lg);
+  text-transform: uppercase;
 }
 .modal__body { padding: var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-4); }
 
@@ -415,8 +470,7 @@ body {
 .docket__item .lead {
   border-bottom: 1px dotted var(--paper-line);
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 .docket__item .amt { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .docket__net {
@@ -471,7 +525,7 @@ body {
   z-index: 80;
   max-width: 360px;
   background: var(--panel-2);
-  border: 1px solid var(--rust);
+  border: 1px solid var(--gaslight);
   box-shadow: var(--shadow);
   padding: var(--sp-4);
   display: flex;
@@ -482,13 +536,13 @@ body {
   font-family: var(--font-ui);
   letter-spacing: .16em;
   font-weight: 700;
-  color: var(--rust);
+  color: var(--gaslight);
   font-size: var(--fs-sm);
 }
 .tut__text { font-size: var(--fs-md); line-height: 1.5; }
 .tut__foot { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-3); }
 .tut__count { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--text-dim); }
-.tut-target { outline: 2px solid var(--rust); outline-offset: 3px; }
+.tut-target { outline: 2px solid var(--gaslight); outline-offset: 3px; }
 
 /* ---------- debug ---------- */
 .debug {
@@ -506,7 +560,7 @@ body {
 .debug__head {
   padding: var(--sp-3);
   border-bottom: 1px solid var(--line);
-  color: var(--rust);
+  color: var(--ash);
   letter-spacing: .12em;
   font-weight: 700;
   display: flex;
@@ -526,7 +580,7 @@ body {
   font-family: var(--font-mono);
 }
 .debug__group {
-  color: var(--brass);
+  color: var(--ash-dim);
   letter-spacing: .14em;
   font-weight: 700;
   margin-top: var(--sp-3);
@@ -543,7 +597,7 @@ body {
   padding: 2px 7px;
   color: var(--text-dim);
 }
-.tag--phase { color: var(--rust); border-color: var(--rust-deep); }
+.tag--phase { color: var(--ash); border-color: var(--brick); }
 .divider { border-top: 1px solid var(--line-soft); }
 .center { text-align: center; }
 .nowrap { white-space: nowrap; }
@@ -615,9 +669,9 @@ body {
 .dial__seg { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
 .dial__opt { flex: 1 1 150px; }
 .dial__opt--on {
-  border-color: var(--rust);
+  border-color: var(--gaslight);
   background: var(--panel-3);
-  box-shadow: inset 3px 0 0 var(--rust);
+  box-shadow: inset 3px 0 0 var(--gaslight);
 }
 .dial__opt--on .btn__label { color: var(--focus); font-weight: 700; }
 .dial__opt--off.dial__opt--on { box-shadow: inset 3px 0 0 var(--blood); border-color: var(--blood-deep); }
@@ -666,7 +720,7 @@ body {
   text-align: center;
   min-width: 120px;
 }
-.ratchet-big__box--new { border-color: var(--rust); background: #241a13; }
+.ratchet-big__box--new { border-color: var(--gaslight); background: #2A1F1B; }
 .ratchet-big__label {
   font-family: var(--font-ui);
   font-size: var(--fs-sm);
@@ -675,7 +729,7 @@ body {
 }
 .ratchet-big__num { font-family: var(--font-mono); font-size: var(--fs-xl); color: var(--text); }
 .ratchet-big__box--new .ratchet-big__num { color: var(--focus); }
-.ratchet-big__arrow { font-size: var(--fs-xl); color: var(--rust); }
+.ratchet-big__arrow { font-size: var(--fs-xl); color: var(--rust-text); }
 
 /* ---- the resolution column ---- */
 .modal--shift { max-width: 660px; }
@@ -695,7 +749,7 @@ body {
   padding: 2px 0 2px var(--sp-3);
   animation: beatIn .22s ease-out;
 }
-.beat--bad { color: var(--text); border-left-color: var(--brass); }
+.beat--bad { color: var(--text); border-left-color: var(--brick); }
 .beat--good { color: var(--good); border-left-color: var(--good); }
 .beat--hurt, .beat--cat {
   color: var(--blood);
@@ -755,7 +809,7 @@ body {
 }
 .tally-mini__rows { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 
-.transfer-cost { border-left: 3px solid var(--brass); padding-left: var(--sp-3); }
+.transfer-cost { border-left: 3px solid var(--brick); padding-left: var(--sp-3); }
 
 /* ---- icons ---- */
 .gw-icon { height: 34px; width: auto; display: block; }
@@ -773,14 +827,15 @@ body {
    ========================================================================== */
 .map {
   position: relative;
-  border: 1px solid var(--line);
-  background: #181410;
+  border: 1px solid var(--brick);
+  background: #E8E2D2;
   overflow: hidden;
 }
-.map .gw-map { width: 100%; height: 300px; display: block; }
+.map .gw-map { width: 100%; height: 360px; display: block; }
 .map__node {
   position: absolute;
-  max-width: 34%;
+  max-width: 21%;
+  white-space: normal;
   transform: translate(-50%, -50%);
   font-family: var(--font-ui);
   font-size: var(--fs-sm);
@@ -791,20 +846,19 @@ body {
   border-radius: 2px;
   padding: 5px 9px;
   min-height: 0;
-  white-space: nowrap;
   text-align: center;
   line-height: 1.25;
 }
-.map__node:hover:not([disabled]) { border-color: var(--rust); background: var(--panel-3); }
+.map__node:hover:not([disabled]) { border-color: var(--brick); background: var(--panel-3); }
 .map__node[disabled] { color: var(--text-faint); border-style: dashed; background: rgba(18,15,12,.8); }
-.map__node--here { border-color: var(--rust); color: var(--focus); box-shadow: 0 0 0 2px rgba(216,131,75,.25); }
+.map__node--here { border-color: var(--gaslight); color: var(--focus); box-shadow: 0 0 0 2px rgba(216,131,75,.25); }
 .map__cost {
   display: block;
   font-family: var(--font-mono);
   color: var(--text-faint);
   font-size: var(--fs-sm);
 }
-.map__node--here .map__cost { color: var(--rust); }
+.map__node--here .map__cost { color: var(--gaslight); }
 
 .node-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: var(--sp-2); }
 @media (max-width: 760px) {
@@ -824,7 +878,7 @@ body {
   letter-spacing: .1em;
   color: var(--text-dim);
 }
-.where__name { color: var(--rust); font-weight: 700; }
+.where__name { color: var(--gaslight); font-weight: 700; }
 
 .board { width: 100%; font-family: var(--font-mono); font-size: var(--fs-sm); }
 .board th {
@@ -852,10 +906,10 @@ body {
   display: block;
   width: 100%;
 }
-.creation__opt:hover { border-color: var(--rust); background: var(--panel-3); }
+.creation__opt:hover { border-color: var(--brick); background: var(--panel-3); }
 .creation__who { font-family: var(--font-ui); font-size: var(--fs-md); font-weight: 700; color: var(--focus); letter-spacing: .06em; }
 .creation__blurb { font-size: var(--fs-md); color: var(--text); margin-top: var(--sp-2); line-height: 1.5; }
-.creation__cost { font-size: var(--fs-sm); color: var(--brass); margin-top: var(--sp-2); font-family: var(--font-ui); }
+.creation__cost { font-size: var(--fs-sm); color: var(--ash-dim); margin-top: var(--sp-2); font-family: var(--font-mono); }
 
 .destitute-note {
   border-left: 3px solid var(--blood);
@@ -922,98 +976,385 @@ body {
   color: var(--text);
 }
 
-/* ---- css/atmosphere.css ---- */
-/* GRIMWICK WORKS — atmosphere.css
-   Restraint on purpose: the art pass is Prompt 5. This file only does what
-   costs nothing and never touches text contrast. */
+/* ==========================================================================
+   BUILD 5 — ART, ATMOSPHERE, AUDIO
+   Later rules, deliberately overriding the Build 1–4 shapes.
+   ========================================================================== */
 
-body::before {
-  /* soot in the air, fixed behind everything */
+/* ---------------------------------------------------------------- type ---
+   Wood type for headings, a workmanlike serif for prose, typewriter for
+   every figure in the game. Money is monospace. Always. */
+.prose, .btn__hint, .beat, .objective__text, .account-block__line {
+  font-family: var(--font-body);
+  line-height: var(--lh-body);
+}
+.panel__head, .eyebrow, .heading, .modal__head, .dial__name, .stat__name,
+.objective__label, .tag, .btn__label, .topbar__meta, .logline--head,
+.order-head__name, .tut__title, .account-block__label {
+  font-family: var(--font-display);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.btn__label { letter-spacing: .06em; font-weight: 600; font-size: var(--fs-md); }
+.panel__head { font-size: var(--fs-md); font-weight: 700; }
+.kv__v, .stat__val, .docket, .forecast__text, .ratchet, .ratchet-big__num,
+.money, .btn__price, .creation__cost, .tally-head__big { font-family: var(--font-mono); }
+.money, .kv__v, .stat__val, .btn__price { font-variant-numeric: tabular-nums; }
+
+/* money inside a control keeps the typewriter, whatever the label does */
+.btn__price {
+  color: var(--gaslight);
+  font-size: var(--fs-sm);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.btn[disabled] .btn__price { color: var(--ash-faint); }
+
+/* ------------------------------------------------------------- the docket
+   The signature. Off-white stock, a torn head, a smudged stamp, ink that
+   bleeds where the charges are, and it arrives from the bottom of the screen
+   and has to be taken out of your hands. */
+.docket {
+  background:
+    repeating-linear-gradient(0deg, rgba(25,23,18,.022) 0 1px, transparent 1px 4px),
+    url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'>\
+<filter id='p'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/>\
+<feColorMatrix type='saturate' values='0'/></filter>\
+<rect width='180' height='180' filter='url(%23p)' opacity='.28'/></svg>"),
+    linear-gradient(158deg, var(--paper) 0%, var(--paper-2) 62%, #CEC6B2 100%);
+  background-size: auto, 180px 180px, auto;
+  color: var(--paper-ink);
+  transform: rotate(-1.1deg);
+  box-shadow: 0 22px 46px rgba(0,0,0,.66), 0 2px 0 rgba(0,0,0,.3);
+  padding: 30px 24px 22px;
+  position: relative;
+}
+/* the torn head, cut with a mask so the paper itself ends raggedly */
+.docket::before, .docket::after {
   content: '';
+  position: absolute;
+  left: -1px; right: -1px;
+  height: 12px;
+  background: inherit;
+  background-attachment: local;
+}
+.docket::before {
+  top: -10px;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='120' height='12' preserveAspectRatio='none'>\
+<path d='M0 12 L4 5 L9 11 L15 3 L22 10 L28 4 L34 11 L41 6 L47 12 L54 4 L60 10 L67 5 L73 11 L80 3 L86 10 L93 6 L99 12 L106 5 L112 11 L120 7 L120 12 Z' fill='black'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='120' height='12' preserveAspectRatio='none'>\
+<path d='M0 12 L4 5 L9 11 L15 3 L22 10 L28 4 L34 11 L41 6 L47 12 L54 4 L60 10 L67 5 L73 11 L80 3 L86 10 L93 6 L99 12 L106 5 L112 11 L120 7 L120 12 Z' fill='black'/></svg>");
+  -webkit-mask-size: 120px 12px;
+  mask-size: 120px 12px;
+}
+.docket::after {
+  bottom: -10px;
+  transform: scaleY(-1);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='120' height='12' preserveAspectRatio='none'>\
+<path d='M0 12 L6 6 L13 11 L19 4 L26 10 L33 5 L39 12 L46 6 L52 11 L59 3 L65 10 L72 5 L78 12 L85 6 L91 11 L98 4 L104 10 L111 6 L120 11 L120 12 Z' fill='black'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='120' height='12' preserveAspectRatio='none'>\
+<path d='M0 12 L6 6 L13 11 L19 4 L26 10 L33 5 L39 12 L46 6 L52 11 L59 3 L65 10 L72 5 L78 12 L85 6 L91 11 L98 4 L104 10 L111 6 L120 11 L120 12 Z' fill='black'/></svg>");
+  -webkit-mask-size: 120px 12px;
+  mask-size: 120px 12px;
+}
+.docket-enter { animation: docketIn .62s cubic-bezier(.16,.9,.3,1); }
+@keyframes docketIn {
+  from { transform: translateY(105vh) rotate(-5deg); }
+  60%  { transform: translateY(-10px) rotate(-.4deg); }
+  to   { transform: translateY(0) rotate(-1.1deg); }
+}
+/* the charges bleed into the stock; the wage does not */
+.docket__section ~ .docket__item .amt {
+  color: var(--paper-bleed);
+  text-shadow: 0 0 1.1px rgba(92,31,24,.55), .4px .3px .6px rgba(92,31,24,.30);
+}
+.docket__item .lead { border-bottom-color: var(--paper-rule); }
+.docket__works, .docket__title { font-family: var(--font-mono); }
+.docket__stamp {
+  border: 3px double var(--paper-stamp);
+  color: var(--paper-stamp);
+  transform: rotate(-6deg);
+  opacity: .82;
+  filter: blur(.24px);
+  text-shadow: .4px .4px .8px rgba(122,44,36,.5);
+  box-shadow: inset 0 0 6px rgba(122,44,36,.18);
+}
+.docket-wrap { perspective: 900px; }
+
+/* ------------------------------------------------------------- the map ---
+   An inked survey: hatching for the works district, the cut as a black scar,
+   chimneys that smoke, and nodes stamped rather than clicked. */
+.survey {
+  position: relative;
+  border: 1px solid var(--brick);
+  background: #E8E2D2;
+  line-height: 0;
+  overflow: hidden;
+}
+.survey svg { width: 100%; height: auto; display: block; }
+.map__node {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  background: #DED7C4;
+  color: #1C1A14;
+  border: 2px solid #2A251C;
+  border-radius: 2px;
+  box-shadow: 1px 1px 0 rgba(0,0,0,.35);
+  transform: rotate(-.6deg);
+}
+.map__node:nth-child(even) { transform: rotate(.7deg); }
+.map__node:hover:not([disabled]) { background: #EFE9D8; border-color: var(--brick); }
+.map__node--here {
+  background: var(--gaslight);
+  color: #1A1509;
+  border-color: #2A251C;
+  box-shadow: 0 0 0 3px rgba(224,162,74,.28), 1px 1px 0 rgba(0,0,0,.4);
+}
+.map__node--here .map__cost { color: #3A2E12; }
+.map__node[disabled] {
+  background: #C9C2B0;
+  color: #4A4438;
+  border-style: solid;
+  border-color: #6B655A;
+  background-image: repeating-linear-gradient(46deg, rgba(26,24,18,.5) 0 2px, transparent 2px 7px);
+}
+.map__cost { font-family: var(--font-mono); color: #3E382C; }
+
+/* ----------------------------------------------------------- minigames ---
+   Short, physical, and skippable. The canvas is only alive while it is open. */
+.mini {
+  position: relative;
+  background: #0D0F12;
+  border: 1px solid var(--brick);
+  overflow: hidden;
+}
+.mini canvas { display: block; width: 100%; height: auto; }
+.mini__hud {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  padding: var(--sp-2) var(--sp-3);
+  border-top: 1px solid var(--line);
+  background: var(--slate);
+}
+.mini__label {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  font-size: var(--fs-sm);
+  color: var(--ash-dim);
+}
+.mini__score { font-family: var(--font-mono); font-size: var(--fs-md); color: var(--gaslight); }
+.mini__instruction {
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  color: var(--ash);
+  padding: var(--sp-3);
+  border-left: 3px solid var(--brick);
+}
+.mini__verdict {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  font-size: var(--fs-lg);
+}
+.mini__verdict--good { color: var(--verdigris-text); }
+.mini__verdict--ok   { color: var(--ash); }
+.mini__verdict--bad  { color: var(--rust-text); }
+.shake { animation: shakeIt .28s linear; }
+@keyframes shakeIt {
+  0%,100% { transform: translate(0,0); }
+  25% { transform: translate(-3px,1px); }
+  50% { transform: translate(2px,-2px); }
+  75% { transform: translate(-2px,2px); }
+}
+
+/* ------------------------------------------------------------- settings ---*/
+.settings__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) 0;
+  border-bottom: 1px dotted var(--line-soft);
+}
+.settings__name { font-family: var(--font-body); font-size: var(--fs-md); color: var(--ash); }
+.settings__note { font-family: var(--font-body); font-size: var(--fs-sm); color: var(--ash-faint); }
+.toggle {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  min-width: 78px;
+  text-align: center;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  background: var(--slate-2);
+  color: var(--ash-dim);
+}
+.toggle[aria-pressed="true"] { border-color: var(--gaslight); color: var(--gaslight); background: #2A2419; }
+.settings__master { border: 1px solid var(--brick); padding: var(--sp-3); margin-bottom: var(--sp-3); }
+
+/* numbers tick, they never spin */
+.tick { display: inline-block; font-variant-numeric: tabular-nums; }
+
+/* ---- css/atmosphere.css ---- */
+/* ==========================================================================
+   GRIMWICK WORKS — atmosphere.css   (Build 5)
+
+   Six layers, each switched by a class on <html>, each one independent, and
+   all of them off under .plain-ledger.
+
+     .atmo-grain     1.5% soot, CSS only, no canvas, no loop
+     .atmo-gaslight  a 4s flicker on LIGHT SOURCES IN THE ART. never on text.
+     .atmo-smoke     one drifting haze at the top of the viewport
+     .atmo-rain      outdoor nodes only, and only when it is actually raining
+     .atmo-season    handled in tokens.css: the season moves the GROUND
+     .atmo-vignette  edges only, and it never reaches the text column
+
+   Nothing in this file may reduce the contrast of a glyph. Layers that sit
+   over content are capped at 1.5%; everything heavier sits behind it.
+   ========================================================================== */
+
+/* the atmosphere host: behind the app, above the page ground */
+#atmo {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  background:
-    radial-gradient(90% 55% at 50% 0%, rgba(216,131,75,.05), transparent 60%),
-    radial-gradient(120% 80% at 50% 110%, rgba(0,0,0,.55), transparent 70%);
+  overflow: hidden;
 }
 #app { position: relative; z-index: 1; }
 
-.season-WINTER { --rust: #c0a27a; --rust-deep: #5f5747; }
-.season-THAW   { --rust: #b39a6d; --rust-deep: #59503c; }
+/* ---------------------------------------------------------------- 1. SOOT */
+html.atmo-grain body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: .015;                     /* measured: no pair loses more than .1:1 */
+  background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'>\
+<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter>\
+<rect width='160' height='160' filter='url(%23n)'/></svg>");
+  background-size: 160px 160px;
+}
 
-.phase-NIGHT .stage { background: linear-gradient(180deg, rgba(0,0,0,.28), transparent 220px); }
+/* ------------------------------------------------------------ 2. GASLIGHT
+   Only ever applied to art: lamps, furnace mouths, lit windows. Never type. */
+html.atmo-gaslight .gw-win,
+html.atmo-gaslight .gw-lamp { animation: gwFlicker 4s ease-in-out infinite; }
+html.atmo-gaslight .gw-fire { animation: gwFire .5s steps(2, end) infinite; }
+html.atmo-gaslight .gw-glow { animation: gwGlow 2.6s ease-in-out infinite; }
+html.atmo-gaslight .lamp-glow { animation: gwFlicker 4s ease-in-out infinite; }
+@keyframes gwFlicker {
+  0%, 100% { opacity: .74; }
+  42%      { opacity: .52; }
+  47%      { opacity: .88; }
+  63%      { opacity: .60; }
+}
+@keyframes gwFire { 0%,100% { transform: scaleY(1); opacity: .95; } 50% { transform: scaleY(1.22); opacity: .8; } }
+@keyframes gwGlow { 0%,100% { opacity: .34; } 50% { opacity: .62; } }
 
-.fade-in { animation: fade .18s linear; }
+/* --------------------------------------------------------------- 3. SMOKE */
+#atmo-smoke {
+  position: absolute;
+  top: -6%; left: -20%;
+  width: 140%;
+  height: 52%;
+  opacity: 0;
+  transition: opacity .4s linear;
+  will-change: transform;
+}
+html.atmo-smoke #atmo-smoke { opacity: 1; }
+/* two soft bands, drifting against each other. no filters: a full-viewport
+   gaussian blur costs half the frame budget and buys nothing a gradient
+   cannot do. */
+#atmo-smoke .haze {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 40% 58% at 26% 34%, rgba(110,116,124,.30), transparent 70%),
+    radial-gradient(ellipse 46% 50% at 68% 20%, rgba(110,116,124,.24), transparent 72%),
+    radial-gradient(ellipse 60% 40% at 48% 62%, rgba(110,116,124,.16), transparent 76%);
+  animation: hazeDrift 72s ease-in-out infinite alternate;
+  will-change: transform;
+}
+#atmo-smoke .haze--b {
+  background:
+    radial-gradient(ellipse 52% 44% at 74% 40%, rgba(126,132,140,.20), transparent 74%),
+    radial-gradient(ellipse 38% 52% at 18% 22%, rgba(126,132,140,.16), transparent 70%);
+  animation-duration: 104s;
+  animation-direction: alternate-reverse;
+}
+@keyframes hazeDrift {
+  from { transform: translate3d(-4%, 0, 0) scale(1.02); }
+  to   { transform: translate3d(4%, 1%, 0) scale(1.08); }
+}
+
+/* ---------------------------------------------------------------- 4. RAIN */
+#atmo-rain {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .5s linear;
+  background-image:
+    repeating-linear-gradient(102deg, rgba(201,196,184,.16) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(98deg,  rgba(201,196,184,.10) 0 1px, transparent 1px 9px);
+  background-size: 100% 140px, 100% 220px;
+}
+html.atmo-rain body.outdoors.wet #atmo-rain { opacity: 1; animation: rainFall 1.1s linear infinite; }
+@keyframes rainFall {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 0 140px, 0 220px; }
+}
+
+/* ------------------------------------------------------------ 6. VIGNETTE
+   It lives inside #atmo, which sits BEHIND the app. It darkens the page
+   ground and the gutters and it is structurally incapable of touching a
+   glyph, because every panel that carries text paints its own opaque
+   background over it. That is the guarantee, not a tuning. */
+#atmo-vignette {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .4s linear;
+  background: radial-gradient(ellipse 82% 74% at 50% 44%,
+    transparent 0 58%, rgba(4,5,7,.42) 86%, rgba(4,5,7,.62) 100%);
+}
+html.atmo-vignette #atmo-vignette { opacity: 1; }
+
+/* --------------------------------------------------- PLAIN LEDGER MODE
+   One switch. Everything decorative goes; the game is unchanged underneath. */
+html.plain-ledger body::after,
+html.plain-ledger #atmo { display: none !important; }
+html.plain-ledger .gw-svg,
+html.plain-ledger .station-art,
+html.plain-ledger .works-banner { display: none !important; }
+html.plain-ledger * { animation: none !important; transition: none !important; }
+html.plain-ledger .docket { transform: none !important; box-shadow: none !important; }
+html.plain-ledger .docket::before,
+html.plain-ledger .docket::after { display: none !important; }
+
+/* ----------------------------------------------------------------- MOTION
+   Restrained by default; gone entirely when the reader asks for it. */
+.fade-in { animation: fade .2s linear; }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
-.docket-enter { animation: slip .38s cubic-bezier(.2,.7,.3,1); }
-@keyframes slip {
-  from { transform: translateY(-22px) rotate(-.6deg); opacity: 0; }
-  to   { transform: none; opacity: 1; }
-}
+.crossfade { animation: crossfade .2s ease-out; }
+@keyframes crossfade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
 
-@media (prefers-reduced-motion: reduce) {
-  .fade-in, .docket-enter { animation: none; }
-}
-
-/* ==========================================================================
-   THE WORKS, IN MOTION — every animation here is decorative and every one of
-   them is switched off by prefers-reduced-motion at the foot of this file.
-   ========================================================================== */
-
-.gw-svg { display: block; }
+/* the wheel, the ram, the pour, the sparks — the machinery of the art */
 .gw-wheel, .gw-ram, .gw-ladle, .gw-flag { transform-box: fill-box; transform-origin: center; }
-
-/* chimneys */
-.gw-smoke { animation: gwSmoke 9s linear infinite; }
-@keyframes gwSmoke {
-  0%   { opacity: 0;   transform: translate(0, 0) scale(.4); }
-  12%  { opacity: .55; }
-  100% { opacity: 0;   transform: translate(-70px, -120px) scale(2.6); }
-}
-.gw-smoke2 { animation-duration: 11s; }
-.gw-smoke3 { animation-duration: 8s; }
-
-/* gas and window light */
-.gw-win  { animation: gwFlicker 5s ease-in-out infinite; }
-.gw-lamp { animation: gwFlicker 3.2s ease-in-out infinite; }
-@keyframes gwFlicker {
-  0%, 100% { opacity: .72; }
-  42%      { opacity: .48; }
-  47%      { opacity: .86; }
-  63%      { opacity: .58; }
-}
-
-.gw-flag { animation: gwFlag 2.8s ease-in-out infinite; }
-@keyframes gwFlag {
-  0%, 100% { transform: skewY(0deg) scaleX(1); }
-  50%      { transform: skewY(-3deg) scaleX(.94); }
-}
-
-/* casting */
-.gw-fire  { animation: gwFire .5s steps(2, end) infinite; transform-box: fill-box; transform-origin: bottom; }
-@keyframes gwFire { 0%,100% { transform: scaleY(1) scaleX(1); opacity: .95; } 50% { transform: scaleY(1.22) scaleX(.92); opacity: .8; } }
-.gw-glow  { animation: gwGlow 2.6s ease-in-out infinite; }
-@keyframes gwGlow { 0%,100% { opacity: .34; } 50% { opacity: .62; } }
-.gw-ladle { animation: gwLadle 6s ease-in-out infinite; }
-@keyframes gwLadle { 0%,55%,100% { transform: rotate(0deg); } 70%,85% { transform: rotate(11deg); } }
-.gw-pour  { animation: gwPour 6s ease-in-out infinite; opacity: 0; }
-@keyframes gwPour { 0%,60%,100% { opacity: 0; } 70%,84% { opacity: 1; } }
-
-/* the grinding shed */
 .gw-wheel { animation: gwSpin 1.1s linear infinite; }
 @keyframes gwSpin { to { transform: rotate(360deg); } }
-.gw-spark { animation: gwSpark .9s ease-out infinite; }
-@keyframes gwSpark { 0% { opacity: 0; } 6% { opacity: .95; } 40% { opacity: 0; } 100% { opacity: 0; } }
-.gw-dust circle { animation: gwDust 7s linear infinite; }
-@keyframes gwDust { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .5; } 100% { transform: translateY(-90px); opacity: 0; } }
-.gw-belt { stroke-dasharray: 10 8; animation: gwBelt .6s linear infinite; }
-@keyframes gwBelt { to { stroke-dashoffset: -18; } }
-
-/* the drop press — 1.55s to match the sound of it */
-.gw-ram   { animation: gwRam 1.55s cubic-bezier(.6,0,.9,.4) infinite; }
+.gw-ram { animation: gwRam 1.55s cubic-bezier(.6,0,.9,.4) infinite; }
 @keyframes gwRam {
   0%, 40%  { transform: translateY(0); }
   52%      { transform: translateY(46px); }
@@ -1022,13 +1363,47 @@ body::before {
 }
 .gw-shock { animation: gwShock 1.55s linear infinite; }
 @keyframes gwShock { 0%,50% { opacity: 0; } 53% { opacity: .9; } 62%,100% { opacity: 0; } }
+.gw-spark { animation: gwSpark .9s ease-out infinite; }
+@keyframes gwSpark { 0% { opacity: 0; } 6% { opacity: .95; } 40% { opacity: 0; } 100% { opacity: 0; } }
+.gw-dust circle { animation: gwDust 7s linear infinite; }
+@keyframes gwDust { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .5; } 100% { transform: translateY(-90px); opacity: 0; } }
+.gw-belt { stroke-dasharray: 10 8; animation: gwBelt .6s linear infinite; }
+@keyframes gwBelt { to { stroke-dashoffset: -18; } }
+.gw-smoke { animation: gwSmoke 9s linear infinite; }
+@keyframes gwSmoke {
+  0%   { opacity: 0;   transform: translate(0, 0) scale(.4); }
+  12%  { opacity: .55; }
+  100% { opacity: 0;   transform: translate(-70px, -120px) scale(2.6); }
+}
+.gw-smoke2 { animation-duration: 11s; }
+.gw-smoke3 { animation-duration: 8s; }
+.gw-flag { animation: gwFlag 2.8s ease-in-out infinite; }
+@keyframes gwFlag { 0%,100% { transform: skewY(0deg) scaleX(1); } 50% { transform: skewY(-3deg) scaleX(.94); } }
+.gw-ladle { animation: gwLadle 6s ease-in-out infinite; }
+@keyframes gwLadle { 0%,55%,100% { transform: rotate(0deg); } 70%,85% { transform: rotate(11deg); } }
+.gw-pour { animation: gwPour 6s ease-in-out infinite; opacity: 0; }
+@keyframes gwPour { 0%,60%,100% { opacity: 0; } 70%,84% { opacity: 1; } }
 
+/* the chimney icons on the map actually smoke */
+.map-chimney { animation: mapSmoke 7s ease-in-out infinite; }
+@keyframes mapSmoke {
+  0%   { opacity: 0; transform: translateY(0) scale(.6); }
+  25%  { opacity: .5; }
+  100% { opacity: 0; transform: translateY(-14px) scale(1.5); }
+}
+
+/* --------------------------------------------------- REDUCED MOTION
+   Complete. No exceptions, no partial credit. */
 @media (prefers-reduced-motion: reduce) {
-  .gw-smoke, .gw-win, .gw-lamp, .gw-flag, .gw-fire, .gw-glow, .gw-ladle,
-  .gw-pour, .gw-wheel, .gw-spark, .gw-dust circle, .gw-belt, .gw-ram, .gw-shock,
-  .beat { animation: none !important; }
-  .gw-smoke { opacity: .3; }
-  .gw-pour, .gw-spark { opacity: .8; }
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  #atmo-smoke .haze, #atmo-rain, .gw-smoke, .gw-spark, .gw-pour, .map-chimney { opacity: .35; }
+  .docket { transform: rotate(-.6deg) !important; }
 }
 
 </style>
@@ -1589,7 +1964,7 @@ var STR = {
     kinWage: '{name}, cap bench',
       kinWageLine: 'Second hand, same household',
       quotaFine: 'Fine \u2014 count short of the week',
-      spoilage: 'Condemned pieces, at the value of the article',
+      spoilage: 'Condemned, at value',
       coomCharge: 'Overlooker\u2019s charge',
       skimBench: 'Bench hire',
       skimApron: 'Apron and gloves',
@@ -1691,6 +2066,81 @@ var STR = {
   creation: {
     heading: 'WHO IS IN THE ROOM WITH YOU',
     blurb: 'You are twenty-six, a floor hand at the Grimwick Small Arms Works, and you are not the only one eating out of the wage. Somebody is upstairs. Which of them it is decides what the next sixty days cost you.'
+  },
+
+  mini: {
+    skip: 'Let your hands do it',
+    skipHint: 'Resolve the shift without playing it out. Costs nothing either way.',
+    skipped: 'You do it the way you have done it four thousand times, without looking at it, and it comes out the way it always comes out.',
+    toTheBench: 'To the bench',
+    effect: 'Against an ordinary day',
+    effectOf: 'of the count',
+    verdict: { good: 'WELL HANDLED', ok: 'ORDINARY', bad: 'BADLY DONE' },
+
+    pour: {
+      title: 'THE POUR',
+      label: 'Moulds filled',
+      how: 'Hold to pour. Let go on the line. Over the line and it goes across the flags, and what is under the flags is your boot.',
+      good: 'Four moulds, four clean sprues, and not a splash on the floor. Teague looks over and says nothing, which from Teague is a testimonial.',
+      ok: 'They will pass. Two of them are heavy and will be a shade out at the muzzle, and no one at this end of the trade will ever know.',
+      bad: 'Lead across the flags and a smell of scorched leather. You will be picking that out of the boot for a week.'
+    },
+    scoop: {
+      title: 'THE SCOOP',
+      label: 'Cups filled',
+      how: 'Keep the scoop in the lane. Move it with the mouse or the arrow keys. Your own hands are the difficulty — the shake you have earned pushes it about.',
+      good: 'Four hundred cups and not a grain on the bench. The girls either side of you notice, because they are counting too.',
+      ok: 'It goes. There is grey dust on the bench by the afternoon and everyone within four feet has stopped mentioning it.',
+      bad: 'You are spilling and you know you are spilling. Every grain on that bench is somebody standing near it later.'
+    },
+    edge: {
+      title: 'THE EDGE',
+      label: 'Blades ground',
+      how: 'Hold to grind. Steer the angle with the mouse or the arrow keys, and keep it where the wheel wants it — off the mark and you burn the temper blue.',
+      good: 'A fan of sparks the length of the shed and an edge you could shave with, on every one of them.',
+      ok: 'Adequate. Which is the word the inspection uses, and it is the word they were paying for.',
+      bad: 'Blue at the edge on half of them. Burnt temper does not come back, and the man who finds out is a long way from here.'
+    },
+    press: {
+      title: 'THE PRESS',
+      label: 'Blanks fed',
+      how: 'Feed the blank on the beat — space, or click. The green window is the moment. The red one is when the ram is down, and the ram does not know your hand is there.',
+      good: 'Two hundred and eleven strokes and your hand out of it on every single one. That is the whole skill and there is no other part of it.',
+      ok: 'You keep up. You are half a beat behind for the last hour and you stop trusting yourself, which is when men get hurt.',
+      bad: 'You were under it twice. Twice, in one shift, on a machine that weighs a ton and a quarter and has no opinion about you.'
+    }
+  },
+
+  settings: {
+    heading: 'SETTINGS',
+    blurb: 'Every layer here is decoration. None of it touches the game underneath, and all of it can go.',
+    plainLedger: 'PLAIN LEDGER MODE',
+    plainLedgerNote: 'Strips every atmospheric layer at once. Type, figures and controls only.',
+    atmoHeading: 'ATMOSPHERE',
+    grain: 'Soot grain',
+    grainNote: 'A dusting of soot over the whole page.',
+    gaslightL: 'Gaslight flicker',
+    gaslightNote: 'Lamps, furnace mouths and lit windows breathe. Never the text.',
+    smoke: 'Smoke',
+    smokeNote: 'A haze drifting across the top of the screen.',
+    rain: 'Rain',
+    rainNote: 'Falls outdoors, and only when it is actually raining.',
+    season: 'Season wash',
+    seasonNote: 'The ground shifts with the season. Winter is a fifth darker.',
+    vignette: 'Vignette',
+    vignetteNote: 'The edges go down. It never reaches the reading column.',
+    soundHeading: 'SOUND',
+    sound: 'Sound',
+    soundNote: 'The works, the street, the room. Synthesised, never a file.',
+    volume: 'Volume',
+    music: 'Ending music',
+    musicNote: 'One cue, at the end, and nowhere else. Nothing here is scored except grief.',
+    playHeading: 'THE BENCH',
+    minigames: 'Bench work',
+    minigamesNote: 'Play the shift out by hand. Worth up to a tenth of the day’s count either way; switch it off and the shift resolves as it always did.',
+    on: 'ON',
+    off: 'OFF',
+    close: 'Back to it'
   },
 
   enlist: {
@@ -2639,6 +3089,7 @@ var LOCATIONS = [
   {
     id: 'rows',
     name: 'The Rows',
+    short: 'The Rows',
     sub: 'Fourteen Cinder Row',
     district: 'CENTRE',
     blurb: 'Four floors of brick and one privy in the yard for the lot of them. Two rooms up a stair that leaks, and a north wall that comes out in a black bloom every winter.',
@@ -2648,7 +3099,9 @@ var LOCATIONS = [
   },
   {
     id: 'works',
+    outdoor: true,
     name: 'The Works',
+    short: 'The Works',
     sub: 'Grimwick Small Arms, the gates',
     district: 'HILL',
     blurb: 'The gate, the timekeeper’s hut, the yard, and the hiring crowd that is never shorter than eleven men. It runs at night as well; it runs at night worse.',
@@ -2656,7 +3109,9 @@ var LOCATIONS = [
   },
   {
     id: 'market',
+    outdoor: true,
     name: 'Market Square',
+    short: 'Market Sq.',
     sub: 'Sallow Street',
     district: 'CENTRE',
     blurb: 'Barrows under wet canvas. Bread, coal, cloth, and a board by the pump where the week’s prices are chalked up whether anyone likes them or not.',
@@ -2665,6 +3120,7 @@ var LOCATIONS = [
   {
     id: 'store',
     name: 'The Company Store',
+    short: 'The Store',
     sub: 'Owned by the Works, open at all hours',
     district: 'CENTRE',
     blurb: 'Cleaner than the market, cheaper than the market, and it never asks for money. Everything goes in the book, and the book is at the Works before you are.',
@@ -2673,6 +3129,7 @@ var LOCATIONS = [
   {
     id: 'pawn',
     name: 'The Pawnbroker',
+    short: 'Pawnbroker',
     sub: 'Ostrek, three brass balls, Sallow Street',
     district: 'CENTRE',
     blurb: 'Ostrek keeps his window clean and his ledger cleaner. Half the Rows is in that window by February and out of it again by May, or not.',
@@ -2681,6 +3138,7 @@ var LOCATIONS = [
   {
     id: 'apothecary',
     name: 'The Apothecary',
+    short: 'Apothecary',
     sub: 'Mrs. Bligh, Kell Street',
     district: 'CENTRE',
     blurb: 'Blue glass, brass scales, and the only person in Grimwick who will tell you the truth about your body. The truth costs, and so does everything behind the counter.',
@@ -2689,6 +3147,7 @@ var LOCATIONS = [
   {
     id: 'ewe',
     name: 'The Black Ewe',
+    short: 'Black Ewe',
     sub: 'Bottom of Cinder Row',
     district: 'CENTRE',
     blurb: 'Sawdust, wet wool, and men saying things on Friday they will deny on Monday. Moll Tarrow keeps the slate and knows precisely how far each man is behind on it.',
@@ -2697,6 +3156,7 @@ var LOCATIONS = [
   {
     id: 'chapel',
     name: 'St. Aulder’s',
+    short: 'St. Aulder’s',
     sub: 'The parish chapel, north side of the square',
     district: 'CENTRE',
     blurb: 'Cold stone, a saint carved without a face, and a vestry where the Almoner keeps the dole book. Charity here is real and it is administered like a punishment.',
@@ -2704,7 +3164,9 @@ var LOCATIONS = [
   },
   {
     id: 'railyard',
+    outdoor: true,
     name: 'The Rail Yard',
+    short: 'Rail Yard',
     sub: 'The sidings, past the cut',
     district: 'SIDINGS',
     blurb: 'Crates for the colonial trade, a watchman who drinks, and the only rails out of Grimwick. Everything that leaves this town leaves from here, including people.',
@@ -2712,7 +3174,9 @@ var LOCATIONS = [
   },
   {
     id: 'garrison',
+    outdoor: true,
     name: 'The Garrison Post',
+    short: 'Garrison',
     sub: 'Beside the works gate',
     district: 'HILL',
     blurb: 'A brick hut, a flagstaff, and a board of proclamations nobody reads aloud. Serjeant Vask is paid for names and does not pretend otherwise.',
@@ -2720,7 +3184,9 @@ var LOCATIONS = [
   },
   {
     id: 'cut',
+    outdoor: true,
     name: 'The Cut',
+    short: 'The Cut',
     sub: 'The back alley behind the sidings',
     district: 'SIDINGS',
     requires: { minAct: 2 },
@@ -4629,8 +5095,8 @@ var Art = {
 
     /* the spark fan */
     g.push('<g class="gw-sparks">');
-    for (var i = 0; i < 22; i++) {
-      var ang = -30 + i * 4.2;
+    for (var i = 0; i < 10; i++) {
+      var ang = -30 + i * 9.2;
       g.push('<line class="gw-spark" style="animation-delay:' + (i * 90) + 'ms" x1="356" y1="120" x2="' +
         (356 + 150 * Math.cos(ang * Math.PI / 180)) + '" y2="' + (120 + 150 * Math.sin(ang * Math.PI / 180)) +
         '" stroke="#ffc463" stroke-width="1.6" opacity="0"/>');
@@ -4640,7 +5106,7 @@ var Art = {
     /* dust in the shaft of light */
     g.push('<path d="M150 0 L250 0 L190 200 L60 200 Z" fill="#c9b98a" opacity=".07"/>');
     g.push('<g class="gw-dust" fill="#cdbf9c" opacity=".35">');
-    for (var d = 0; d < 26; d++) {
+    for (var d = 0; d < 12; d++) {
       g.push('<circle style="animation-delay:' + (d * 220) + 'ms" cx="' + (70 + (d * 37) % 180) + '" cy="' + (20 + (d * 61) % 180) + '" r="1.6"/>');
     }
     g.push('</g>');
@@ -4802,55 +5268,120 @@ var Art = {
      Roads and nodes only — the labels are real HTML buttons laid over this,
      so they stay at a readable size at every width.
      ------------------------------------------------------------------- */
-  townMap: function (nodes, hereId) {
-    var pos = Art.mapPositions;
-    var edges = [
-      ['rows', 'ewe'], ['rows', 'market'], ['market', 'store'], ['market', 'pawn'],
-      ['market', 'chapel'], ['market', 'apothecary'], ['market', 'works'],
-      ['works', 'garrison'], ['market', 'railyard'], ['railyard', 'cut'], ['works', 'railyard']
+  /* ------------------------------------------------------------ the map
+     Grimwick as an inked survey of the borough: hand-drawn blocks, hatching
+     over the works district, the cut running through it like a scar, and
+     chimneys that are still going. Paper, not glass.
+     ------------------------------------------------------------------- */
+  /* Where each seal is stamped on the survey, in its own 1000x340 space. */
+  mapPositions: {
+    chapel:     { x: 430, y: 56  },
+    works:      { x: 764, y: 84  },
+    market:     { x: 468, y: 130 },
+    garrison:   { x: 878, y: 158 },
+    store:      { x: 470, y: 204 },
+    rows:       { x: 170, y: 226 },
+    cut:        { x: 668, y: 244 },
+    apothecary: { x: 540, y: 288 },
+    railyard:   { x: 866, y: 246 },
+    ewe:        { x: 118, y: 296 },
+    pawn:       { x: 336, y: 292 },
+    street:     { x: 252, y: 154 },
+    workhouse:  { x: 286, y: 60  }
+  },
+
+  townMap: function (nodes, here) {
+    var g = [];
+    /* the seals are placed in this exact coordinate space, so the drawing
+       must map to the box one-to-one rather than being cropped to fit */
+    g.push('<svg class="gw-svg gw-map" viewBox="0 0 1000 340" preserveAspectRatio="none" role="img" aria-label="">');
+    g.push('<defs>' +
+      '<pattern id="mapHatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">' +
+        '<line x1="0" y1="0" x2="0" y2="7" stroke="#2B2519" stroke-width="1.1" opacity=".55"/></pattern>' +
+      '<pattern id="mapHatch2" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(-24)">' +
+        '<line x1="0" y1="0" x2="0" y2="11" stroke="#2B2519" stroke-width="0.9" opacity=".3"/></pattern>' +
+      '<filter id="mapFoxing"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="4"/>' +
+        '<feColorMatrix type="saturate" values="0"/></filter>' +
+      '</defs>');
+
+    /* the stock */
+    g.push('<rect width="1000" height="340" fill="#E8E2D2"/>');
+    g.push('<rect width="1000" height="340" filter="url(#mapFoxing)" opacity=".13"/>');
+    g.push('<rect width="1000" height="340" fill="#8A7A4E" opacity=".07"/>');
+
+    /* the works district, hatched */
+    g.push('<path d="M596 24 L980 24 L980 196 L700 214 L596 150 Z" fill="url(#mapHatch)" opacity=".7"/>');
+    g.push('<path d="M596 24 L980 24 L980 196 L700 214 L596 150 Z" fill="none" stroke="#2B2519" stroke-width="2" stroke-dasharray="9 5"/>');
+    /* the rows, lighter hatching */
+    g.push('<path d="M28 150 L300 132 L332 300 L40 316 Z" fill="url(#mapHatch2)" opacity=".8"/>');
+
+    /* the cut: a black scar across the borough */
+    g.push('<path d="M-10 268 C 140 250, 240 296, 366 262 S 620 214, 760 246 S 940 288, 1010 262"' +
+           ' stroke="#14120C" stroke-width="16" fill="none" stroke-linecap="round"/>');
+    g.push('<path d="M-10 268 C 140 250, 240 296, 366 262 S 620 214, 760 246 S 940 288, 1010 262"' +
+           ' stroke="#3E382C" stroke-width="4" fill="none" opacity=".7"/>');
+
+    /* streets */
+    var streets = [
+      'M60 96 L520 74 L980 92', 'M120 300 L520 262 L960 286', 'M336 30 L360 320',
+      'M700 20 L676 330', 'M40 190 L980 168', 'M180 40 L214 318'
     ];
-    var g = ['<svg class="gw-svg gw-map" viewBox="0 0 640 360" preserveAspectRatio="none" role="presentation">'];
-    g.push(Art.defs());
-    g.push('<rect width="640" height="360" fill="#181410"/>');
-    /* the cut, the river of soot everything is built along */
-    g.push('<path d="M-10 300 q160 -40 320 -10 t330 -30" stroke="#241d16" stroke-width="26" fill="none" opacity=".8"/>');
-    var i, a, b;
-    for (i = 0; i < edges.length; i++) {
-      a = pos[edges[i][0]]; b = pos[edges[i][1]];
-      if (!a || !b) continue;
-      var far = nodes.far[edges[i][0]] !== nodes.far[edges[i][1]];
-      g.push('<path d="M' + a.x + ' ' + a.y + ' Q' + ((a.x + b.x) / 2 + 14) + ' ' + ((a.y + b.y) / 2 - 18) +
-        ' ' + b.x + ' ' + b.y + '" stroke="' + (far ? '#5a4a33' : '#3d342a') + '" stroke-width="' + (far ? 5 : 7) +
-        '" fill="none" stroke-linecap="round"' + (far ? ' stroke-dasharray="12 8"' : '') + '/>');
+    for (var st = 0; st < streets.length; st++) {
+      g.push('<path d="' + streets[st] + '" stroke="#2B2519" stroke-width="2.4" fill="none" opacity=".55"/>');
+      g.push('<path d="' + streets[st] + '" stroke="#E8E2D2" stroke-width="1" fill="none" opacity=".5"/>');
     }
-    for (var id in pos) {
-      if (!Object.prototype.hasOwnProperty.call(pos, id)) continue;
-      if (!nodes.visible[id]) continue;
-      var p = pos[id];
-      var here = id === hereId;
-      g.push('<circle cx="' + p.x + '" cy="' + p.y + '" r="' + (here ? 16 : 11) + '" fill="' +
-        (here ? '#d8834b' : (nodes.reach[id] ? '#6b5c40' : '#39322a')) + '" stroke="#120e0a" stroke-width="3"/>');
-      if (here) g.push('<circle class="gw-here" cx="' + p.x + '" cy="' + p.y + '" r="24" fill="none" stroke="#d8834b" stroke-width="2" opacity=".7"/>');
+
+    /* hand-drawn blocks: nothing square, nothing repeated */
+    var blocks = [
+      [44,110,52,34,-1.4],[104,104,44,30,1.1],[156,100,60,32,-.6],[228,96,40,36,1.8],
+      [48,208,66,38,.9],[126,204,48,30,-1.2],[186,200,56,34,1.4],[254,196,44,32,-.8],
+      [60,268,52,30,1.2],[130,262,60,32,-1.6],[210,258,46,34,.7],
+      [396,86,72,44,-1.1],[482,80,56,40,1.3],[396,178,64,36,.8],[478,172,70,40,-1.4],
+      [392,290,60,30,1.1],[478,284,52,32,-.9],
+      [624,60,86,52,-1.2],[724,52,96,58,1.0],[836,58,74,46,-.7],
+      [636,140,78,44,1.5],[738,134,88,50,-1.3],[848,140,66,42,.9]
+    ];
+    for (var b = 0; b < blocks.length; b++) {
+      var q = blocks[b];
+      g.push('<g transform="translate(' + q[0] + ',' + q[1] + ') rotate(' + q[4] + ')">');
+      g.push('<path d="M0 0 L' + q[2] + ' ' + (-1 + (b % 3)) + ' L' + (q[2] - 2) + ' ' + q[3] +
+             ' L' + (1 + (b % 2)) + ' ' + (q[3] - 1) + ' Z" fill="#D9D2BE" stroke="#2B2519" stroke-width="1.8"/>');
+      if (b % 4 === 0) {
+        g.push('<path d="M0 0 L' + q[2] + ' ' + q[3] + ' M' + q[2] + ' 0 L0 ' + q[3] + '" stroke="#2B2519" stroke-width="1" opacity=".35"/>');
+      }
+      g.push('</g>');
     }
+
+    /* chimneys, still going */
+    var stacks = [[664,44],[762,36],[872,48],[706,126]];
+    for (var c = 0; c < stacks.length; c++) {
+      var sx = stacks[c][0], sy = stacks[c][1];
+      g.push('<path d="M' + sx + ' ' + sy + ' l4 -26 h7 l4 26 z" fill="#2B2519"/>');
+      for (var p = 0; p < 3; p++) {
+        g.push('<ellipse class="map-chimney" style="animation-delay:' + (c * 1.3 + p * 2.1) + 's" cx="' +
+               (sx + 7) + '" cy="' + (sy - 30) + '" rx="9" ry="6" fill="#2B2519" opacity="0"/>');
+      }
+    }
+
+    /* the cartouche */
+    g.push('<g transform="translate(28,26)">');
+    g.push('<rect width="250" height="52" fill="#E8E2D2" stroke="#2B2519" stroke-width="2"/>');
+    g.push('<rect x="5" y="5" width="240" height="42" fill="none" stroke="#2B2519" stroke-width="1" opacity=".6"/>');
+    g.push('<text x="18" y="26" font-family="Georgia,serif" font-size="17" letter-spacing="2" fill="#14120C">GRIMWICK</text>');
+    g.push('<text x="18" y="42" font-family="Georgia,serif" font-size="11" letter-spacing="1.4" fill="#3E382C">SURVEY OF THE BOROUGH · YEAR 312</text>');
+    g.push('</g>');
+
+    /* compass */
+    g.push('<g transform="translate(940,300)">');
+    g.push('<circle r="22" fill="none" stroke="#2B2519" stroke-width="1.6"/>');
+    g.push('<path d="M0 -20 L6 4 L0 -2 L-6 4 Z" fill="#2B2519"/>');
+    g.push('<text x="-4" y="-24" font-family="Georgia,serif" font-size="11" fill="#14120C">N</text>');
+    g.push('</g>');
+
     g.push('</svg>');
     return g.join('');
   },
 
-  mapPositions: {
-    rows:       { x: 96,  y: 250 },
-    ewe:        { x: 52,  y: 314 },
-    market:     { x: 250, y: 214 },
-    store:      { x: 336, y: 168 },
-    pawn:       { x: 196, y: 136 },
-    chapel:     { x: 306, y: 92  },
-    apothecary: { x: 372, y: 262 },
-    works:      { x: 498, y: 78  },
-    garrison:   { x: 566, y: 152 },
-    railyard:   { x: 500, y: 302 },
-    cut:        { x: 616, y: 248 }
-  },
-
-  /* Mount SVG into a host element. Art is authored here, never user text. */
   into: function (node, markup) {
     if (!node) return;
     node.innerHTML = markup;
@@ -5041,6 +5572,7 @@ function newState(seed) {
     factory: {
       station: 'CAP_BENCH',
       order: null,             /* what the Works wants made today */
+      handQuality: 0.5,        /* how the bench game went. 0.5 is an ordinary day. */
       pace: 'steady', care: 'proper', guard: 'on',
       skills: { CASTING: 12, CAP_BENCH: 50, GRINDING: 9, STAMPING: 18 },
       worked: false,
@@ -5095,7 +5627,13 @@ function newState(seed) {
 
     tutorial: { active: true, step: 0, done: false },
 
-    settings: { god: false, audio: true, volume: 0.7 },
+    settings: {
+      god: false,
+      audio: true, volume: 0.7, music: true,
+      minigames: true,
+      plainLedger: false,
+      atmo: { grain: true, gaslight: true, smoke: true, rain: true, season: true, vignette: true }
+    },
 
     arrest: null,            /* {day, daysHeld, charge} while the garrison has you */
     dead: false,
@@ -6300,10 +6838,15 @@ var Factory = {
     rec.rarity = ord.rarity;
     var skillMult = 0.55 + Factory.skill(station) / 100 * 0.65;
     var swing = 0.94 + Util.rnd() * 0.12;
+    /* the bench game, bounded: 0.5 is an ordinary pair of hands and resolves
+       to exactly 1.00, which is what the sim did before minigames existed */
+    var hand = 0.90 + Util.clamp(
+      typeof S.factory.handQuality === 'number' ? S.factory.handQuality : 0.5, 0, 1) * 0.20;
     var output = d.baseOutput * skillMult
       * PACE[S.factory.pace].output * CARE[S.factory.care].output * GUARD[S.factory.guard].output
-      * Factory.condition(station) * ord.output * swing;
+      * Factory.condition(station) * ord.output * swing * hand;
     rec.output = Math.max(0, Math.round(output));
+    rec.hand = hand;
     rec.rejects = Math.round(rec.output * Factory.rejectRate(station) * ord.reject);
     rec.good = Math.max(0, rec.output - rec.rejects);
     rec.credits = Math.round(rec.good * d.quotaWeight * ord.quota);
@@ -7716,6 +8259,7 @@ var Town = {
     var cost = Town.travelCost(toId);
     S.evening.ap -= cost;
     S.evening.at = toId;
+    Audio.place(toId);
     S.evening.travelled += cost;
     Audio.thunk();
     return true;
@@ -7865,6 +8409,598 @@ var Town = {
     State.applyMind({ resolve: 5 });
     UI.log(T('log.spent', { amt: Economy.money(ticket.redeem) }));
     return txt('redeemGood');
+  }
+};
+
+;
+/* ---- js/minigames.js ---- */
+/* ==========================================================================
+   GRIMWICK WORKS — js/minigames.js   (Build 5)
+
+   Four short bench games, one per floor. Each is a way of EXPRESSING the
+   shift, not a new system underneath it: every game returns a quality from
+   0 to 1, and the only thing quality does is move the day's output inside a
+   ±10% band. Quality 0.5 is dead centre and is exactly what the sim did
+   before this file existed — so skipping a game, or switching them off in
+   Settings, reproduces Build 4 output to the piece.
+
+   The canvas is only alive while a game is open; there is no persistent loop.
+   Every game is playable on the keyboard alone and can be skipped at any
+   moment.
+   ========================================================================== */
+
+var MINI_W = 640, MINI_H = 224;
+
+var Minigames = {
+
+  enabled: function () {
+    return !!(S && S.settings && S.settings.minigames);
+  },
+
+  reduced: function () {
+    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+    catch (e) { return false; }
+  },
+
+  forStation: function (station) {
+    return { CASTING: 'pour', CAP_BENCH: 'scoop', GRINDING: 'edge', STAMPING: 'press' }[station] || 'press';
+  },
+
+  /* ---------------------------------------------------------------- shell */
+  play: function (station, onDone) {
+    if (!Minigames.enabled()) { onDone(0.5); return; }
+    var kind = Minigames.forStation(station);
+    var game = Minigames.games[kind];
+    var finished = false;
+    var raf = null, scrim = null;
+
+    function finish(quality, verdictKey) {
+      if (finished) return;
+      finished = true;
+      if (raf) cancelAnimationFrame(raf);
+      if (game.teardown) game.teardown();
+      var q = Util.clamp(quality, 0, 1);
+      Minigames.showVerdict(scrim, kind, q, verdictKey, function () {
+        UI.closeModal(scrim);
+        onDone(q);
+      });
+    }
+
+    var m = el('div', 'modal modal--mini');
+    var head = el('div', 'modal__head');
+    head.appendChild(el('span', null, T('mini.' + kind + '.title')));
+    m.appendChild(head);
+    var body = el('div', 'modal__body');
+
+    body.appendChild(el('p', 'mini__instruction', T('mini.' + kind + '.how')));
+
+    var stage = el('div', 'mini');
+    var canvas = document.createElement('canvas');
+    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = MINI_W * dpr;
+    canvas.height = MINI_H * dpr;
+    canvas.style.aspectRatio = MINI_W + ' / ' + MINI_H;
+    canvas.setAttribute('role', 'img');
+    canvas.setAttribute('aria-label', T('mini.' + kind + '.how'));
+    stage.appendChild(canvas);
+
+    var hud = el('div', 'mini__hud');
+    var label = el('span', 'mini__label', T('mini.' + kind + '.label'));
+    var score = el('span', 'mini__score', '0');
+    hud.appendChild(label);
+    hud.appendChild(score);
+    stage.appendChild(hud);
+    body.appendChild(stage);
+
+    var actions = el('div', 'actions');
+    actions.appendChild(UI.button({
+      id: 'btn-mini-skip', small: true,
+      label: T('mini.skip'), hint: T('mini.skipHint'),
+      onClick: function () { finish(0.5, 'skipped'); }
+    }));
+    body.appendChild(actions);
+    m.appendChild(body);
+    scrim = UI.openModal(m);
+
+    var ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    var api = {
+      ctx: ctx, canvas: canvas, w: MINI_W, h: MINI_H,
+      reduced: Minigames.reduced(),
+      setScore: function (v) { score.textContent = v; },
+      shake: function () {
+        if (Minigames.reduced()) return;
+        stage.classList.remove('shake');
+        void stage.offsetWidth;
+        stage.classList.add('shake');
+      },
+      finish: finish,
+      /* the body brings its own difficulty to the bench */
+      tremor: S.body.tremor / 100,
+      fatigue: S.body.fatigue / 100,
+      skill: Factory.skill(station) / 100,
+      guardsOff: S.factory.guard === 'off',
+      pace: S.factory.pace
+    };
+
+    game.setup(api);
+
+    var t0 = performance.now();
+    function frame(now) {
+      if (finished) return;
+      var t = (now - t0) / 1000;
+      game.step(api, t);
+      raf = requestAnimationFrame(frame);
+    }
+    raf = requestAnimationFrame(frame);
+  },
+
+  showVerdict: function (scrim, kind, q, verdictKey, onDone) {
+    var body = scrim.querySelector('.modal__body');
+    clear(body);
+    var cls = q >= 0.68 ? 'good' : (q >= 0.42 ? 'ok' : 'bad');
+    var vKey = verdictKey === 'skipped' ? 'mini.skipped'
+      : 'mini.' + kind + '.' + (cls === 'good' ? 'good' : (cls === 'ok' ? 'ok' : 'bad'));
+    body.appendChild(el('div', 'mini__verdict mini__verdict--' + cls, T('mini.verdict.' + cls)));
+    body.appendChild(el('p', 'prose', T(vKey)));
+    var pct = Math.round((0.90 + q * 0.20) * 100);
+    body.appendChild(UI.kv(T('mini.effect'), pct + '%' + ' ' + T('mini.effectOf')));
+    body.appendChild(UI.actions([
+      UI.button({ id: 'btn-mini-done', primary: true, label: T('mini.toTheBench'), onClick: onDone })
+    ]));
+    Audio.thunk();
+  },
+
+  /* ================================================================ games */
+  games: {
+
+    /* -------------------------------------------------------- THE POUR ---
+       Lead into the mould. Hold to pour, release on the line. Overfill and
+       it goes over the flags and takes the boot with it. */
+    pour: {
+      setup: function (api) {
+        var g = api.g = {
+          fill: 0, target: 0.78, pouring: false, mould: 0, moulds: 4,
+          score: 0, results: [], spill: 0, sparks: [], done: false, last: 0
+        };
+        g.rate = 0.55 + api.pace === 'driven' ? 0.72 : 0.55;
+        api.onKey = function (e) {
+          if (e.code === 'Space' || e.key === ' ') {
+            e.preventDefault();
+            if (e.type === 'keydown') g.pouring = true; else g.pouring = false;
+          }
+        };
+        api.onDown = function () { g.pouring = true; };
+        api.onUp = function () { g.pouring = false; };
+        document.addEventListener('keydown', api.onKey);
+        document.addEventListener('keyup', api.onKey);
+        api.canvas.addEventListener('mousedown', api.onDown);
+        document.addEventListener('mouseup', api.onUp);
+        api.canvas.addEventListener('touchstart', api.onDown, { passive: true });
+        document.addEventListener('touchend', api.onUp);
+        Minigames._t = api;
+      },
+      teardown: function () {
+        var api = Minigames._t;
+        if (!api) return;
+        document.removeEventListener('keydown', api.onKey);
+        document.removeEventListener('keyup', api.onKey);
+        document.removeEventListener('mouseup', api.onUp);
+        document.removeEventListener('touchend', api.onUp);
+      },
+      step: function (api, t) {
+        var g = api.g, c = api.ctx, w = api.w, h = api.h;
+        var dt = Math.min(0.05, t - g.last); g.last = t;
+
+        if (g.pouring && !g.done) {
+          g.fill += dt * (0.62 + api.pace === 'driven' ? 0.2 : 0);
+          if (g.fill > 1.02) {
+            g.results.push(0);
+            g.spill = 0.6;
+            api.shake();
+            Audio.pour();
+            g.fill = 0; g.mould++; g.pouring = false;
+          }
+        } else if (!g.pouring && g.fill > 0.02 && !g.done) {
+          /* released: judge it */
+          var err = Math.abs(g.fill - g.target);
+          var quality = Util.clamp(1 - err / 0.30, 0, 1);
+          g.results.push(quality);
+          Audio.tick();
+          g.fill = 0; g.mould++;
+        }
+        if (g.mould >= g.moulds && !g.done) {
+          g.done = true;
+          var sum = 0;
+          for (var i = 0; i < g.results.length; i++) sum += g.results[i];
+          api.finish(sum / g.results.length);
+        }
+        api.setScore(Math.round((g.results.reduce(function (a, b) { return a + b; }, 0) / g.moulds) * 100));
+
+        /* ---- draw ---- */
+        c.fillStyle = '#0D0F12'; c.fillRect(0, 0, w, h);
+        /* furnace glow */
+        var grad = c.createRadialGradient(90, 120, 8, 90, 120, 120);
+        grad.addColorStop(0, 'rgba(255,196,110,.55)');
+        grad.addColorStop(1, 'rgba(255,120,30,0)');
+        c.fillStyle = grad; c.fillRect(0, 0, 240, h);
+        c.fillStyle = '#2E211A'; c.fillRect(40, 60, 110, 120);
+        c.fillStyle = '#120C08'; c.fillRect(60, 80, 70, 100);
+        c.fillStyle = 'rgba(255,150,50,' + (0.6 + Math.sin(t * 8) * 0.15) + ')';
+        c.fillRect(64, 120 + Math.sin(t * 9) * 3, 62, 58);
+
+        /* ladle */
+        c.fillStyle = '#4A423A';
+        c.fillRect(250, 44, 90, 26);
+        c.fillRect(230, 50, 24, 8);
+        /* the stream */
+        if (g.pouring) {
+          var sg = c.createLinearGradient(0, 70, 0, 172);
+          sg.addColorStop(0, '#FFF0C2'); sg.addColorStop(.5, '#FFB43C'); sg.addColorStop(1, '#D8541A');
+          c.fillStyle = sg;
+          c.fillRect(291, 70, 8, 102);
+          c.globalAlpha = .5;
+          c.fillStyle = '#FFCF7A';
+          c.fillRect(288 + Math.sin(t * 30) * 1.4, 70, 14, 102);
+          c.globalAlpha = 1;
+        }
+        /* the mould, filling */
+        c.fillStyle = '#3A3129'; c.fillRect(250, 172, 92, 30);
+        var fh = Math.min(1, g.fill) * 26;
+        c.fillStyle = '#FFAE4A';
+        c.fillRect(253, 199 - fh, 86, fh);
+        /* the line you are aiming at */
+        c.strokeStyle = '#E0A24A'; c.lineWidth = 2;
+        c.setLineDash([5, 4]);
+        c.beginPath();
+        c.moveTo(246, 199 - g.target * 26); c.lineTo(348, 199 - g.target * 26); c.stroke();
+        c.setLineDash([]);
+
+        /* the finished ones, cooling */
+        for (var m = 0; m < g.results.length; m++) {
+          var qy = g.results[m];
+          c.fillStyle = qy > 0 ? '#6F675C' : '#3A2A22';
+          c.beginPath(); c.arc(410 + m * 34, 186, 11, 0, 6.3); c.fill();
+          c.fillStyle = qy > .7 ? '#A49A8B' : 'rgba(164,154,139,.4)';
+          c.beginPath(); c.arc(406 + m * 34, 182, 4, 0, 6.3); c.fill();
+        }
+        if (g.spill > 0) {
+          g.spill -= dt * 2;
+          c.fillStyle = 'rgba(255,120,40,' + Math.max(0, g.spill) + ')';
+          c.fillRect(240, 196, 120, 8);
+        }
+        c.fillStyle = '#C9C4B8';
+        c.font = '600 15px "Courier Prime", monospace';
+        c.fillText((g.mould + 1) + ' / ' + g.moulds, 560, 30);
+      }
+    },
+
+    /* ------------------------------------------------------- THE SCOOP ---
+       Fulminate into copper cups. The lane is narrow, and your own hands
+       are the difficulty: the shake you have earned pushes the scoop about. */
+    scoop: {
+      setup: function (api) {
+        var g = api.g = { x: 0.5, aim: 0.5, filled: 0, inLane: 0, total: 0, last: 0, lane: 0.5, spill: 0 };
+        api.onMove = function (e) {
+          var r = api.canvas.getBoundingClientRect();
+          var cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+          g.aim = Util.clamp(cx / r.width, 0, 1);
+        };
+        api.onKey = function (e) {
+          if (e.key === 'ArrowLeft') { g.aim = Util.clamp(g.aim - 0.06, 0, 1); e.preventDefault(); }
+          if (e.key === 'ArrowRight') { g.aim = Util.clamp(g.aim + 0.06, 0, 1); e.preventDefault(); }
+        };
+        api.canvas.addEventListener('mousemove', api.onMove);
+        api.canvas.addEventListener('touchmove', api.onMove, { passive: true });
+        document.addEventListener('keydown', api.onKey);
+        Minigames._t = api;
+      },
+      teardown: function () {
+        var api = Minigames._t;
+        if (api) document.removeEventListener('keydown', api.onKey);
+      },
+      step: function (api, t) {
+        var g = api.g, c = api.ctx, w = api.w, h = api.h;
+        var dt = Math.min(0.05, t - g.last); g.last = t;
+
+        /* the lane wanders; your hand wanders more than you would like */
+        g.lane = 0.5 + Math.sin(t * 0.7) * 0.24 + Math.sin(t * 1.9) * 0.07;
+        var jitter = (api.tremor * 0.055 + api.fatigue * 0.02)
+          * (Math.sin(t * 27) * 0.6 + Math.sin(t * 41.3) * 0.4);
+        g.x += (g.aim - g.x) * Math.min(1, dt * 12);
+        var hand = Util.clamp(g.x + jitter, 0, 1);
+
+        var laneW = 0.085 + api.skill * 0.05;
+        var inside = Math.abs(hand - g.lane) < laneW;
+        g.total += dt;
+        if (inside) { g.inLane += dt; g.filled += dt * 26; }
+        else if (Math.abs(hand - g.lane) > laneW * 2.2) g.spill = 0.5;
+
+        if (t > 7.5) { api.finish(Util.clamp(g.inLane / Math.max(0.5, g.total), 0, 1)); return; }
+        api.setScore(Math.floor(g.filled));
+
+        /* ---- draw ---- */
+        c.fillStyle = '#0D0F12'; c.fillRect(0, 0, w, h);
+        /* lamp */
+        var lg = c.createRadialGradient(w - 90, 40, 4, w - 90, 40, 130);
+        lg.addColorStop(0, 'rgba(224,162,74,.42)'); lg.addColorStop(1, 'rgba(224,162,74,0)');
+        c.fillStyle = lg; c.fillRect(w - 220, 0, 220, h);
+
+        /* the bench */
+        c.fillStyle = '#3A2E1E'; c.fillRect(0, 150, w, 16);
+        c.fillStyle = '#241C12'; c.fillRect(0, 166, w, 8);
+
+        /* the lane */
+        var lx = g.lane * w, lw = laneW * w;
+        c.fillStyle = 'rgba(224,162,74,.13)';
+        c.fillRect(lx - lw, 40, lw * 2, 110);
+        c.strokeStyle = 'rgba(224,162,74,.5)'; c.lineWidth = 1.5;
+        c.beginPath(); c.moveTo(lx - lw, 40); c.lineTo(lx - lw, 150);
+        c.moveTo(lx + lw, 40); c.lineTo(lx + lw, 150); c.stroke();
+
+        /* the cups */
+        for (var i = 0; i < 16; i++) {
+          var cx2 = 24 + i * (w - 48) / 15;
+          var lit = Math.abs(cx2 / w - g.lane) < laneW;
+          c.fillStyle = lit ? '#E8C98A' : '#8F6C22';
+          c.beginPath(); c.arc(cx2, 142, 6, 0, 6.3); c.fill();
+        }
+
+        /* the scoop, where your hand actually is */
+        var hx = hand * w;
+        c.fillStyle = inside ? '#E0A24A' : '#9AA0A6';
+        c.save();
+        c.translate(hx, 96);
+        c.rotate(jitter * 5);
+        c.fillRect(-4, -46, 8, 44);
+        c.fillRect(-11, -4, 22, 12);
+        c.restore();
+        if (inside) {
+          c.fillStyle = 'rgba(224,162,74,.5)';
+          c.fillRect(hx - 2, 108, 4, 30);
+        }
+        if (g.spill > 0) {
+          g.spill -= dt * 1.6;
+          c.fillStyle = 'rgba(154,160,166,' + Math.max(0, g.spill) + ')';
+          c.fillRect(hx - 16, 146, 32, 5);
+        }
+        /* the clock */
+        c.fillStyle = '#3A424B'; c.fillRect(20, 200, w - 40, 6);
+        c.fillStyle = '#C9C4B8'; c.fillRect(20, 200, (w - 40) * Math.min(1, t / 7.5), 6);
+      }
+    },
+
+    /* -------------------------------------------------------- THE EDGE ---
+       The blade against the wheel. There is one angle that grinds and every
+       other angle burns. The sweet spot moves, because the wheel wears. */
+    edge: {
+      setup: function (api) {
+        var g = api.g = { angle: 0.5, aim: 0.5, sweet: 0.5, held: false, ground: 0, burn: 0, good: 0, total: 0, last: 0, sparks: [] };
+        api.onMove = function (e) {
+          var r = api.canvas.getBoundingClientRect();
+          var cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+          g.aim = Util.clamp(cx / r.width, 0, 1);
+        };
+        api.onKey = function (e) {
+          if (e.key === 'ArrowLeft') { g.aim = Util.clamp(g.aim - 0.05, 0, 1); e.preventDefault(); }
+          if (e.key === 'ArrowRight') { g.aim = Util.clamp(g.aim + 0.05, 0, 1); e.preventDefault(); }
+          if (e.code === 'Space') { e.preventDefault(); g.held = (e.type === 'keydown'); }
+        };
+        api.onDown = function () { g.held = true; };
+        api.onUp = function () { g.held = false; };
+        api.canvas.addEventListener('mousemove', api.onMove);
+        api.canvas.addEventListener('touchmove', api.onMove, { passive: true });
+        api.canvas.addEventListener('mousedown', api.onDown);
+        api.canvas.addEventListener('touchstart', api.onDown, { passive: true });
+        document.addEventListener('mouseup', api.onUp);
+        document.addEventListener('touchend', api.onUp);
+        document.addEventListener('keydown', api.onKey);
+        document.addEventListener('keyup', api.onKey);
+        Minigames._t = api;
+      },
+      teardown: function () {
+        var api = Minigames._t;
+        if (!api) return;
+        document.removeEventListener('keydown', api.onKey);
+        document.removeEventListener('keyup', api.onKey);
+        document.removeEventListener('mouseup', api.onUp);
+        document.removeEventListener('touchend', api.onUp);
+      },
+      step: function (api, t) {
+        var g = api.g, c = api.ctx, w = api.w, h = api.h;
+        var dt = Math.min(0.05, t - g.last); g.last = t;
+
+        g.sweet = 0.5 + Math.sin(t * 0.55) * 0.26 + Math.sin(t * 1.3) * 0.06;
+        g.angle += (g.aim - g.angle) * Math.min(1, dt * 10);
+        var band = 0.07 + api.skill * 0.045;
+        var off = Math.abs(g.angle - g.sweet);
+        var onSpot = off < band;
+
+        if (g.held) {
+          g.total += dt;
+          if (onSpot) { g.good += dt; g.ground += dt * 22; }
+          else { g.burn = Math.min(1, g.burn + dt * 0.55); }
+          if (onSpot && !api.reduced) {
+            for (var s = 0; s < 4; s++) {
+              g.sparks.push({ x: 300, y: 120, vx: 120 + Math.random() * 240, vy: -70 + Math.random() * 150, life: 0.5 });
+            }
+            if (Math.random() < 0.14) Audio.spark();
+          }
+        }
+        if (t > 7.5) {
+          var q = Util.clamp((g.good / Math.max(0.6, g.total || 0.6)) * (1 - g.burn * 0.5), 0, 1);
+          if (g.total < 1.5) q = 0.15;
+          api.finish(q); return;
+        }
+        api.setScore(Math.floor(g.ground));
+
+        /* ---- draw ---- */
+        c.fillStyle = '#0D0F12'; c.fillRect(0, 0, w, h);
+        /* dust shaft */
+        c.fillStyle = 'rgba(201,190,138,.05)';
+        c.beginPath(); c.moveTo(120, 0); c.lineTo(210, 0); c.lineTo(150, h); c.lineTo(20, h); c.fill();
+
+        /* the wheel */
+        c.save();
+        c.translate(190, 120);
+        c.rotate(t * 11);
+        c.fillStyle = '#6F675C';
+        c.beginPath(); c.arc(0, 0, 78, 0, 6.3); c.fill();
+        c.strokeStyle = '#57503F'; c.lineWidth = 3;
+        for (var a = 0; a < 12; a++) {
+          c.save(); c.rotate(a * 0.5236);
+          c.beginPath(); c.moveTo(0, -76); c.lineTo(0, -52); c.stroke();
+          c.restore();
+        }
+        c.restore();
+        c.strokeStyle = '#241D16'; c.lineWidth = 4;
+        c.beginPath(); c.arc(190, 120, 78, 0, 6.3); c.stroke();
+
+        /* the blade at your angle */
+        c.save();
+        c.translate(268, 120);
+        c.rotate(-0.5 + g.angle * 1.0);
+        var bg = c.createLinearGradient(0, -6, 0, 6);
+        bg.addColorStop(0, '#CFD4D8'); bg.addColorStop(.5, '#8D949A'); bg.addColorStop(1, '#3F4448');
+        c.fillStyle = g.burn > 0.4 ? '#4A6B8E' : bg;
+        c.fillRect(0, -5, 150, 10);
+        c.fillStyle = '#4A423A'; c.fillRect(145, -9, 30, 18);
+        c.restore();
+
+        /* the gauge: where the wheel wants it */
+        c.fillStyle = '#22272D'; c.fillRect(40, 196, w - 80, 12);
+        c.fillStyle = 'rgba(224,162,74,.30)';
+        c.fillRect(40 + (g.sweet - band) * (w - 80), 196, band * 2 * (w - 80), 12);
+        c.fillStyle = onSpot ? '#E0A24A' : '#C9C4B8';
+        c.fillRect(40 + g.angle * (w - 80) - 2, 192, 4, 20);
+
+        /* sparks */
+        for (var i = g.sparks.length - 1; i >= 0; i--) {
+          var p = g.sparks[i];
+          p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 260 * dt; p.life -= dt;
+          if (p.life <= 0) { g.sparks.splice(i, 1); continue; }
+          c.fillStyle = 'rgba(255,196,99,' + Math.max(0, p.life * 2) + ')';
+          c.fillRect(p.x, p.y, 2.2, 2.2);
+        }
+        if (g.burn > 0.05) {
+          c.fillStyle = 'rgba(74,107,142,' + g.burn * 0.5 + ')';
+          c.fillRect(0, 0, w, h);
+        }
+        c.fillStyle = '#3A424B'; c.fillRect(20, 214, w - 40, 4);
+        c.fillStyle = '#C9C4B8'; c.fillRect(20, 214, (w - 40) * Math.min(1, t / 7.5), 4);
+      }
+    },
+
+    /* -------------------------------------------------------- THE PRESS ---
+       A ton and a quarter on a rhythm. Feed the blank on the beat. Feed it
+       late and the ram comes down on your hand, which is what the stop-bar
+       was for, which is why the stop-bar matters. */
+    press: {
+      setup: function (api) {
+        var g = api.g = {
+          period: api.pace === 'driven' ? 0.86 : 1.05,
+          hits: 0, misses: 0, near: 0, total: 0, last: 0, lastBeat: -1,
+          fed: false, flash: 0, shells: []
+        };
+        if (api.guardsOff) g.period *= 0.82;
+        api.onHit = function (e) {
+          if (e && e.preventDefault) e.preventDefault();
+          var phase = (performance.now() / 1000) % g.period / g.period;
+          g.pending = phase;
+          g.feed = true;
+        };
+        api.onKey = function (e) {
+          if (e.code === 'Space' || e.key === ' ' || e.key === 'Enter') api.onHit(e);
+        };
+        document.addEventListener('keydown', api.onKey);
+        api.canvas.addEventListener('mousedown', api.onHit);
+        api.canvas.addEventListener('touchstart', api.onHit, { passive: false });
+        Minigames._t = api;
+      },
+      teardown: function () {
+        var api = Minigames._t;
+        if (api) document.removeEventListener('keydown', api.onKey);
+      },
+      step: function (api, t) {
+        var g = api.g, c = api.ctx, w = api.w, h = api.h;
+        var dt = Math.min(0.05, t - g.last); g.last = t;
+
+        var beat = Math.floor(t / g.period);
+        var phase = (t % g.period) / g.period;
+        if (beat !== g.lastBeat) {
+          if (g.lastBeat >= 0 && !g.fed) g.misses++;
+          g.lastBeat = beat; g.fed = false; g.total++;
+          Audio.press();
+          api.shake();
+        }
+        /* the ram is down between .45 and .60 of the beat */
+        if (g.feed) {
+          g.feed = false;
+          if (!g.fed) {
+            g.fed = true;
+            var d = Math.abs(phase - 0.28);
+            if (d < 0.10) { g.hits++; g.shells.push({ x: 300, y: 150, vx: 150 + Math.random() * 60, life: 1 }); Audio.coin(); }
+            else if (phase > 0.44 && phase < 0.62) { g.near++; g.flash = 1; api.shake(); Audio.hit(); }
+            else { g.misses++; }
+          }
+        }
+        if (t > 7.6) {
+          var q = Util.clamp((g.hits - g.near * 0.8) / Math.max(1, g.total), 0, 1);
+          api.finish(q); return;
+        }
+        api.setScore(g.hits);
+
+        /* ---- draw ---- */
+        c.fillStyle = '#0D0F12'; c.fillRect(0, 0, w, h);
+        c.fillStyle = '#241A14'; c.fillRect(0, 176, w, 48);
+
+        /* frame */
+        c.fillStyle = '#3A3128'; c.fillRect(200, 14, 240, 16);
+        c.fillStyle = '#2E2820'; c.fillRect(206, 14, 20, 150); c.fillRect(414, 14, 20, 150);
+
+        /* the ram: down at .45-.60 */
+        var down = phase > 0.42 && phase < 0.64;
+        var ramY = down ? 60 : (phase < 0.42 ? phase / 0.42 * 20 : 20 - (phase - 0.64) / 0.36 * 20);
+        c.fillStyle = '#4A423A'; c.fillRect(256, 30 + ramY, 128, 16);
+        c.fillStyle = '#5C646A'; c.fillRect(286, 46 + ramY, 68, 52);
+        c.fillStyle = '#8D949A'; c.fillRect(278, 98 + ramY, 84, 14);
+
+        /* the die and the blank you feed it */
+        c.fillStyle = '#3A3128'; c.fillRect(262, 150, 116, 24);
+        if (g.fed && !down) {
+          c.fillStyle = '#C39A3E';
+          c.beginPath(); c.moveTo(290, 150); c.quadraticCurveTo(320, 118, 350, 150); c.fill();
+        }
+
+        /* the beat marker */
+        c.fillStyle = '#22272D'; c.fillRect(40, 198, w - 80, 14);
+        c.fillStyle = 'rgba(78,107,94,.45)';
+        c.fillRect(40 + 0.18 * (w - 80), 198, 0.20 * (w - 80), 14);   /* the window */
+        c.fillStyle = 'rgba(142,59,47,.5)';
+        c.fillRect(40 + 0.44 * (w - 80), 198, 0.18 * (w - 80), 14);   /* the ram */
+        c.fillStyle = '#E0A24A';
+        c.fillRect(40 + phase * (w - 80) - 2, 194, 4, 22);
+
+        /* finished shells */
+        for (var i = g.shells.length - 1; i >= 0; i--) {
+          var s = g.shells[i];
+          s.x += s.vx * dt; s.life -= dt;
+          if (s.life <= 0) { g.shells.splice(i, 1); continue; }
+          c.fillStyle = 'rgba(195,154,62,' + Math.max(0, s.life) + ')';
+          c.beginPath(); c.moveTo(s.x, s.y); c.quadraticCurveTo(s.x + 15, s.y - 16, s.x + 30, s.y); c.fill();
+        }
+        if (g.flash > 0) {
+          g.flash -= dt * 2.2;
+          c.fillStyle = 'rgba(142,59,47,' + Math.max(0, g.flash) * 0.5 + ')';
+          c.fillRect(0, 0, w, h);
+        }
+        c.fillStyle = '#C9C4B8';
+        c.font = '600 15px "Courier Prime", monospace';
+        c.fillText(g.hits + ' fed', 500, 30);
+        if (g.near) { c.fillStyle = '#EA9084'; c.fillText(g.near + ' near', 500, 52); }
+      }
+    }
   }
 };
 
@@ -8533,6 +9669,161 @@ var Audio = {
     Audio.ambient.station = null;
   },
 
+
+  /* ---------------------------------------------------------- stingers ---
+     Four sounds the game uses as punctuation, and nothing else. */
+  docketSlap: function () {
+    /* paper on a counter, then the counter */
+    Audio.burst({ filter: 'highpass', cutoff: 1800, gain: 0.14, dur: 0.14, sweepTo: 4200 });
+    Audio.tone({ type: 'sine', freq: 132, slideTo: 64, dur: 0.22, gain: 0.16, filter: 'lowpass', cutoff: 500 });
+  },
+  knock: function () {
+    /* three on a door that does not have to be opened */
+    for (var i = 0; i < 3; i++) {
+      (function (n) {
+        setTimeout(function () {
+          Audio.tone({ type: 'sine', freq: 168 - n * 8, slideTo: 74, dur: 0.16, gain: 0.22, filter: 'lowpass', cutoff: 420 });
+          Audio.burst({ filter: 'lowpass', cutoff: 700, gain: 0.10, dur: 0.09 });
+        }, n * 230);
+      })(i);
+    }
+  },
+
+  /* ------------------------------------------------------ ambient beds ---
+     One per kind of place. Silence is the default state of this game; these
+     are quiet, and they stop the moment you leave. */
+  PLACE_BEDS: {
+    works:     'factory',
+    rows:      'room',
+    market:    'street',
+    store:     'room',
+    pawn:      'room',
+    apothecary:'room',
+    ewe:       'tavern',
+    chapel:    'chapel',
+    railyard:  'street',
+    garrison:  'street',
+    cut:       'alley',
+    street:    'street',
+    workhouse: 'room'
+  },
+
+  place: function (nodeId) {
+    if (!Audio.enabled) { Audio.stopAmbience(); return; }
+    var bed = Audio.PLACE_BEDS[nodeId] || 'room';
+    if (Audio.ambient.station === 'place:' + bed) return;   /* already there */
+    var ctx = Audio.ensure();
+    if (!ctx) return;
+    Audio.stopAmbience();
+    Audio.ambient.station = 'place:' + bed;
+    try {
+      var nodes = [];
+      function noiseLayer(type, freq, q, gain) {
+        var src = ctx.createBufferSource();
+        src.buffer = Audio.noise();
+        src.loop = true;
+        var f = ctx.createBiquadFilter();
+        f.type = type; f.frequency.value = freq; if (q) f.Q.value = q;
+        var g = ctx.createGain(); g.gain.value = gain;
+        src.connect(f); f.connect(g); g.connect(Audio.master);
+        src.start();
+        nodes.push(src, g);
+        return g;
+      }
+      function every(ms, fn, skip) {
+        var id = setInterval(function () {
+          if (!Audio.enabled) return;
+          if (skip && Math.random() < skip) return;
+          fn();
+        }, ms);
+        Audio.ambient.timers.push(id);
+      }
+
+      if (bed === 'factory') {
+        noiseLayer('lowpass', 190, 0, 0.20);
+        every(1600, Audio.press);
+        every(420, Audio.tick, 0.5);
+      } else if (bed === 'street') {
+        noiseLayer('lowpass', 320, 0, 0.10);
+        /* rain, if it is raining */
+        if (S.time.weather === 'rain' || S.time.weather === 'sleet') {
+          noiseLayer('bandpass', 2600, 0.7, 0.10);
+          noiseLayer('highpass', 5200, 0, 0.05);
+        }
+        every(5200, function () {
+          Audio.tone({ type: 'triangle', freq: 300 + Math.random() * 120, dur: 0.09, gain: 0.02 });
+        }, 0.4);
+      } else if (bed === 'tavern') {
+        noiseLayer('bandpass', 420, 0.5, 0.09);
+        every(1700, function () {
+          /* voices, none of them saying anything */
+          Audio.tone({ type: 'sawtooth', freq: 100 + Math.random() * 90, dur: 0.3, gain: 0.022, filter: 'lowpass', cutoff: 620 });
+        }, 0.2);
+        every(6400, function () {
+          Audio.tone({ type: 'triangle', freq: 720, dur: 0.14, gain: 0.03 });
+        }, 0.35);
+      } else if (bed === 'chapel') {
+        noiseLayer('lowpass', 140, 0, 0.06);
+        every(9000, function () {
+          Audio.tone({ type: 'sine', freq: 196, dur: 2.2, gain: 0.035 });
+        }, 0.3);
+      } else if (bed === 'alley') {
+        noiseLayer('lowpass', 240, 0, 0.08);
+        every(4200, function () { Audio.burst({ filter: 'lowpass', cutoff: 500, gain: 0.03, dur: 0.4 }); }, 0.4);
+      } else {
+        /* a room: the fire if there is one, and the wall */
+        noiseLayer('lowpass', 160, 0, 0.07);
+        if (S.house.coal > 0) every(2600, function () {
+          Audio.burst({ filter: 'bandpass', cutoff: 1400, q: 1.2, gain: 0.03, dur: 0.18 });
+        }, 0.3);
+      }
+      Audio.ambient.nodes = nodes;
+    } catch (e) { }
+  },
+
+  /* ----------------------------------------------------------- the cue ---
+     One piece of music in the whole game, and it only plays when it is over.
+     Nothing here is scored except grief. */
+  endingCue: function () {
+    if (!Audio.enabled || !(S.settings && S.settings.music)) return;
+    var ctx = Audio.ensure();
+    if (!ctx) return;
+    Audio.stopAmbience();
+    try {
+      var t0 = ctx.currentTime + 0.15;
+      /* a drone under it */
+      var drone = ctx.createOscillator(), dg = ctx.createGain(), df = ctx.createBiquadFilter();
+      drone.type = 'sine'; drone.frequency.value = 73.42;          /* D2 */
+      df.type = 'lowpass'; df.frequency.value = 320;
+      dg.gain.setValueAtTime(0.0001, t0);
+      dg.gain.exponentialRampToValueAtTime(0.075, t0 + 2.2);
+      dg.gain.exponentialRampToValueAtTime(0.0001, t0 + 15);
+      drone.connect(df); df.connect(dg); dg.connect(Audio.master);
+      drone.start(t0); drone.stop(t0 + 15.4);
+      Audio.ambient.nodes.push(drone, dg);
+
+      /* D minor, falling, unhurried, unresolved */
+      var phrase = [
+        [293.66, 0.0, 1.5], [349.23, 1.4, 1.4], [440.00, 2.7, 2.1],
+        [392.00, 4.6, 1.5], [349.23, 5.9, 2.4], [293.66, 8.1, 2.0],
+        [261.63, 10.0, 2.6], [220.00, 12.2, 3.0]
+      ];
+      for (var i = 0; i < phrase.length; i++) {
+        var f = phrase[i][0], at = t0 + phrase[i][1], dur = phrase[i][2];
+        var o = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter();
+        o.type = 'triangle';
+        o.frequency.value = f;
+        lp.type = 'lowpass'; lp.frequency.value = 1100;
+        g.gain.setValueAtTime(0.0001, at);
+        g.gain.exponentialRampToValueAtTime(0.062, at + 0.28);
+        g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+        o.connect(lp); lp.connect(g); g.connect(Audio.master);
+        o.start(at); o.stop(at + dur + 0.1);
+        Audio.ambient.nodes.push(o, g);
+      }
+    } catch (e) { }
+  },
+
   /* ---------------------------------------------------------- shift hooks */
   shiftStart: function (station) {
     if (!Audio.enabled) return;
@@ -8580,7 +9871,48 @@ var UI = {
 
   mount: function () {
     UI.root = $('#app');
+    UI.buildAtmosphere();
     UI.bindKeys();
+  },
+
+  /* Six layers, each independent, all of them behind or barely over the page,
+     and every one of them switchable in Settings. */
+  buildAtmosphere: function () {
+    if (document.getElementById('atmo')) return;
+    var host = el('div', null);
+    host.id = 'atmo';
+    host.setAttribute('aria-hidden', 'true');
+
+    var vig = el('div', null);
+    vig.id = 'atmo-vignette';
+    host.appendChild(vig);
+
+    var smoke = el('div', null);
+    smoke.id = 'atmo-smoke';
+    smoke.appendChild(el('div', 'haze'));
+    smoke.appendChild(el('div', 'haze haze--b'));
+    host.appendChild(smoke);
+
+    var rain = el('div', null);
+    rain.id = 'atmo-rain';
+    host.appendChild(rain);
+
+    document.body.insertBefore(host, document.body.firstChild);
+  },
+
+  applyAtmosphere: function () {
+    var r = document.documentElement;
+    var set = (S && S.settings) ? S.settings : null;
+    if (!set) return;
+    var a = set.atmo || {};
+    r.classList.toggle('plain-ledger', !!set.plainLedger);
+    var on = !set.plainLedger;
+    r.classList.toggle('atmo-grain',    on && a.grain !== false);
+    r.classList.toggle('atmo-gaslight', on && a.gaslight !== false);
+    r.classList.toggle('atmo-smoke',    on && a.smoke !== false);
+    r.classList.toggle('atmo-rain',     on && a.rain !== false);
+    r.classList.toggle('atmo-season',   on && a.season !== false);
+    r.classList.toggle('atmo-vignette', on && a.vignette !== false);
   },
 
   /* ---------------------------------------------------------------- button
@@ -8590,7 +9922,17 @@ var UI = {
     var b = el('button', 'btn' + (opts.primary ? ' btn--primary' : '') + (opts.small ? ' btn--small' : ''));
     if (opts.id) b.id = opts.id;
     b.type = 'button';
-    b.appendChild(el('span', 'btn__label', opts.label));
+
+    /* a price inside a label keeps the typewriter: money is always monospace */
+    var label = el('span', 'btn__label');
+    var split = String(opts.label).split(' \u2014 ');
+    if (split.length === 2 && /^(\u2212)?(\d+c )?(\d+s )?\d+d$/.test(split[1])) {
+      label.appendChild(document.createTextNode(split[0] + ' \u2014 '));
+      label.appendChild(el('span', 'btn__price', split[1]));
+    } else {
+      label.textContent = opts.label;
+    }
+    b.appendChild(label);
 
     var reason = opts.reason || null;
     var hint = reason || opts.hint;
@@ -8637,7 +9979,15 @@ var UI = {
   /* ---------------------------------------------------------------- render */
   render: function () {
     if (!S) return;
-    document.body.className = 'season-' + S.time.season.replace(' ', '-') + ' phase-' + S.time.phase;
+    var cls = 'season-' + S.time.season.replace(' ', '-') + ' phase-' + S.time.phase;
+    /* rain falls outdoors, and only when it is actually raining */
+    var node = Town.location ? Town.location(S.evening.at) : null;
+    var outside = (S.time.phase === 'SHIFT') || (node && node.outdoor) || !S.house.housed;
+    var wet = S.time.weather === 'rain' || S.time.weather === 'sleet';
+    if (outside) cls += ' outdoors';
+    if (wet) cls += ' wet';
+    document.body.className = cls;
+    UI.applyAtmosphere();
     UI.renderTopbar();
     UI.renderStage();
     UI.renderLog();
@@ -8663,8 +10013,8 @@ var UI = {
 
     var tools = el('div', 'topbar__tools');
     tools.appendChild(UI.button({
-      label: T(S.settings.audio ? 'ui.soundOn' : 'ui.soundOff'), small: true,
-      onClick: function () { Audio.setEnabled(!S.settings.audio); Audio.dial(); UI.render(); }
+      id: 'btn-settings', label: T('settings.heading'), small: true,
+      onClick: function () { UI.showSettings(); }
     }));
     tools.appendChild(UI.button({
       label: T('app.menu'), small: true,
@@ -9085,14 +10435,14 @@ var UI = {
         });
         b.className = 'map__node' + (isHere ? ' map__node--here' : '');
         clear(b);
-        b.appendChild(el('span', null, loc.name));
+        b.appendChild(el('span', null, loc.short || loc.name));
         b.appendChild(el('span', 'map__cost', isHere ? T('town.hereNow')
           : (cost === 0 ? T('town.nearby') : T('town.hoursWalk', { n: cost }))));
         if (isHere) { b.disabled = true; b.title = T('town.hereNow'); }
         var pos = Art.mapPositions[loc.id];
         if (pos) {
-          b.style.left = (pos.x / 640 * 100) + '%';
-          b.style.top = (pos.y / 360 * 100) + '%';
+          b.style.left = (pos.x / 1000 * 100) + '%';
+          b.style.top = (pos.y / 340 * 100) + '%';
         }
         inner.appendChild(b);
       })(locs[i]);
@@ -9342,7 +10692,8 @@ var UI = {
   },
 
   kv: function (k, v, cls) {
-    var row = el('div', 'kv');
+    /* a long value reads better under its label than ragged against the edge */
+    var row = el('div', 'kv' + (String(v).length > 30 ? ' kv--stack' : ''));
     row.appendChild(el('span', 'kv__k', k));
     row.appendChild(el('span', 'kv__v' + (cls ? ' kv__v--' + cls : ''), v));
     return row;
@@ -9663,6 +11014,7 @@ var UI = {
     ]));
     m.appendChild(body);
     scrim = UI.openModal(m);
+    Audio.docketSlap();
     Tutorial.onDocket();
   },
 
@@ -9685,6 +11037,7 @@ var UI = {
   /* ---- ending ---- */
   showEnding: function (endingId) {
     UI.closeAll();
+    Audio.endingCue();
     /* Build 1's four death ids all resolve to the one ending, with a cause */
     if (DEATH_CAUSES[endingId]) {
       S.endingCause = endingId;
@@ -9890,6 +11243,95 @@ var UI = {
     scrim = UI.openModal(m);
   },
 
+  /* --------------------------------------------------------- settings ---
+     Every decorative layer, switchable on its own, plus one switch that
+     takes all of them off at once. Nothing here touches the game. */
+  showSettings: function () {
+    var scrim;
+    var m = UI.modal(T('settings.heading'), function (body) {
+      body.appendChild(el('p', 'prose prose--dim', T('settings.blurb')));
+
+      function toggleRow(container, name, note, get, set) {
+        var row = el('div', 'settings__row');
+        var left = el('div');
+        left.appendChild(el('div', 'settings__name', name));
+        if (note) left.appendChild(el('div', 'settings__note', note));
+        row.appendChild(left);
+        var btn = el('button', 'toggle');
+        btn.type = 'button';
+        function paint() {
+          var v = !!get();
+          btn.textContent = T(v ? 'settings.on' : 'settings.off');
+          btn.setAttribute('aria-pressed', v ? 'true' : 'false');
+        }
+        btn.dataset.acts = '1';
+        btn.addEventListener('click', function () {
+          set(!get());
+          paint();
+          UI.applyAtmosphere();
+          Audio.dial();
+          UI.render();
+        });
+        paint();
+        row.appendChild(btn);
+        container.appendChild(row);
+        return btn;
+      }
+
+      /* the master switch */
+      var master = el('div', 'settings__master');
+      toggleRow(master, T('settings.plainLedger'), T('settings.plainLedgerNote'),
+        function () { return S.settings.plainLedger; },
+        function (v) { S.settings.plainLedger = v; });
+      body.appendChild(master);
+
+      body.appendChild(el('div', 'eyebrow', T('settings.atmoHeading')));
+      var atmo = el('div');
+      var layers = [
+        ['grain', 'settings.grain', 'settings.grainNote'],
+        ['gaslight', 'settings.gaslightL', 'settings.gaslightNote'],
+        ['smoke', 'settings.smoke', 'settings.smokeNote'],
+        ['rain', 'settings.rain', 'settings.rainNote'],
+        ['season', 'settings.season', 'settings.seasonNote'],
+        ['vignette', 'settings.vignette', 'settings.vignetteNote']
+      ];
+      for (var i = 0; i < layers.length; i++) {
+        (function (key, nameKey, noteKey) {
+          var b = toggleRow(atmo, T(nameKey), T(noteKey),
+            function () { return S.settings.atmo[key]; },
+            function (v) { S.settings.atmo[key] = v; });
+          b.dataset.layer = key;
+        })(layers[i][0], layers[i][1], layers[i][2]);
+      }
+      body.appendChild(atmo);
+
+      body.appendChild(el('div', 'eyebrow', T('settings.soundHeading')));
+      var snd = el('div');
+      toggleRow(snd, T('settings.sound'), T('settings.soundNote'),
+        function () { return S.settings.audio; },
+        function (v) { Audio.setEnabled(v); });
+      toggleRow(snd, T('settings.music'), T('settings.musicNote'),
+        function () { return S.settings.music; },
+        function (v) { S.settings.music = v; });
+      body.appendChild(snd);
+
+      body.appendChild(el('div', 'eyebrow', T('settings.playHeading')));
+      var play = el('div');
+      toggleRow(play, T('settings.minigames'), T('settings.minigamesNote'),
+        function () { return S.settings.minigames; },
+        function (v) { S.settings.minigames = v; });
+      body.appendChild(play);
+
+      body.appendChild(UI.actions([
+        UI.button({
+          id: 'btn-settings-close', primary: true, label: T('settings.close'),
+          onClick: function () { UI.closeModal(scrim); }
+        })
+      ]));
+    });
+    scrim = UI.openModal(m, { dismissible: true });
+  },
+
   /* ------------------------------------------------------ the world turns */
   showActCard: function (turn, onDone) {
     var scrim;
@@ -9914,6 +11356,7 @@ var UI = {
   /* ------------------------------------------------- the garrison arrives */
   showGarrison: function (g, onDone) {
     var scrim;
+    Audio.knock();
     var key = 'garrison.' + g.kind;
     var m = UI.modal(T(key + '.title'), function (body) {
       body.appendChild(el('p', 'prose', T(key + '.text')));
@@ -10582,6 +12025,20 @@ var Loop = {
   work: function () {
     if (S.time.phase !== 'SHIFT' || S.factory.worked) return;
     if (Factory.canWork() !== true) return;
+    /* the bench game first, if it is switched on; it only sets how the hands
+       went, and the shift resolves off that exactly as it always has */
+    if (Minigames.enabled()) {
+      Minigames.play(S.factory.station, function (q) {
+        S.factory.handQuality = q;
+        Loop.resolveWorkedShift();
+      });
+      return;
+    }
+    S.factory.handQuality = 0.5;
+    Loop.resolveWorkedShift();
+  },
+
+  resolveWorkedShift: function () {
     var rec = Factory.resolveShift();
     Audio.shiftStart(rec.station);
     UI.playShift(rec, function () {
@@ -10640,6 +12097,7 @@ var Loop = {
   toEvening: function () {
     if (S.time.phase !== 'SHIFT') return;
     S.time.phase = 'EVENING';
+    Audio.place(S.evening.at);
     UI.log(T('log.phaseEvening'));
     UI.render();
     Tutorial.onPhase('EVENING');

@@ -999,6 +999,7 @@ var Town = {
     var cost = Town.travelCost(toId);
     S.evening.ap -= cost;
     S.evening.at = toId;
+    Audio.place(toId);
     S.evening.travelled += cost;
     Audio.thunk();
     return true;

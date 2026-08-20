@@ -24,6 +24,7 @@ var LOCATIONS = [
   {
     id: 'rows',
     name: 'The Rows',
+    short: 'The Rows',
     sub: 'Fourteen Cinder Row',
     district: 'CENTRE',
     blurb: 'Four floors of brick and one privy in the yard for the lot of them. Two rooms up a stair that leaks, and a north wall that comes out in a black bloom every winter.',
@@ -33,7 +34,9 @@ var LOCATIONS = [
   },
   {
     id: 'works',
+    outdoor: true,
     name: 'The Works',
+    short: 'The Works',
     sub: 'Grimwick Small Arms, the gates',
     district: 'HILL',
     blurb: 'The gate, the timekeeper’s hut, the yard, and the hiring crowd that is never shorter than eleven men. It runs at night as well; it runs at night worse.',
@@ -41,7 +44,9 @@ var LOCATIONS = [
   },
   {
     id: 'market',
+    outdoor: true,
     name: 'Market Square',
+    short: 'Market Sq.',
     sub: 'Sallow Street',
     district: 'CENTRE',
     blurb: 'Barrows under wet canvas. Bread, coal, cloth, and a board by the pump where the week’s prices are chalked up whether anyone likes them or not.',
@@ -50,6 +55,7 @@ var LOCATIONS = [
   {
     id: 'store',
     name: 'The Company Store',
+    short: 'The Store',
     sub: 'Owned by the Works, open at all hours',
     district: 'CENTRE',
     blurb: 'Cleaner than the market, cheaper than the market, and it never asks for money. Everything goes in the book, and the book is at the Works before you are.',
@@ -58,6 +64,7 @@ var LOCATIONS = [
   {
     id: 'pawn',
     name: 'The Pawnbroker',
+    short: 'Pawnbroker',
     sub: 'Ostrek, three brass balls, Sallow Street',
     district: 'CENTRE',
     blurb: 'Ostrek keeps his window clean and his ledger cleaner. Half the Rows is in that window by February and out of it again by May, or not.',
@@ -66,6 +73,7 @@ var LOCATIONS = [
   {
     id: 'apothecary',
     name: 'The Apothecary',
+    short: 'Apothecary',
     sub: 'Mrs. Bligh, Kell Street',
     district: 'CENTRE',
     blurb: 'Blue glass, brass scales, and the only person in Grimwick who will tell you the truth about your body. The truth costs, and so does everything behind the counter.',
@@ -74,6 +82,7 @@ var LOCATIONS = [
   {
     id: 'ewe',
     name: 'The Black Ewe',
+    short: 'Black Ewe',
     sub: 'Bottom of Cinder Row',
     district: 'CENTRE',
     blurb: 'Sawdust, wet wool, and men saying things on Friday they will deny on Monday. Moll Tarrow keeps the slate and knows precisely how far each man is behind on it.',
@@ -82,6 +91,7 @@ var LOCATIONS = [
   {
     id: 'chapel',
     name: 'St. Aulder’s',
+    short: 'St. Aulder’s',
     sub: 'The parish chapel, north side of the square',
     district: 'CENTRE',
     blurb: 'Cold stone, a saint carved without a face, and a vestry where the Almoner keeps the dole book. Charity here is real and it is administered like a punishment.',
@@ -89,7 +99,9 @@ var LOCATIONS = [
   },
   {
     id: 'railyard',
+    outdoor: true,
     name: 'The Rail Yard',
+    short: 'Rail Yard',
     sub: 'The sidings, past the cut',
     district: 'SIDINGS',
     blurb: 'Crates for the colonial trade, a watchman who drinks, and the only rails out of Grimwick. Everything that leaves this town leaves from here, including people.',
@@ -97,7 +109,9 @@ var LOCATIONS = [
   },
   {
     id: 'garrison',
+    outdoor: true,
     name: 'The Garrison Post',
+    short: 'Garrison',
     sub: 'Beside the works gate',
     district: 'HILL',
     blurb: 'A brick hut, a flagstaff, and a board of proclamations nobody reads aloud. Serjeant Vask is paid for names and does not pretend otherwise.',
@@ -105,7 +119,9 @@ var LOCATIONS = [
   },
   {
     id: 'cut',
+    outdoor: true,
     name: 'The Cut',
+    short: 'The Cut',
     sub: 'The back alley behind the sidings',
     district: 'SIDINGS',
     requires: { minAct: 2 },

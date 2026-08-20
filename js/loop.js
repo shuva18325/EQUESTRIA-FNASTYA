@@ -210,6 +210,20 @@ var Loop = {
   work: function () {
     if (S.time.phase !== 'SHIFT' || S.factory.worked) return;
     if (Factory.canWork() !== true) return;
+    /* the bench game first, if it is switched on; it only sets how the hands
+       went, and the shift resolves off that exactly as it always has */
+    if (Minigames.enabled()) {
+      Minigames.play(S.factory.station, function (q) {
+        S.factory.handQuality = q;
+        Loop.resolveWorkedShift();
+      });
+      return;
+    }
+    S.factory.handQuality = 0.5;
+    Loop.resolveWorkedShift();
+  },
+
+  resolveWorkedShift: function () {
     var rec = Factory.resolveShift();
     Audio.shiftStart(rec.station);
     UI.playShift(rec, function () {
@@ -268,6 +282,7 @@ var Loop = {
   toEvening: function () {
     if (S.time.phase !== 'SHIFT') return;
     S.time.phase = 'EVENING';
+    Audio.place(S.evening.at);
     UI.log(T('log.phaseEvening'));
     UI.render();
     Tutorial.onPhase('EVENING');

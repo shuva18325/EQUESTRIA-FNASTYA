@@ -544,7 +544,7 @@ var STR = {
     kinWage: '{name}, cap bench',
       kinWageLine: 'Second hand, same household',
       quotaFine: 'Fine \u2014 count short of the week',
-      spoilage: 'Condemned pieces, at the value of the article',
+      spoilage: 'Condemned, at value',
       coomCharge: 'Overlooker\u2019s charge',
       skimBench: 'Bench hire',
       skimApron: 'Apron and gloves',
@@ -646,6 +646,81 @@ var STR = {
   creation: {
     heading: 'WHO IS IN THE ROOM WITH YOU',
     blurb: 'You are twenty-six, a floor hand at the Grimwick Small Arms Works, and you are not the only one eating out of the wage. Somebody is upstairs. Which of them it is decides what the next sixty days cost you.'
+  },
+
+  mini: {
+    skip: 'Let your hands do it',
+    skipHint: 'Resolve the shift without playing it out. Costs nothing either way.',
+    skipped: 'You do it the way you have done it four thousand times, without looking at it, and it comes out the way it always comes out.',
+    toTheBench: 'To the bench',
+    effect: 'Against an ordinary day',
+    effectOf: 'of the count',
+    verdict: { good: 'WELL HANDLED', ok: 'ORDINARY', bad: 'BADLY DONE' },
+
+    pour: {
+      title: 'THE POUR',
+      label: 'Moulds filled',
+      how: 'Hold to pour. Let go on the line. Over the line and it goes across the flags, and what is under the flags is your boot.',
+      good: 'Four moulds, four clean sprues, and not a splash on the floor. Teague looks over and says nothing, which from Teague is a testimonial.',
+      ok: 'They will pass. Two of them are heavy and will be a shade out at the muzzle, and no one at this end of the trade will ever know.',
+      bad: 'Lead across the flags and a smell of scorched leather. You will be picking that out of the boot for a week.'
+    },
+    scoop: {
+      title: 'THE SCOOP',
+      label: 'Cups filled',
+      how: 'Keep the scoop in the lane. Move it with the mouse or the arrow keys. Your own hands are the difficulty — the shake you have earned pushes it about.',
+      good: 'Four hundred cups and not a grain on the bench. The girls either side of you notice, because they are counting too.',
+      ok: 'It goes. There is grey dust on the bench by the afternoon and everyone within four feet has stopped mentioning it.',
+      bad: 'You are spilling and you know you are spilling. Every grain on that bench is somebody standing near it later.'
+    },
+    edge: {
+      title: 'THE EDGE',
+      label: 'Blades ground',
+      how: 'Hold to grind. Steer the angle with the mouse or the arrow keys, and keep it where the wheel wants it — off the mark and you burn the temper blue.',
+      good: 'A fan of sparks the length of the shed and an edge you could shave with, on every one of them.',
+      ok: 'Adequate. Which is the word the inspection uses, and it is the word they were paying for.',
+      bad: 'Blue at the edge on half of them. Burnt temper does not come back, and the man who finds out is a long way from here.'
+    },
+    press: {
+      title: 'THE PRESS',
+      label: 'Blanks fed',
+      how: 'Feed the blank on the beat — space, or click. The green window is the moment. The red one is when the ram is down, and the ram does not know your hand is there.',
+      good: 'Two hundred and eleven strokes and your hand out of it on every single one. That is the whole skill and there is no other part of it.',
+      ok: 'You keep up. You are half a beat behind for the last hour and you stop trusting yourself, which is when men get hurt.',
+      bad: 'You were under it twice. Twice, in one shift, on a machine that weighs a ton and a quarter and has no opinion about you.'
+    }
+  },
+
+  settings: {
+    heading: 'SETTINGS',
+    blurb: 'Every layer here is decoration. None of it touches the game underneath, and all of it can go.',
+    plainLedger: 'PLAIN LEDGER MODE',
+    plainLedgerNote: 'Strips every atmospheric layer at once. Type, figures and controls only.',
+    atmoHeading: 'ATMOSPHERE',
+    grain: 'Soot grain',
+    grainNote: 'A dusting of soot over the whole page.',
+    gaslightL: 'Gaslight flicker',
+    gaslightNote: 'Lamps, furnace mouths and lit windows breathe. Never the text.',
+    smoke: 'Smoke',
+    smokeNote: 'A haze drifting across the top of the screen.',
+    rain: 'Rain',
+    rainNote: 'Falls outdoors, and only when it is actually raining.',
+    season: 'Season wash',
+    seasonNote: 'The ground shifts with the season. Winter is a fifth darker.',
+    vignette: 'Vignette',
+    vignetteNote: 'The edges go down. It never reaches the reading column.',
+    soundHeading: 'SOUND',
+    sound: 'Sound',
+    soundNote: 'The works, the street, the room. Synthesised, never a file.',
+    volume: 'Volume',
+    music: 'Ending music',
+    musicNote: 'One cue, at the end, and nowhere else. Nothing here is scored except grief.',
+    playHeading: 'THE BENCH',
+    minigames: 'Bench work',
+    minigamesNote: 'Play the shift out by hand. Worth up to a tenth of the day’s count either way; switch it off and the shift resolves as it always did.',
+    on: 'ON',
+    off: 'OFF',
+    close: 'Back to it'
   },
 
   enlist: {

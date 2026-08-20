@@ -20,7 +20,48 @@ var UI = {
 
   mount: function () {
     UI.root = $('#app');
+    UI.buildAtmosphere();
     UI.bindKeys();
+  },
+
+  /* Six layers, each independent, all of them behind or barely over the page,
+     and every one of them switchable in Settings. */
+  buildAtmosphere: function () {
+    if (document.getElementById('atmo')) return;
+    var host = el('div', null);
+    host.id = 'atmo';
+    host.setAttribute('aria-hidden', 'true');
+
+    var vig = el('div', null);
+    vig.id = 'atmo-vignette';
+    host.appendChild(vig);
+
+    var smoke = el('div', null);
+    smoke.id = 'atmo-smoke';
+    smoke.appendChild(el('div', 'haze'));
+    smoke.appendChild(el('div', 'haze haze--b'));
+    host.appendChild(smoke);
+
+    var rain = el('div', null);
+    rain.id = 'atmo-rain';
+    host.appendChild(rain);
+
+    document.body.insertBefore(host, document.body.firstChild);
+  },
+
+  applyAtmosphere: function () {
+    var r = document.documentElement;
+    var set = (S && S.settings) ? S.settings : null;
+    if (!set) return;
+    var a = set.atmo || {};
+    r.classList.toggle('plain-ledger', !!set.plainLedger);
+    var on = !set.plainLedger;
+    r.classList.toggle('atmo-grain',    on && a.grain !== false);
+    r.classList.toggle('atmo-gaslight', on && a.gaslight !== false);
+    r.classList.toggle('atmo-smoke',    on && a.smoke !== false);
+    r.classList.toggle('atmo-rain',     on && a.rain !== false);
+    r.classList.toggle('atmo-season',   on && a.season !== false);
+    r.classList.toggle('atmo-vignette', on && a.vignette !== false);
   },
 
   /* ---------------------------------------------------------------- button
@@ -30,7 +71,17 @@ var UI = {
     var b = el('button', 'btn' + (opts.primary ? ' btn--primary' : '') + (opts.small ? ' btn--small' : ''));
     if (opts.id) b.id = opts.id;
     b.type = 'button';
-    b.appendChild(el('span', 'btn__label', opts.label));
+
+    /* a price inside a label keeps the typewriter: money is always monospace */
+    var label = el('span', 'btn__label');
+    var split = String(opts.label).split(' \u2014 ');
+    if (split.length === 2 && /^(\u2212)?(\d+c )?(\d+s )?\d+d$/.test(split[1])) {
+      label.appendChild(document.createTextNode(split[0] + ' \u2014 '));
+      label.appendChild(el('span', 'btn__price', split[1]));
+    } else {
+      label.textContent = opts.label;
+    }
+    b.appendChild(label);
 
     var reason = opts.reason || null;
     var hint = reason || opts.hint;
@@ -77,7 +128,15 @@ var UI = {
   /* ---------------------------------------------------------------- render */
   render: function () {
     if (!S) return;
-    document.body.className = 'season-' + S.time.season.replace(' ', '-') + ' phase-' + S.time.phase;
+    var cls = 'season-' + S.time.season.replace(' ', '-') + ' phase-' + S.time.phase;
+    /* rain falls outdoors, and only when it is actually raining */
+    var node = Town.location ? Town.location(S.evening.at) : null;
+    var outside = (S.time.phase === 'SHIFT') || (node && node.outdoor) || !S.house.housed;
+    var wet = S.time.weather === 'rain' || S.time.weather === 'sleet';
+    if (outside) cls += ' outdoors';
+    if (wet) cls += ' wet';
+    document.body.className = cls;
+    UI.applyAtmosphere();
     UI.renderTopbar();
     UI.renderStage();
     UI.renderLog();
@@ -103,8 +162,8 @@ var UI = {
 
     var tools = el('div', 'topbar__tools');
     tools.appendChild(UI.button({
-      label: T(S.settings.audio ? 'ui.soundOn' : 'ui.soundOff'), small: true,
-      onClick: function () { Audio.setEnabled(!S.settings.audio); Audio.dial(); UI.render(); }
+      id: 'btn-settings', label: T('settings.heading'), small: true,
+      onClick: function () { UI.showSettings(); }
     }));
     tools.appendChild(UI.button({
       label: T('app.menu'), small: true,
@@ -525,14 +584,14 @@ var UI = {
         });
         b.className = 'map__node' + (isHere ? ' map__node--here' : '');
         clear(b);
-        b.appendChild(el('span', null, loc.name));
+        b.appendChild(el('span', null, loc.short || loc.name));
         b.appendChild(el('span', 'map__cost', isHere ? T('town.hereNow')
           : (cost === 0 ? T('town.nearby') : T('town.hoursWalk', { n: cost }))));
         if (isHere) { b.disabled = true; b.title = T('town.hereNow'); }
         var pos = Art.mapPositions[loc.id];
         if (pos) {
-          b.style.left = (pos.x / 640 * 100) + '%';
-          b.style.top = (pos.y / 360 * 100) + '%';
+          b.style.left = (pos.x / 1000 * 100) + '%';
+          b.style.top = (pos.y / 340 * 100) + '%';
         }
         inner.appendChild(b);
       })(locs[i]);
@@ -782,7 +841,8 @@ var UI = {
   },
 
   kv: function (k, v, cls) {
-    var row = el('div', 'kv');
+    /* a long value reads better under its label than ragged against the edge */
+    var row = el('div', 'kv' + (String(v).length > 30 ? ' kv--stack' : ''));
     row.appendChild(el('span', 'kv__k', k));
     row.appendChild(el('span', 'kv__v' + (cls ? ' kv__v--' + cls : ''), v));
     return row;
@@ -1103,6 +1163,7 @@ var UI = {
     ]));
     m.appendChild(body);
     scrim = UI.openModal(m);
+    Audio.docketSlap();
     Tutorial.onDocket();
   },
 
@@ -1125,6 +1186,7 @@ var UI = {
   /* ---- ending ---- */
   showEnding: function (endingId) {
     UI.closeAll();
+    Audio.endingCue();
     /* Build 1's four death ids all resolve to the one ending, with a cause */
     if (DEATH_CAUSES[endingId]) {
       S.endingCause = endingId;
@@ -1330,6 +1392,95 @@ var UI = {
     scrim = UI.openModal(m);
   },
 
+  /* --------------------------------------------------------- settings ---
+     Every decorative layer, switchable on its own, plus one switch that
+     takes all of them off at once. Nothing here touches the game. */
+  showSettings: function () {
+    var scrim;
+    var m = UI.modal(T('settings.heading'), function (body) {
+      body.appendChild(el('p', 'prose prose--dim', T('settings.blurb')));
+
+      function toggleRow(container, name, note, get, set) {
+        var row = el('div', 'settings__row');
+        var left = el('div');
+        left.appendChild(el('div', 'settings__name', name));
+        if (note) left.appendChild(el('div', 'settings__note', note));
+        row.appendChild(left);
+        var btn = el('button', 'toggle');
+        btn.type = 'button';
+        function paint() {
+          var v = !!get();
+          btn.textContent = T(v ? 'settings.on' : 'settings.off');
+          btn.setAttribute('aria-pressed', v ? 'true' : 'false');
+        }
+        btn.dataset.acts = '1';
+        btn.addEventListener('click', function () {
+          set(!get());
+          paint();
+          UI.applyAtmosphere();
+          Audio.dial();
+          UI.render();
+        });
+        paint();
+        row.appendChild(btn);
+        container.appendChild(row);
+        return btn;
+      }
+
+      /* the master switch */
+      var master = el('div', 'settings__master');
+      toggleRow(master, T('settings.plainLedger'), T('settings.plainLedgerNote'),
+        function () { return S.settings.plainLedger; },
+        function (v) { S.settings.plainLedger = v; });
+      body.appendChild(master);
+
+      body.appendChild(el('div', 'eyebrow', T('settings.atmoHeading')));
+      var atmo = el('div');
+      var layers = [
+        ['grain', 'settings.grain', 'settings.grainNote'],
+        ['gaslight', 'settings.gaslightL', 'settings.gaslightNote'],
+        ['smoke', 'settings.smoke', 'settings.smokeNote'],
+        ['rain', 'settings.rain', 'settings.rainNote'],
+        ['season', 'settings.season', 'settings.seasonNote'],
+        ['vignette', 'settings.vignette', 'settings.vignetteNote']
+      ];
+      for (var i = 0; i < layers.length; i++) {
+        (function (key, nameKey, noteKey) {
+          var b = toggleRow(atmo, T(nameKey), T(noteKey),
+            function () { return S.settings.atmo[key]; },
+            function (v) { S.settings.atmo[key] = v; });
+          b.dataset.layer = key;
+        })(layers[i][0], layers[i][1], layers[i][2]);
+      }
+      body.appendChild(atmo);
+
+      body.appendChild(el('div', 'eyebrow', T('settings.soundHeading')));
+      var snd = el('div');
+      toggleRow(snd, T('settings.sound'), T('settings.soundNote'),
+        function () { return S.settings.audio; },
+        function (v) { Audio.setEnabled(v); });
+      toggleRow(snd, T('settings.music'), T('settings.musicNote'),
+        function () { return S.settings.music; },
+        function (v) { S.settings.music = v; });
+      body.appendChild(snd);
+
+      body.appendChild(el('div', 'eyebrow', T('settings.playHeading')));
+      var play = el('div');
+      toggleRow(play, T('settings.minigames'), T('settings.minigamesNote'),
+        function () { return S.settings.minigames; },
+        function (v) { S.settings.minigames = v; });
+      body.appendChild(play);
+
+      body.appendChild(UI.actions([
+        UI.button({
+          id: 'btn-settings-close', primary: true, label: T('settings.close'),
+          onClick: function () { UI.closeModal(scrim); }
+        })
+      ]));
+    });
+    scrim = UI.openModal(m, { dismissible: true });
+  },
+
   /* ------------------------------------------------------ the world turns */
   showActCard: function (turn, onDone) {
     var scrim;
@@ -1354,6 +1505,7 @@ var UI = {
   /* ------------------------------------------------- the garrison arrives */
   showGarrison: function (g, onDone) {
     var scrim;
+    Audio.knock();
     var key = 'garrison.' + g.kind;
     var m = UI.modal(T(key + '.title'), function (body) {
       body.appendChild(el('p', 'prose', T(key + '.text')));

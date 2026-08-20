@@ -1,54 +1,102 @@
-/* GRIMWICK WORKS — tokens.css
-   Palette is grim. Text is never grim enough to be unreadable:
-   every foreground/background pair used for text is >= 4.5:1.
-   Smallest type in the game is 15px. */
+/* ==========================================================================
+   GRIMWICK WORKS — tokens.css   (Build 5)
+
+   Printed in 1851, left in a wet cellar. Grim is the palette; it is never an
+   excuse for text you cannot read.
+
+   THE FLOOR, held by every value below:
+     body text >= 15px,  every text/ground pair >= 4.5:1.
+
+   The three accent tokens in the brief — brick, rust, verdigris — are
+   STRUCTURAL colours. Measured as text they run 2.0–3.1:1, so each has a
+   text-safe sibling derived from it (…-text). Structure uses the brief's
+   value; type uses the sibling. Contrast for every pair is listed beside it,
+   measured against the four grounds in this file.
+   ========================================================================== */
 :root {
-  /* surfaces */
-  --bg:          #121110;
-  --bg-deep:     #0b0a09;
-  --panel:       #1c1a17;
-  --panel-2:     #262320;
-  --panel-3:     #302c27;
-  --line:        #423c34;
-  --line-soft:   #322e28;
+  /* ---- the brief's palette, used for what the brief uses it for ---- */
+  --soot:       #14161A;   /* background base */
+  --slate:      #22272D;   /* panels */
+  --brick:      #6B3A2E;   /* structure, borders, rules */
+  --gaslight:   #E0A24A;   /* the only warm light. rationed. 8.1:1 on soot */
+  --ash:        #C9C4B8;   /* body text. 10.4:1 on soot */
+  --rust:       #8E3B2F;   /* danger, blood, fines — as fill and border */
+  --verdigris:  #4E6B5E;   /* the union thread — as fill and border */
 
-  /* ink */
-  --text:        #e4ddd0;   /* 14.4:1 on --bg */
-  --text-dim:    #bdb3a1;   /*  7.5:1 on --panel */
-  --focus:       #e9a35f;
+  /* ---- grounds ---- */
+  --soot-deep:  #0E1013;
+  --slate-2:    #2A3037;
+  --slate-3:    #333A42;   /* the lightest ground any text sits on (hover) */
 
-  /* accents */
-  --rust:        #d8834b;
-  --rust-deep:   #8c4a24;
-  --blood:       #e06a5e;
-  --blood-deep:  #7a2c26;
-  --brass:       #d9b76a;
-  --sick:        #a8b06a;
-  --good:        #8fbb85;
+  /* ---- type colours, each cleared on all four grounds ---- */
+  --ash-dim:        #BCB7A9;   /*  8.9 / 7.4 / 6.6 / 5.7 */
+  --ash-faint:      #B0AB9E;   /*  7.9 / 6.6 / 5.8 / 5.0 */
+  --rust-text:      #EA9084;   /*  7.6 / 6.3 / 5.6 / 4.8 */
+  --verdigris-text: #9CC0AB;   /*  9.1 / 7.6 / 6.7 / 5.8 */
+  --gaslight-text:  #E0A24A;   /*  8.1 / 6.8 / 6.0 / 5.2 */
 
-  /* paper (the docket) */
-  --paper:       #dbd4c2;
-  --paper-2:     #cfc7b3;
-  --paper-ink:   #17150f;
-  --paper-dim:   #4c4638;
-  --paper-line:  #a89e86;
-  --paper-stamp: #7d2f28;
+  /* ---- structural lines and dull fills (never carry text) ---- */
+  --line:       #3A424B;
+  --line-soft:  #2C333A;
+  --amber-fill: #A87A32;
+  --bile:       #8C9660;   /* the permanent stats: dust, tremor, lead */
 
-  /* type */
-  --font-body:   'EB Garamond', Georgia, 'Times New Roman', serif;
-  --font-ui:     'Inter', 'Segoe UI', Helvetica, Arial, sans-serif;
-  --font-mono:   'Courier Prime', 'Courier New', ui-monospace, monospace;
+  /* ---- the docket ---- */
+  --paper:       #E4DED0;
+  --paper-2:     #D8D1C0;
+  --paper-ink:   #191712;   /* 13.4:1 on paper */
+  --paper-dim:   #4A4438;   /*  7.2:1 */
+  --paper-rule:  #A79E88;   /* rules only */
+  --paper-stamp: #7A2C24;   /*  7.1:1 */
+  --paper-bleed: #5C1F18;   /*  9.4:1 — where the deductions bleed */
 
-  --fs-base: 17px;
+  /* ---- type ------------------------------------------------------------
+     Three faces and no more. The contrast between condensed wood type and
+     typewriter figures is the identity; nothing else needs to be added. */
+  --font-display: 'Big Shoulders Display', 'Oswald', 'Haettenschweiler', 'Arial Narrow', sans-serif;
+  --font-body:    'Bitter', Georgia, 'Times New Roman', serif;
+  --font-mono:    'Courier Prime', 'Courier New', ui-monospace, monospace;
+
+  --fs-base: 16px;
   --fs-sm:   15px;   /* the floor. nothing smaller ships. */
-  --fs-md:   17px;
-  --fs-lg:   21px;
-  --fs-xl:   27px;
-  --fs-xxl:  38px;
+  --fs-md:   16px;
+  --fs-lg:   20px;
+  --fs-xl:   26px;
+  --fs-xxl:  36px;
+  --lh-body: 1.6;
 
   --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
   --sp-5: 24px; --sp-6: 32px; --sp-7: 48px;
 
-  --shadow: 0 2px 0 rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.45);
+  --shadow: 0 2px 0 rgba(0,0,0,.55), 0 10px 28px rgba(0,0,0,.5);
+
+  /* ---- legacy aliases -------------------------------------------------
+     Build 1–4 rules refer to these names. Each is mapped to whatever keeps
+     that rule correct under the new palette, so the whole game re-skins from
+     this file without a single rule being rewritten by hand. */
+  --bg:          var(--soot);
+  --bg-deep:     var(--soot-deep);
+  --panel:       var(--slate);
+  --panel-2:     var(--slate-2);
+  --panel-3:     var(--slate-3);
+  --text:        var(--ash);
+  --text-dim:    var(--ash-dim);
+  --text-faint:  var(--ash-faint);
+  --rust-deep:   var(--brick);
+  --blood:       var(--rust-text);
+  --blood-deep:  var(--rust);
+  --brass:       var(--gaslight);
+  --good:        var(--verdigris-text);
+  --sick:        var(--bile);
+  --focus:       var(--gaslight);
+  --paper-line:  var(--paper-rule);
+  --font-ui:     var(--font-display);
 }
-:root { --text-faint: #a79d8a; } /* 5.4:1 on --panel — safe for hints */
+
+/* ---- SEASON WASH -------------------------------------------------------
+   The season moves the ground, never the ink: winter darkens the grounds by
+   a fifth, which raises text contrast rather than lowering it. */
+html.atmo-season .season-LATE-SUMMER { --soot: #17181A; --slate: #24272B; --slate-2: #2C3036; }
+html.atmo-season .season-AUTUMN      { --soot: #17150F; --slate: #262218; --slate-2: #2E2A1F; }
+html.atmo-season .season-WINTER      { --soot: #0F1216; --slate: #1C2229; --slate-2: #242B33; }
+html.atmo-season .season-THAW        { --soot: #131714; --slate: #1F2621; --slate-2: #272F29; }

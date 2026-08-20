@@ -359,8 +359,8 @@ var Art = {
 
     /* the spark fan */
     g.push('<g class="gw-sparks">');
-    for (var i = 0; i < 22; i++) {
-      var ang = -30 + i * 4.2;
+    for (var i = 0; i < 10; i++) {
+      var ang = -30 + i * 9.2;
       g.push('<line class="gw-spark" style="animation-delay:' + (i * 90) + 'ms" x1="356" y1="120" x2="' +
         (356 + 150 * Math.cos(ang * Math.PI / 180)) + '" y2="' + (120 + 150 * Math.sin(ang * Math.PI / 180)) +
         '" stroke="#ffc463" stroke-width="1.6" opacity="0"/>');
@@ -370,7 +370,7 @@ var Art = {
     /* dust in the shaft of light */
     g.push('<path d="M150 0 L250 0 L190 200 L60 200 Z" fill="#c9b98a" opacity=".07"/>');
     g.push('<g class="gw-dust" fill="#cdbf9c" opacity=".35">');
-    for (var d = 0; d < 26; d++) {
+    for (var d = 0; d < 12; d++) {
       g.push('<circle style="animation-delay:' + (d * 220) + 'ms" cx="' + (70 + (d * 37) % 180) + '" cy="' + (20 + (d * 61) % 180) + '" r="1.6"/>');
     }
     g.push('</g>');
@@ -532,55 +532,120 @@ var Art = {
      Roads and nodes only — the labels are real HTML buttons laid over this,
      so they stay at a readable size at every width.
      ------------------------------------------------------------------- */
-  townMap: function (nodes, hereId) {
-    var pos = Art.mapPositions;
-    var edges = [
-      ['rows', 'ewe'], ['rows', 'market'], ['market', 'store'], ['market', 'pawn'],
-      ['market', 'chapel'], ['market', 'apothecary'], ['market', 'works'],
-      ['works', 'garrison'], ['market', 'railyard'], ['railyard', 'cut'], ['works', 'railyard']
+  /* ------------------------------------------------------------ the map
+     Grimwick as an inked survey of the borough: hand-drawn blocks, hatching
+     over the works district, the cut running through it like a scar, and
+     chimneys that are still going. Paper, not glass.
+     ------------------------------------------------------------------- */
+  /* Where each seal is stamped on the survey, in its own 1000x340 space. */
+  mapPositions: {
+    chapel:     { x: 430, y: 56  },
+    works:      { x: 764, y: 84  },
+    market:     { x: 468, y: 130 },
+    garrison:   { x: 878, y: 158 },
+    store:      { x: 470, y: 204 },
+    rows:       { x: 170, y: 226 },
+    cut:        { x: 668, y: 244 },
+    apothecary: { x: 540, y: 288 },
+    railyard:   { x: 866, y: 246 },
+    ewe:        { x: 118, y: 296 },
+    pawn:       { x: 336, y: 292 },
+    street:     { x: 252, y: 154 },
+    workhouse:  { x: 286, y: 60  }
+  },
+
+  townMap: function (nodes, here) {
+    var g = [];
+    /* the seals are placed in this exact coordinate space, so the drawing
+       must map to the box one-to-one rather than being cropped to fit */
+    g.push('<svg class="gw-svg gw-map" viewBox="0 0 1000 340" preserveAspectRatio="none" role="img" aria-label="">');
+    g.push('<defs>' +
+      '<pattern id="mapHatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">' +
+        '<line x1="0" y1="0" x2="0" y2="7" stroke="#2B2519" stroke-width="1.1" opacity=".55"/></pattern>' +
+      '<pattern id="mapHatch2" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(-24)">' +
+        '<line x1="0" y1="0" x2="0" y2="11" stroke="#2B2519" stroke-width="0.9" opacity=".3"/></pattern>' +
+      '<filter id="mapFoxing"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="4"/>' +
+        '<feColorMatrix type="saturate" values="0"/></filter>' +
+      '</defs>');
+
+    /* the stock */
+    g.push('<rect width="1000" height="340" fill="#E8E2D2"/>');
+    g.push('<rect width="1000" height="340" filter="url(#mapFoxing)" opacity=".13"/>');
+    g.push('<rect width="1000" height="340" fill="#8A7A4E" opacity=".07"/>');
+
+    /* the works district, hatched */
+    g.push('<path d="M596 24 L980 24 L980 196 L700 214 L596 150 Z" fill="url(#mapHatch)" opacity=".7"/>');
+    g.push('<path d="M596 24 L980 24 L980 196 L700 214 L596 150 Z" fill="none" stroke="#2B2519" stroke-width="2" stroke-dasharray="9 5"/>');
+    /* the rows, lighter hatching */
+    g.push('<path d="M28 150 L300 132 L332 300 L40 316 Z" fill="url(#mapHatch2)" opacity=".8"/>');
+
+    /* the cut: a black scar across the borough */
+    g.push('<path d="M-10 268 C 140 250, 240 296, 366 262 S 620 214, 760 246 S 940 288, 1010 262"' +
+           ' stroke="#14120C" stroke-width="16" fill="none" stroke-linecap="round"/>');
+    g.push('<path d="M-10 268 C 140 250, 240 296, 366 262 S 620 214, 760 246 S 940 288, 1010 262"' +
+           ' stroke="#3E382C" stroke-width="4" fill="none" opacity=".7"/>');
+
+    /* streets */
+    var streets = [
+      'M60 96 L520 74 L980 92', 'M120 300 L520 262 L960 286', 'M336 30 L360 320',
+      'M700 20 L676 330', 'M40 190 L980 168', 'M180 40 L214 318'
     ];
-    var g = ['<svg class="gw-svg gw-map" viewBox="0 0 640 360" preserveAspectRatio="none" role="presentation">'];
-    g.push(Art.defs());
-    g.push('<rect width="640" height="360" fill="#181410"/>');
-    /* the cut, the river of soot everything is built along */
-    g.push('<path d="M-10 300 q160 -40 320 -10 t330 -30" stroke="#241d16" stroke-width="26" fill="none" opacity=".8"/>');
-    var i, a, b;
-    for (i = 0; i < edges.length; i++) {
-      a = pos[edges[i][0]]; b = pos[edges[i][1]];
-      if (!a || !b) continue;
-      var far = nodes.far[edges[i][0]] !== nodes.far[edges[i][1]];
-      g.push('<path d="M' + a.x + ' ' + a.y + ' Q' + ((a.x + b.x) / 2 + 14) + ' ' + ((a.y + b.y) / 2 - 18) +
-        ' ' + b.x + ' ' + b.y + '" stroke="' + (far ? '#5a4a33' : '#3d342a') + '" stroke-width="' + (far ? 5 : 7) +
-        '" fill="none" stroke-linecap="round"' + (far ? ' stroke-dasharray="12 8"' : '') + '/>');
+    for (var st = 0; st < streets.length; st++) {
+      g.push('<path d="' + streets[st] + '" stroke="#2B2519" stroke-width="2.4" fill="none" opacity=".55"/>');
+      g.push('<path d="' + streets[st] + '" stroke="#E8E2D2" stroke-width="1" fill="none" opacity=".5"/>');
     }
-    for (var id in pos) {
-      if (!Object.prototype.hasOwnProperty.call(pos, id)) continue;
-      if (!nodes.visible[id]) continue;
-      var p = pos[id];
-      var here = id === hereId;
-      g.push('<circle cx="' + p.x + '" cy="' + p.y + '" r="' + (here ? 16 : 11) + '" fill="' +
-        (here ? '#d8834b' : (nodes.reach[id] ? '#6b5c40' : '#39322a')) + '" stroke="#120e0a" stroke-width="3"/>');
-      if (here) g.push('<circle class="gw-here" cx="' + p.x + '" cy="' + p.y + '" r="24" fill="none" stroke="#d8834b" stroke-width="2" opacity=".7"/>');
+
+    /* hand-drawn blocks: nothing square, nothing repeated */
+    var blocks = [
+      [44,110,52,34,-1.4],[104,104,44,30,1.1],[156,100,60,32,-.6],[228,96,40,36,1.8],
+      [48,208,66,38,.9],[126,204,48,30,-1.2],[186,200,56,34,1.4],[254,196,44,32,-.8],
+      [60,268,52,30,1.2],[130,262,60,32,-1.6],[210,258,46,34,.7],
+      [396,86,72,44,-1.1],[482,80,56,40,1.3],[396,178,64,36,.8],[478,172,70,40,-1.4],
+      [392,290,60,30,1.1],[478,284,52,32,-.9],
+      [624,60,86,52,-1.2],[724,52,96,58,1.0],[836,58,74,46,-.7],
+      [636,140,78,44,1.5],[738,134,88,50,-1.3],[848,140,66,42,.9]
+    ];
+    for (var b = 0; b < blocks.length; b++) {
+      var q = blocks[b];
+      g.push('<g transform="translate(' + q[0] + ',' + q[1] + ') rotate(' + q[4] + ')">');
+      g.push('<path d="M0 0 L' + q[2] + ' ' + (-1 + (b % 3)) + ' L' + (q[2] - 2) + ' ' + q[3] +
+             ' L' + (1 + (b % 2)) + ' ' + (q[3] - 1) + ' Z" fill="#D9D2BE" stroke="#2B2519" stroke-width="1.8"/>');
+      if (b % 4 === 0) {
+        g.push('<path d="M0 0 L' + q[2] + ' ' + q[3] + ' M' + q[2] + ' 0 L0 ' + q[3] + '" stroke="#2B2519" stroke-width="1" opacity=".35"/>');
+      }
+      g.push('</g>');
     }
+
+    /* chimneys, still going */
+    var stacks = [[664,44],[762,36],[872,48],[706,126]];
+    for (var c = 0; c < stacks.length; c++) {
+      var sx = stacks[c][0], sy = stacks[c][1];
+      g.push('<path d="M' + sx + ' ' + sy + ' l4 -26 h7 l4 26 z" fill="#2B2519"/>');
+      for (var p = 0; p < 3; p++) {
+        g.push('<ellipse class="map-chimney" style="animation-delay:' + (c * 1.3 + p * 2.1) + 's" cx="' +
+               (sx + 7) + '" cy="' + (sy - 30) + '" rx="9" ry="6" fill="#2B2519" opacity="0"/>');
+      }
+    }
+
+    /* the cartouche */
+    g.push('<g transform="translate(28,26)">');
+    g.push('<rect width="250" height="52" fill="#E8E2D2" stroke="#2B2519" stroke-width="2"/>');
+    g.push('<rect x="5" y="5" width="240" height="42" fill="none" stroke="#2B2519" stroke-width="1" opacity=".6"/>');
+    g.push('<text x="18" y="26" font-family="Georgia,serif" font-size="17" letter-spacing="2" fill="#14120C">GRIMWICK</text>');
+    g.push('<text x="18" y="42" font-family="Georgia,serif" font-size="11" letter-spacing="1.4" fill="#3E382C">SURVEY OF THE BOROUGH · YEAR 312</text>');
+    g.push('</g>');
+
+    /* compass */
+    g.push('<g transform="translate(940,300)">');
+    g.push('<circle r="22" fill="none" stroke="#2B2519" stroke-width="1.6"/>');
+    g.push('<path d="M0 -20 L6 4 L0 -2 L-6 4 Z" fill="#2B2519"/>');
+    g.push('<text x="-4" y="-24" font-family="Georgia,serif" font-size="11" fill="#14120C">N</text>');
+    g.push('</g>');
+
     g.push('</svg>');
     return g.join('');
   },
 
-  mapPositions: {
-    rows:       { x: 96,  y: 250 },
-    ewe:        { x: 52,  y: 314 },
-    market:     { x: 250, y: 214 },
-    store:      { x: 336, y: 168 },
-    pawn:       { x: 196, y: 136 },
-    chapel:     { x: 306, y: 92  },
-    apothecary: { x: 372, y: 262 },
-    works:      { x: 498, y: 78  },
-    garrison:   { x: 566, y: 152 },
-    railyard:   { x: 500, y: 302 },
-    cut:        { x: 616, y: 248 }
-  },
-
-  /* Mount SVG into a host element. Art is authored here, never user text. */
   into: function (node, markup) {
     if (!node) return;
     node.innerHTML = markup;

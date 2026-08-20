@@ -180,6 +180,7 @@ function newState(seed) {
     factory: {
       station: 'CAP_BENCH',
       order: null,             /* what the Works wants made today */
+      handQuality: 0.5,        /* how the bench game went. 0.5 is an ordinary day. */
       pace: 'steady', care: 'proper', guard: 'on',
       skills: { CASTING: 12, CAP_BENCH: 50, GRINDING: 9, STAMPING: 18 },
       worked: false,
@@ -234,7 +235,13 @@ function newState(seed) {
 
     tutorial: { active: true, step: 0, done: false },
 
-    settings: { god: false, audio: true, volume: 0.7 },
+    settings: {
+      god: false,
+      audio: true, volume: 0.7, music: true,
+      minigames: true,
+      plainLedger: false,
+      atmo: { grain: true, gaslight: true, smoke: true, rain: true, season: true, vignette: true }
+    },
 
     arrest: null,            /* {day, daysHeld, charge} while the garrison has you */
     dead: false,

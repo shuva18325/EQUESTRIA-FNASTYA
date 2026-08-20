@@ -235,10 +235,15 @@ var Factory = {
     rec.rarity = ord.rarity;
     var skillMult = 0.55 + Factory.skill(station) / 100 * 0.65;
     var swing = 0.94 + Util.rnd() * 0.12;
+    /* the bench game, bounded: 0.5 is an ordinary pair of hands and resolves
+       to exactly 1.00, which is what the sim did before minigames existed */
+    var hand = 0.90 + Util.clamp(
+      typeof S.factory.handQuality === 'number' ? S.factory.handQuality : 0.5, 0, 1) * 0.20;
     var output = d.baseOutput * skillMult
       * PACE[S.factory.pace].output * CARE[S.factory.care].output * GUARD[S.factory.guard].output
-      * Factory.condition(station) * ord.output * swing;
+      * Factory.condition(station) * ord.output * swing * hand;
     rec.output = Math.max(0, Math.round(output));
+    rec.hand = hand;
     rec.rejects = Math.round(rec.output * Factory.rejectRate(station) * ord.reject);
     rec.good = Math.max(0, rec.output - rec.rejects);
     rec.credits = Math.round(rec.good * d.quotaWeight * ord.quota);
