@@ -446,7 +446,10 @@ var TOWN_ACTIONS = {
       State.applyStanding({ workmates: 2, notice: 1 });
       State.applyMind({ resolve: 2 });
       if (S.time.act >= 2 && Util.chance(0.5)) S.flags.knowsAboutTheCut = true;
-      return txt('listen');
+      /* three in ten of these are false and the game will not tell you which,
+         because nobody in the Black Ewe knows either */
+      var r = Empire.rumour();
+      return txt('listen') + ' ' + r.text;
     }
   },
 
@@ -615,19 +618,14 @@ var TOWN_ACTIONS = {
   },
 
   bounty: {
-    ap: 1, at: 'garrison',
+    ap: 0, at: 'garrison',
     enabled: function () {
-      if (S.flags.informer) return 'disabled.alreadyInformer';
       if (!(S.flags.heardTheTalk > 0 || S.flags.knowsAboutTheCut)) return 'disabled.noName';
+      if (S.flags.namedToday === S.time.day) return 'disabled.namedToday';
+      if (!Town.nameable().length) return 'disabled.noName';
       return true;
     },
-    run: function () {
-      S.flags.informer = true;
-      State.applyPurse({ pennies: 18 });
-      State.applyStanding({ workmates: -25, garrison: 12, notice: -8 });
-      State.applyMind({ resolve: -12 });
-      return txt('bounty');
-    }
+    run: function () { return { open: 'inform' }; }
   },
 
   enlistAsk: {
@@ -656,6 +654,10 @@ var TOWN_ACTIONS = {
     enabled: function () { return true; },
     run: function () {
       S.flags.heardTheSpeaker = (S.flags.heardTheSpeaker || 0) + 1;
+      S.tracks.union.known = true;
+      S.tracks.union.joined = true;
+      S.tracks.union.meetings += 1;
+      S.tracks.union.rank = Math.min(3, S.tracks.union.meetings + S.tracks.union.dues);
       State.applyMind({ resolve: 7 });
       State.applyStanding({ notice: 4, workmates: 3 });
       return txt('hearSpeaker');
@@ -679,6 +681,10 @@ var TOWN_ACTIONS = {
     run: function () {
       Economy.spend(2);
       S.flags.unionDues = (S.flags.unionDues || 0) + 1;
+      S.tracks.union.known = true;
+      S.tracks.union.joined = true;
+      S.tracks.union.dues += 1;
+      S.tracks.union.rank = Math.min(3, S.tracks.union.meetings + S.tracks.union.dues);
       State.applyStanding({ workmates: 5 });
       return txt('payDues', 'r', { p: Economy.money(2) });
     }
@@ -760,6 +766,148 @@ var TOWN_ACTIONS = {
         S.flags.kinTaken = true;
       }
       return txt('enterWorkhouse');
+    }
+  },
+
+  /* ---------------------------------------------------------- the print */
+  broadsheet: {
+    ap: 1, at: 'market', price: function () { return 1; },
+    enabled: function () {
+      if (S.mind.literacy < 1) return 'disabled.illiterate';
+      return Economy.canAfford(1) ? true : 'disabled.noPennies';
+    },
+    run: function () {
+      Economy.spend(1);
+      return { open: 'broadsheet' };
+    }
+  },
+
+  broadsheetAloud: {
+    ap: 1, at: 'market', price: function () { return 2; },
+    enabled: function () { return Economy.canAfford(2) ? true : 'disabled.noPennies'; },
+    run: function () {
+      Economy.spend(2);
+      S.flags.paidToBeRead = (S.flags.paidToBeRead || 0) + 1;
+      return { open: 'broadsheetAloud' };
+    }
+  },
+
+  /* ------------------------------------------------------------- enlist */
+  takeShilling: {
+    ap: 1, at: 'garrison',
+    enabled: function () {
+      if (S.time.act < 2) return 'disabled.nothingYet';
+      if (S.tracks.enlist.joined) return 'disabled.alreadyEnlisted';
+      if (S.body.health < 25) return 'disabled.unfit';
+      return true;
+    },
+    run: function () {
+      var bounty = 240 * (S.empire.levy >= 45 ? 3 : 2);
+      S.tracks.enlist.joined = true;
+      S.tracks.enlist.known = true;
+      S.tracks.enlist.bounty = bounty;
+      S.tracks.enlist.day = S.time.day;
+      S.flags.enlisted = true;
+      S.flags.departureDay = S.time.day + 4;
+      State.applyPurse({ pennies: bounty });
+      State.applyStanding({ garrison: 20, workmates: -10 });
+      State.applyMind({ resolve: 6 });
+      UI.log(T('log.gained', { amt: Economy.money(bounty) }), 'good');
+      return txt('takeShilling');
+    }
+  },
+
+  /* ------------------------------------------------------------ passage */
+  putBy: {
+    ap: 1, at: 'railyard',
+    enabled: function () {
+      if (!S.flags.knowsTheRoad) return 'disabled.notYet';
+      return S.purse.pennies > 0 ? true : 'disabled.noPennies';
+    },
+    run: function () {
+      var put = S.purse.pennies;
+      Economy.spend(put);
+      S.tracks.emigrate.saved += put;
+      S.tracks.emigrate.known = true;
+      S.tracks.emigrate.joined = true;
+      return txt('putBy') + ' ' + T('tracks.putByNote', {
+        n: Economy.money(S.tracks.emigrate.saved), f: Economy.money(S.tracks.emigrate.fare)
+      });
+    }
+  },
+
+  bookPassage: {
+    ap: 1, at: 'railyard', price: function () { return S.tracks.emigrate.fare; },
+    enabled: function () {
+      if (!S.flags.knowsTheRoad) return 'disabled.notYet';
+      if (S.tracks.emigrate.booked) return 'disabled.alreadyBooked';
+      var have = S.tracks.emigrate.saved + S.purse.pennies;
+      return have >= S.tracks.emigrate.fare ? true : 'disabled.noPennies';
+    },
+    run: function () {
+      var need = S.tracks.emigrate.fare;
+      var fromSaved = Math.min(S.tracks.emigrate.saved, need);
+      S.tracks.emigrate.saved -= fromSaved;
+      Economy.spend(need - fromSaved);
+      S.tracks.emigrate.booked = true;
+      S.tracks.emigrate.joined = true;
+      S.flags.passageBooked = true;
+      State.applyMind({ resolve: 14 });
+      return txt('bookPassage', 'r', { p: Economy.money(need) });
+    }
+  },
+
+  bookKinPassage: {
+    ap: 1, at: 'railyard', price: function () { return S.tracks.emigrate.kinFare; },
+    enabled: function () {
+      if (!State.kinPresent()) return 'disabled.noKin';
+      if (!S.tracks.emigrate.booked) return 'disabled.bookYoursFirst';
+      if (S.tracks.emigrate.kinBooked) return 'disabled.alreadyBooked';
+      var have = S.tracks.emigrate.saved + S.purse.pennies;
+      return have >= S.tracks.emigrate.kinFare ? true : 'disabled.noPennies';
+    },
+    run: function () {
+      var need = S.tracks.emigrate.kinFare;
+      var fromSaved = Math.min(S.tracks.emigrate.saved, need);
+      S.tracks.emigrate.saved -= fromSaved;
+      Economy.spend(need - fromSaved);
+      S.tracks.emigrate.kinBooked = true;
+      State.applyKin({ mood: 20 });
+      State.applyMind({ resolve: 10 });
+      return txt('bookKinPassage', 'r', { p: Economy.money(need) });
+    }
+  },
+
+  /* ----------------------------------------------------------- the work */
+  bigJob: {
+    ap: 1, at: 'railyard',
+    enabled: function () {
+      if (S.time.act < 2) return 'disabled.nothingYet';
+      if (!S.flags.knowsSerrel) return 'disabled.noSerrel';
+      if (S.flags.bigJobDay === S.time.day) return 'disabled.alreadyTonight';
+      return true;
+    },
+    run: function () {
+      S.flags.bigJobDay = S.time.day;
+      S.tracks.criminal.known = true;
+      S.tracks.criminal.joined = true;
+      S.tracks.criminal.jobs += 1;
+      var caught = Util.chance(0.2 + S.tracks.criminal.heat / 200 + S.standing.notice / 400);
+      if (caught) {
+        S.tracks.criminal.caught += 1;
+        S.tracks.criminal.heat += 18;
+        State.applyStanding({ notice: 26, garrison: -14 });
+        State.applyBody({ fatigue: 14, health: -3 });
+        State.applyMind({ resolve: -6 });
+        return txt('bigJob', 'rCaught');
+      }
+      var pay = Util.rndInt(52, 96);
+      State.applyPurse({ pennies: pay });
+      S.tracks.criminal.heat += 8;
+      State.applyStanding({ notice: 12 });
+      State.applyBody({ fatigue: 12 });
+      UI.log(T('log.gained', { amt: Economy.money(pay) }), 'good');
+      return txt('bigJob', 'rGot');
     }
   },
 
@@ -905,6 +1053,44 @@ var Town = {
     if (def.ap > 0) Audio.thunk();
     if (result && result.open) return result;
     return { text: result };
+  },
+
+  /* ---- the names you can give, and the giving of them ----------------- */
+  nameable: function () {
+    var out = [], i;
+    for (i = 0; i < S.factory.floor.length; i++) {
+      var h = S.factory.floor[i];
+      if (!h.alive) continue;
+      if (Town.alreadyNamed(h.name)) continue;
+      out.push({ name: h.name, age: h.age, note: 'floor' });
+    }
+    if (S.flags.knowsAboutTheCut && !Town.alreadyNamed(TOWN_NPCS.vane.name)) {
+      out.push({ name: TOWN_NPCS.vane.name, age: 41, note: 'cut' });
+    }
+    return out;
+  },
+
+  alreadyNamed: function (name) {
+    var n = S.tracks.informant.names;
+    for (var i = 0; i < n.length; i++) if (n[i].name === name) return true;
+    return false;
+  },
+
+  giveName: function (name, note) {
+    if (S.evening.ap < 1) return null;
+    S.evening.ap -= 1;
+    S.flags.namedToday = S.time.day;
+    S.flags.informer = true;
+    S.tracks.informant.known = true;
+    S.tracks.informant.joined = true;
+    var pay = note === 'cut' ? 36 : 18;
+    S.tracks.informant.names.push({ name: name, day: S.time.day, note: note, fate: null, shown: false });
+    S.tracks.informant.paid += pay;
+    State.applyPurse({ pennies: pay });
+    State.applyStanding({ workmates: -18, garrison: 10, foreman: 8, notice: -12 });
+    State.applyMind({ resolve: -12 });
+    UI.log(T('log.gained', { amt: Economy.money(pay) }), 'good');
+    return txt('bounty') + ' ' + T('tracks.nameGiven', { name: name });
   },
 
   /* ---- Ostrek's counter: the pickers commit the action point ---------- */

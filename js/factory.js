@@ -24,9 +24,56 @@ var CATASTROPHE_INJURY = {
    persuaded to let you into the stamping shop. */
 var TRANSFER_GATE = { CASTING: 25, CAP_BENCH: -20, GRINDING: -40, STAMPING: -100 };
 
+var RARITY_WEIGHT = { COMMON: 60, UNCOMMON: 22, FINE: 12, RARE: 5, PROTOTYPE: 2 };
+
 var Factory = {
 
   def: function (station) { return STATION_DEF[station || S.factory.station]; },
+
+  /* ---------------------------------------------------------- day order
+     The Ordnance Division sends down what it wants made. Common ball most
+     days. Now and then a breech block for a pattern with no name, worth
+     eleven times the ball and charged at eleven times the ball if you
+     spoil one.
+     ------------------------------------------------------------------- */
+  order: function () {
+    var o = S.factory.order && ORDERS[S.factory.order];
+    return o || ORDERS.ball_common;
+  },
+
+  eligibleOrders: function (station) {
+    var out = [], id;
+    for (id in ORDERS) {
+      if (!Object.prototype.hasOwnProperty.call(ORDERS, id)) continue;
+      var o = ORDERS[id];
+      if (o.stations.indexOf(station) < 0) continue;
+      if (o.minAct && S.time.act < o.minAct) continue;
+      if (o.requiresWar && S.empire.war < o.requiresWar) continue;
+      out.push(o);
+    }
+    return out;
+  },
+
+  assignOrder: function () {
+    var pool = Factory.eligibleOrders(S.factory.station);
+    if (!pool.length) { S.factory.order = 'ball_common'; return; }
+    var weights = [], total = 0, i;
+    for (i = 0; i < pool.length; i++) {
+      var w = RARITY_WEIGHT[pool[i].rarity] || 10;
+      /* a war wants the new patterns, and wants them faster than it can gauge them */
+      if (pool[i].rarity === 'PROTOTYPE' || pool[i].rarity === 'RARE') w *= 1 + S.empire.war / 60;
+      if (pool[i].rarity === 'COMMON') w *= 1 + S.empire.levy / 90;
+      weights.push(w);
+      total += w;
+    }
+    var r = Util.rnd() * total, pick = pool[pool.length - 1];
+    for (i = 0; i < pool.length; i++) {
+      r -= weights[i];
+      if (r <= 0) { pick = pool[i]; break; }
+    }
+    S.factory.order = pick.id;
+    if (RARITY[pick.rarity].rank >= 3) S.flags.sawRareOrder = (S.flags.sawRareOrder || 0) + 1;
+  },
   skill: function (station) { return S.factory.skills[station || S.factory.station] || 0; },
 
   /* ---------------------------------------------------------------- dials */
@@ -127,20 +174,24 @@ var Factory = {
       S.factory.care = dials.care || keep.c;
       S.factory.guard = dials.guard || keep.g;
     }
+    var ord = Factory.order();
     var skillMult = 0.55 + Factory.skill(station) / 100 * 0.65;
     var output = d.baseOutput * skillMult
       * PACE[S.factory.pace].output * CARE[S.factory.care].output * GUARD[S.factory.guard].output
-      * Factory.condition(station);
+      * Factory.condition(station) * ord.output;
     output = Math.max(0, Math.round(output));
-    var rejects = Math.round(output * Factory.rejectRate(station));
+    var rejects = Math.round(output * Factory.rejectRate(station) * ord.reject);
     var good = Math.max(0, output - rejects);
     var out = {
       station: station,
+      order: ord.id,
+      rarity: ord.rarity,
       output: output,
       rejects: rejects,
       good: good,
-      credits: Math.round(good * d.quotaWeight),
-      wage: Math.max(WAGE.dayFloor, Math.round(good * d.pieceRate)),
+      credits: Math.round(good * d.quotaWeight * ord.quota),
+      wage: Math.max(WAGE.dayFloor, Math.round(good * d.pieceRate * ord.value)),
+      spoilage: Factory.spoilCharge(output, rejects, ord, Math.max(WAGE.dayFloor, Math.round(good * d.pieceRate * ord.value))),
       accident: Factory.accidentRisk(station),
       catastrophe: Factory.catastropheRisk(station)
     };
@@ -179,16 +230,25 @@ var Factory = {
     beats.push({ text: floorBeats[i2] });
 
     /* --- output --- */
+    var ord = Factory.order();
+    rec.order = ord.id;
+    rec.rarity = ord.rarity;
     var skillMult = 0.55 + Factory.skill(station) / 100 * 0.65;
     var swing = 0.94 + Util.rnd() * 0.12;
     var output = d.baseOutput * skillMult
       * PACE[S.factory.pace].output * CARE[S.factory.care].output * GUARD[S.factory.guard].output
-      * Factory.condition(station) * swing;
+      * Factory.condition(station) * ord.output * swing;
     rec.output = Math.max(0, Math.round(output));
-    rec.rejects = Math.round(rec.output * Factory.rejectRate(station));
+    rec.rejects = Math.round(rec.output * Factory.rejectRate(station) * ord.reject);
     rec.good = Math.max(0, rec.output - rec.rejects);
-    rec.credits = Math.round(rec.good * d.quotaWeight);
-    rec.wage = Math.max(WAGE.dayFloor, Math.round(rec.good * d.pieceRate));
+    rec.credits = Math.round(rec.good * d.quotaWeight * ord.quota);
+    rec.wage = Math.max(WAGE.dayFloor, Math.round(rec.good * d.pieceRate * ord.value));
+
+    /* The Works allows four in the hundred. Everything condemned above that
+       is charged at the value of the article, and on a breech block the value
+       of the article is a fortnight. Meticulous work is the only defence. */
+    rec.spoilage = Factory.spoilCharge(rec.output, rec.rejects, ord, rec.wage);
+    S.pending.spoilage = (S.pending.spoilage || 0) + rec.spoilage;
 
     /* --- what the floor takes --- */
     var wear = d.wear;
@@ -260,6 +320,7 @@ var Factory = {
     S.factory.shift = {
       station: rec.station, output: rec.output, rejects: rec.rejects, good: rec.good,
       credits: rec.credits, wage: rec.wage, outcome: rec.outcome, hours: rec.hours,
+      order: rec.order, rarity: rec.rarity, spoilage: rec.spoilage,
       skillGain: rec.skillGain, injury: rec.injury, catastrophe: rec.catastrophe,
       died: rec.died, nearMiss: rec.nearMiss, beats: beats
     };
@@ -269,6 +330,13 @@ var Factory = {
 
     UI.log(T('shift.workedFor', { h: WAGE.hours, station: T('shift.stations.' + station + '.name') }));
     return rec;
+  },
+
+  /* Four in the hundred is the Works' own tolerance. Above it, you pay. */
+  spoilCharge: function (output, rejects, ord, wage) {
+    var allowance = Math.ceil(output * 0.04);
+    var excess = Math.max(0, rejects - allowance);
+    return Math.min(Math.round(excess * ord.spoil), Math.max(0, wage));
   },
 
   /* Whoever is nearest when it goes. Usually somebody's daughter. */

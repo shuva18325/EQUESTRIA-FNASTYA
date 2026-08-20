@@ -47,6 +47,7 @@ var STR = {
     weather: 'Weather',
     phase: 'Phase',
     objectives: 'STANDING ORDERS',
+    theTown: 'The town, this week',
     goal: 'What is wanted of you',
     deadline: 'Next reckoning',
     purse: 'Purse',
@@ -543,6 +544,7 @@ var STR = {
     kinWage: '{name}, cap bench',
       kinWageLine: 'Second hand, same household',
       quotaFine: 'Fine \u2014 count short of the week',
+      spoilage: 'Condemned pieces, at the value of the article',
       coomCharge: 'Overlooker\u2019s charge',
       skimBench: 'Bench hire',
       skimApron: 'Apron and gloves',
@@ -644,6 +646,209 @@ var STR = {
   creation: {
     heading: 'WHO IS IN THE ROOM WITH YOU',
     blurb: 'You are twenty-six, a floor hand at the Grimwick Small Arms Works, and you are not the only one eating out of the wage. Somebody is upstairs. Which of them it is decides what the next sixty days cost you.'
+  },
+
+  enlist: {
+    heading: 'THE DEPOT',
+    blurb: 'You are attested, sworn, and on the strength. Drill in the square at seven, a barracks bed, and the regiment for the Kelsgrave highlands as soon as the party is made up.',
+    departs: 'The party leaves',
+    departsIn: 'in {n} days',
+    drill: 'Drill in the square',
+    drillHint: 'Forming, marching, the manual exercise. Fed at the depot, which is the part that is real.',
+    drillResult: 'Four hours of forming fours in the wet, and a dinner of beef and bread that you eat standing up because you cannot make yourself sit down for it.',
+    drillDone: 'Dismissed at two. The rest of the day is your own, which is a new arrangement and takes getting used to.'
+  },
+
+  informing: {
+    heading: 'A NAME',
+    blurb: 'Vask has the book open and a pen already wet. He does not ask you to think about it, because thinking about it is how people change their minds.',
+    pick: 'Whose name?',
+    floorNote: 'On the floor with you. Has been for years.',
+    cutNote: 'The man from the Cut. They want him more than they want any of the others, and they pay accordingly.',
+    given: 'Given: {name}',
+    cancel: 'Not today'
+  },
+
+  fates: {
+    heading: 'WHAT BECAME OF THEM',
+    blurb: 'You hear it at the bench, in pieces, over about a fortnight. Nobody tells you directly. Nobody has to.'
+  },
+
+  world: {
+    gallowsRaised: 'There are carpenters in the market square on Sunday putting up something with a platform and a crossbeam, and nobody has said what it is for, and everybody knows.',
+    gallows: 'The new scaffold stands at the north end of the square with a tarpaulin over the beam.',
+    patrols: [
+      'A pair of the garrison on the square at the usual hours.',
+      'There are more soldiers about than there were last month, and they walk in fours.',
+      'Patrols on every hour, and two of them stood at the works gate from five in the morning.',
+      'The town is under something that is not called martial law, and the difference is not visible from the street.'
+    ],
+    shelves: {
+      none:   'The barrows are as full as they ever are.',
+      low:    'The good flour has gone from two of the stalls and nobody has said why.',
+      rising: 'Half the barrows have nothing on them by four in the afternoon.',
+      high:   'Queues at the bakers before it opens, and a man at the door letting them in six at a time.',
+      total:  'The shelves are bare by noon and there is a price fixed on the door that nobody is charging.'
+    },
+    pressGang: 'There is a press gang working the Ewe and the lodging houses after dark. Two men off Cinder Row have not been seen since Friday.',
+    recruiters: 'Recruiting parties in the square most days now, with a table and a bowl of shillings.',
+    unrest: 'Something is coming. You can tell by how carefully everybody is talking.'
+  },
+
+  broadsheet: {
+    heading: 'THE GRIMWICK & COUNTY ADVERTISER',
+    price: 'A penny, or tuppence to have it read to you.',
+    cannotRead: 'The print sits there being print. You can make out the big letters at the top and nothing under them.',
+    readAloud: 'The scribe reads it out on the corner for tuppence, in a voice pitched to carry, which means eleven other people get it free.',
+    war: {
+      none:  'Affairs in the Kelsgrave highlands continue to be settled by the civil power. No general action is reported.',
+      low:   'A punitive column has entered the Kelsgrave passes. The Board expects the business concluded before the snows.',
+      rising:'Two brigades are now engaged in the highlands. The Advertiser prints a list of the wounded, in small type, on the fourth page.',
+      high:  'The Kelsgrave campaign enters its second season. Four regiments are in the field and the casualty lists have moved to the second page.',
+      total: 'General war in the highlands and on the eastern frontier both. The lists now occupy a page and a half and are printed without comment.'
+    },
+    scarcity: {
+      none:  'The corn market is steady and the Advertiser sees no cause for the alarm expressed in certain quarters.',
+      low:   'Transport of grain is subject to some delay owing to the requisitioning of waggons for the service.',
+      rising:'The price of the quartern loaf has risen a third since the spring. The Advertiser attributes this to the improvidence of the poor.',
+      high:  'Bread riots at Woolvern and at Cardett. The military were called and the matter was concluded within the hour.',
+      total: 'A maximum price is fixed by proclamation on bread, coal and salt. No penalty is stated for exceeding it and none is expected.'
+    },
+    unrest: {
+      none:  'The borough is quiet and the magistrates report nothing requiring their attention.',
+      low:   'Certain persons have been distributing printed matter of an inflammatory character in the manufacturing districts.',
+      rising:'Combinations of workmen are reported at three works in the county. The Advertiser reminds its readers that such combinations are unlawful.',
+      high:  'The magistrates have sworn in special constables. Assemblies of more than twelve persons require written permission.',
+      total: 'The Riot Act was read at Woolvern on Tuesday and the yeomanry cleared the square. Eleven are in custody and two are not.'
+    },
+    levy: {
+      none:  'Recruiting proceeds in the ordinary way and the establishment is complete.',
+      low:   'A bounty of two crowns is offered to men enlisting for the highland service.',
+      rising:'The bounty is raised to three crowns. Recruiting parties are appointed to the manufacturing towns.',
+      high:  'The ballot for the militia is to be held in the borough. Substitutes may be found at the usual rate by those able to pay it.',
+      total: 'Impressment for the naval and land service is authorised in the manufacturing districts. Certificates of exemption are issued at the garrison post.'
+    }
+  },
+
+  rumours: {
+    generic: 'Somebody says something with great confidence and somebody else agrees with him.',
+    war: {
+      none:  ['They say the highland business is finished and the column is coming home by the spring.',
+              'They say there was never any war up there at all, only tax collecting with a band.'],
+      low:   ['They say a column went into the passes and has not come out yet, and it has been eleven days.',
+              'They say the Kelsgrave men fight with old flintlocks and it is going to be quick.'],
+      rising:['They say two brigades are up there now and the ground is worse than the men.',
+              'They say a whole battalion was cut up in a pass with a name nobody can pronounce.'],
+      high:  ['They say the lists in the Advertiser are a third of the real ones and always have been.',
+              'They say four regiments and still no ground held past the second range.'],
+      total: ['They say it is the eastern frontier as well now and they are calling out the militia for both.',
+              'They say the war will not end because there is nobody left who wants it to.']
+    },
+    scarcity: {
+      none:  ['They say the corn is coming in fine and the price will be down by the month end.',
+              'They say the shortage last winter was got up by the factors to raise the price.'],
+      low:   ['They say the waggons have all gone for the service and the flour is standing in a yard at Cardett.',
+              'They say the bakers are holding back and there is more in the town than they let on.'],
+      rising:['They say bread will be sevenpence by the quarter day and nobody will be able to do a thing about it.',
+              'They say the good flour goes to the contractors first and always did.'],
+      high:  ['They say there was a riot at Woolvern over the loaf and the soldiers fired over their heads.',
+              'They say the company store is the only place with flour left and that is not an accident.'],
+      total: ['They say a maximum price is proclaimed and nobody is keeping to it.',
+              'They say there is grain in the bonded warehouse at the sidings and a guard on the door.']
+    },
+    unrest: {
+      none:  ['They say the magistrates have nothing on their books this quarter but drunkenness.',
+              'They say the whole business about combinations is got up by the newspapers.'],
+      low:   ['They say there is print going round the works and somebody has been paid to find out whose.',
+              'They say a man was put off at Woolvern for talking and cannot get taken on anywhere.'],
+      rising:['They say there are combinations at three works in the county and one of them is ours.',
+              'They say the special constables have been sworn in and half of them are works overlookers.'],
+      high:  ['They say the magistrates have a list and the list has forty names on it.',
+              'They say they are hanging for sedition again in the north, which they have not done since ’39.'],
+      total: ['They say the Riot Act was read at Woolvern and the yeomanry went in with the flat of the sword.',
+              'They say the two who got away from Woolvern are in Grimwick and somebody is feeding them.']
+    },
+    levy: {
+      none:  ['They say the establishment is full and they are turning men away at the post.',
+              'They say the bounty is coming down because they have all the men they need.'],
+      low:   ['They say the bounty is two crowns and a suit of clothes for the highland service.',
+              'They say a man from the Rows took it Tuesday and was gone Wednesday.'],
+      rising:['They say the bounty is three crowns now and it will not go higher, and it always goes higher.',
+              'They say the recruiting party has orders to fill forty places out of this town alone.'],
+      high:  ['They say the militia ballot is coming and a substitute costs eight pound, which is a year.',
+              'They say the exemption certificates can be had at the post for a consideration.'],
+      total: ['They say there is a press gang working the lodging houses after dark and the magistrates know.',
+              'They say two men went out of the Ewe on Friday between four soldiers and nobody has written to their wives.']
+    }
+  },
+
+  acts: {
+    retooling: {
+      title: 'THE WORKS RETOOLS',
+      text: 'A notice on the gate and a foreman reading it out for those who cannot. The Ordnance Board has adopted the rifled musket. Grimwick will make it: new machines up from the capital, new gauges, new rates, and a count that is double what it was on Friday.',
+      laid: 'Three floors are laid off with their books at the gate at seven. {names} are among them, and they have between them ninety-one years in this works.',
+      after: 'The men who are kept understand exactly what they have been kept for. So does everybody at the gate who was not.'
+    },
+    reckoning: {
+      title: 'THE RECKONING',
+      text: 'Whatever you have been building since the retooling comes due now. The strike is called or it is not. The passage is paid for or it is not. The names you gave are in a book somewhere being acted upon.',
+      after: 'Fifteen days left of the winter, and everything you have set moving arrives inside them.'
+    }
+  },
+
+  garrison: {
+    watched: {
+      title: 'WATCHED',
+      text: 'There is a man at the end of Cinder Row who is not from Cinder Row, and he was there yesterday as well. Nothing happens. He is simply there, and you are meant to know it.'
+    },
+    searched: {
+      title: 'TURNED OUT',
+      text: 'Four of the garrison come up the stair at six in the morning with a corporal and a list. They take the room apart in eleven minutes, competently, without breaking anything they do not need to break.',
+      clean: 'They find a bent nail, a heel of bread, and a family bible, and the corporal writes NOTHING FOUND on the paper and has you make your mark against it.',
+      found: 'They find it. Of course they find it — the floorboard trick is in a manual somewhere. The corporal holds it up so the landing can see, and writes it down.'
+    },
+    arrested: {
+      title: 'TAKEN UP',
+      text: 'Two of them at the works gate at seven with your number on a paper. It is done quietly, in front of everybody, in the four minutes between the bell and the benches.',
+      cells: 'The cells under the garrison post are dry and cold and there are five of you in a room built for two. You are not questioned for the first two days. That is deliberate.',
+      released: 'They put you out of the gate at nine on the {n}th morning with nothing said and nothing written, and you have lost your shifts and the shifts are not made up.'
+    },
+    hanged: {
+      title: 'THE CALENDAR',
+      text: 'The assizes sit at the county town and the list is short and your name is on it, and the charge is one they hang for this year because of what happened at Woolvern.'
+    },
+    pressgang: {
+      title: 'THE GANG',
+      text: 'Four of them and a serjeant outside the Ewe at eleven at night, taking men with no settled employment, which since Friday means you.'
+    },
+    heldFor: 'Held',
+    heldDays: '{n} days more',
+    waitOut: 'Wait it out',
+    waitOutHint: 'There is nothing else in the cells to do. That is what the cells are.',
+    missed: 'They go over the room twice and do not lift the third board from the wall, and you find out what your hands do when you are trying to look bored.'
+  },
+
+  tracks: {
+    heading: 'WHAT YOU ARE BUILDING',
+    none: 'Nothing yet. The bell at five, the bench, the bell at seven.',
+    union:     { name: 'The Cut', note: 'Dues paid: {n}. Meetings: {m}.' },
+    informant: { name: 'Coom’s retainer', note: 'Names given: {n}.' },
+    enlist:    { name: 'The shilling', note: 'Taken. The party leaves in the spring.' },
+    emigrate:  { name: 'Passage', note: 'Put by: {n} of {f}.' },
+    putByNote: 'Held with Serrel: {n} of {f}.',
+    nameGiven: 'The name in the book is {name}.',
+    criminal:  { name: 'The sidings', note: 'Jobs: {n}. Caught: {c}.' }
+  },
+
+  order: {
+    heading: 'THE DAY ORDER',
+    today: 'Wanted today',
+    rarity: 'Class',
+    worth: 'Valued at',
+    per: 'the hundred',
+    spoilage: 'Condemned pieces charged at',
+    each: 'each',
+    stations: 'Made at'
   },
 
   foreman: {
@@ -847,6 +1052,24 @@ var STR = {
       epitaph: 'You are still owed for. You will be owed for in the spring as well.'
     },
     milestone_continue: 'Go on',
+    dmgDust: 'Stone in the lung: {n} of a hundred, {band}.',
+    dmgTremor: 'The shake: {n} of a hundred, {band}.',
+    dmgLead: 'Lead: {n} of a hundred, {band}.',
+    dmgScar: 'Carried for good: {what}.',
+    dmgNone: 'Nothing permanent. There has not been time.',
+    kinNone: 'Nobody depended on you by the end.',
+    kinDead: '{name} is buried.',
+    kinTaken: '{name} is in the poorhouse, in a separate ward, and was when it ended.',
+    kinSailed: '{name} sailed with you.',
+    kinWorking: '{name} is on the cap bench, with the shake at {n}, and she is still a child.',
+    kinAlive: '{name} is alive and {band}.',
+    accountHeading: 'THE ACCOUNT',
+    daysSurvived: 'Days survived',
+    damageCarried: 'Carried out of it',
+    kinFate: 'Who was in the room with you',
+    namesGiven: 'Names you gave',
+    namesNone: 'You gave no names.',
+    closingLabel: '',
     again: 'Begin again',
     summary: 'THE ACCOUNT',
     summaryDays: 'Days survived',
@@ -981,7 +1204,15 @@ var STR = {
     noLaudanum: 'There is no laudanum in the house.',
     noCoal: 'There is no coal.',
     noFood: 'There is nothing in the larder.',
-    notNow: 'Not something you can do just now.'
+    notNow: 'Not something you can do just now.',
+    alreadyEnlisted: 'You have taken it. It is not a thing you take twice.',
+    unfit: 'They will not have you. The surgeon at the post has looked at your chest.',
+    alreadyBooked: 'That is paid for and the date is written.',
+    bookYoursFirst: 'Your own berth first. They will not book a child alone.',
+    noSerrel: 'You do not know anybody who could put that to you.',
+    alreadyTonight: 'That is done for tonight.',
+    namedToday: 'You have given him a name today.',
+    noNameLeft: 'There is nobody left to give him.'
   },
 
   log: {

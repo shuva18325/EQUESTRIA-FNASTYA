@@ -45,7 +45,7 @@ var LOCATIONS = [
     sub: 'Sallow Street',
     district: 'CENTRE',
     blurb: 'Barrows under wet canvas. Bread, coal, cloth, and a board by the pump where the week’s prices are chalked up whether anyone likes them or not.',
-    actions: ['marketBoard', 'buyBread', 'buyCoal', 'buyCloth', 'haggle']
+    actions: ['marketBoard', 'broadsheet', 'broadsheetAloud', 'buyBread', 'buyCoal', 'buyCloth', 'haggle']
   },
   {
     id: 'store',
@@ -93,7 +93,7 @@ var LOCATIONS = [
     sub: 'The sidings, past the cut',
     district: 'SIDINGS',
     blurb: 'Crates for the colonial trade, a watchman who drinks, and the only rails out of Grimwick. Everything that leaves this town leaves from here, including people.',
-    actions: ['loadWork', 'pilfer', 'smuggler', 'roadOut']
+    actions: ['loadWork', 'pilfer', 'bigJob', 'smuggler', 'roadOut', 'putBy', 'bookPassage', 'bookKinPassage']
   },
   {
     id: 'garrison',
@@ -101,7 +101,7 @@ var LOCATIONS = [
     sub: 'Beside the works gate',
     district: 'HILL',
     blurb: 'A brick hut, a flagstaff, and a board of proclamations nobody reads aloud. Serjeant Vask is paid for names and does not pretend otherwise.',
-    actions: ['sellBrass', 'bounty', 'enlistAsk', 'reportTheft']
+    actions: ['sellBrass', 'bounty', 'enlistAsk', 'takeShilling', 'reportTheft']
   },
   {
     id: 'cut',
@@ -259,8 +259,8 @@ var ACTION_TEXT = {
   takePamphlets:{label: 'Take a bundle to hand out', hint: 'Print, in a garrison town, in your coat.',
                  r: 'Forty sheets, badly set, still smelling of the press. You put them where the shirt is thickest.' },
   payDues:     { label: 'Pay into the fund — {p}', hint: 'For the men who are put off for talking. There are always some.',
-                 r: 'Tuppence into a tea caddy with a slot cut in the lid. Harrick writes your number, not your name.' },
-  askHarrick:  { label: 'Ask Harrick what it is for', hint: 'He has been put off two works already for answering that.',
+                 r: 'Tuppence into a tea caddy with a slot cut in the lid. Vane writes your number, not your name.' },
+  askHarrick:  { label: 'Ask Vane what it is for', hint: 'He has been put off two works already for answering that.',
                  r: 'He says: the count goes up every week you beat it, and no man alive can beat it forever, and that is not an accident, it is the design.' },
 
   /* ---- the workhouse ---- */
@@ -270,6 +270,21 @@ var ACTION_TEXT = {
                  r: 'Forty minutes on a backless bench, and a sermon on the sin of improvidence delivered to people who have nothing.' },
   askAfterKin: { label: 'Ask after {kin}', hint: 'They are in another ward. That is the rule and it is enforced.',
                  r: 'The matron says they are in the children’s ward and doing well and cannot be seen today. She says it the same way every time.' },
+  broadsheet:  { label: 'Buy the Advertiser — {p}', hint: 'A penny of print. You would have to be able to read it.',
+                 r: '' },
+  broadsheetAloud:{ label: 'Have the Advertiser read to you — {p}', hint: 'Tuppence to the scribe on the corner, who reads it in a carrying voice.',
+                 r: '' },
+  takeShilling:{ label: 'Take the shilling', hint: 'Three years, they say, which everybody knows means five. The bounty is paid at the table.',
+                 r: 'You take it off the table in front of about forty people and repeat a form of words after the serjeant, and it is done, and it took under a minute.' },
+  bigJob:      { label: 'Go out with Serrel’s people', hint: 'A bonded waggon, four men, and a watchman who is paid not to be there.',
+                 rGot: 'Two hundredweight of contract powder off a bonded waggon in eleven minutes. Serrel pays in the morning, in coin, without counting it in front of you.',
+                 rCaught: 'The watchman is there after all, and so are two of the garrison, and the four of you go over the fence in four directions.' },
+  putBy:       { label: 'Put money by with Serrel', hint: 'He holds it. The store cannot stop what is not in your pocket on a Friday.',
+                 r: 'He writes the figure on the inside of a cigar box lid, in chalk, with your number beside it. It is the only bank a man like you will ever have.' },
+  bookPassage: { label: 'Book your passage — {p}', hint: 'Two crowns for a berth to the coast and out. Paid before, no refund for weather or arrest.',
+                 r: 'A room over a chandler’s office, coin counted twice, and a ticket with a sailing date on it in ink that has not dried.' },
+  bookKinPassage:{ label: 'Book {kin}’s passage — {p}', hint: 'A child’s berth is one crown. Nobody sails who is not paid for.',
+                 r: 'One crown, and the name written in the book, spelled the way you say it rather than the way it is spelled.' },
   takeRoom:    { label: 'Take a room again — {p}', hint: 'A week down and a week in hand. Moll knows a landlord who is not particular.',
                  r: 'Two rooms on the fourth floor this time, smaller, damper, and yours until the seventh day.' },
   askForPlace: { label: 'Ask Coom to put you back on the roll', hint: 'He remembers. That is the difficulty.',

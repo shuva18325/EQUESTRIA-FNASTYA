@@ -31,7 +31,7 @@ var TOWN_NPCS = {
   serrel:  { id: 'serrel',  name: 'Serrel',            role: 'smuggler',   where: 'railyard' },
   vask:    { id: 'vask',    name: 'Serjeant Vask',     role: 'garrison',   where: 'garrison' },
   moll:    { id: 'moll',    name: 'Moll Tarrow',       role: 'landlady',   where: 'ewe' },
-  harrick: { id: 'harrick', name: 'Harrick',           role: 'union',      where: 'cut' },
+  vane:    { id: 'vane',    name: 'Sarrow Vane',       role: 'union',      where: 'cut' },
   storeman:{ id: 'storeman',name: 'The store clerk',   role: 'company',    where: 'store' }
 };
 

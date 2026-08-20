@@ -126,6 +126,7 @@ var UI = {
     aside.appendChild(UI.bodyPanel());
     aside.appendChild(UI.housePanel());
     aside.appendChild(UI.standingPanel());
+    if (S.time.act >= 2) aside.appendChild(UI.tracksPanel());
     stage.appendChild(aside);
   },
 
@@ -161,6 +162,49 @@ var UI = {
     plate.appendChild(el('span', 'works-banner__dept', T('docket.dept')));
     banner.appendChild(plate);
     wrap.appendChild(banner);
+
+    if (S.arrest) {
+      var cell = UI.panel(T('garrison.arrested.title'), 'shift-panel');
+      cell._body.appendChild(el('p', 'prose', T('garrison.arrested.cells')));
+      cell._body.appendChild(UI.kv(T('garrison.heldFor'),
+        T('garrison.heldDays', { n: S.arrest.daysHeld - (S.time.day - S.arrest.day) })));
+      cell._body.appendChild(UI.actions([
+        UI.button({
+          id: 'btn-work', primary: true,
+          label: T('garrison.waitOut'), hint: T('garrison.waitOutHint'),
+          onClick: function () { Loop.holdDay(); }
+        })
+      ]));
+      wrap.appendChild(cell);
+      return wrap;
+    }
+
+    if (S.flags.enlisted) {
+      var dr = UI.panel(T('enlist.heading'), 'shift-panel');
+      dr._body.appendChild(el('p', 'prose', T('enlist.blurb')));
+      dr._body.appendChild(UI.kv(T('enlist.departs'),
+        T('enlist.departsIn', { n: Math.max(0, S.flags.departureDay - S.time.day) })));
+      if (S.factory.lastOutcome !== 'drill') {
+        dr._body.appendChild(UI.actions([
+          UI.button({
+            id: 'btn-work', primary: true,
+            label: T('enlist.drill'), hint: T('enlist.drillHint'),
+            onClick: function () { Loop.drill(); }
+          })
+        ]));
+      } else {
+        dr._body.appendChild(el('p', 'prose', T('enlist.drillDone')));
+        dr._body.appendChild(UI.actions([
+          UI.button({
+            id: 'btn-leave-gate', primary: true,
+            label: T('shift.leaveGate'), hint: T('shift.leaveGateHint'),
+            onClick: function () { Loop.toEvening(); }
+          })
+        ]));
+      }
+      wrap.appendChild(dr);
+      return wrap;
+    }
 
     if (!S.job.employed) {
       var off = UI.panel(T('shift.heading'), 'shift-panel');
@@ -203,6 +247,9 @@ var UI = {
       Math.round(Factory.skill(st)) + ' · ' + band(Factory.skill(st), 'skill')));
     wrap.appendChild(floor);
 
+    /* ---- what the Ordnance Division wants today ---- */
+    wrap.appendChild(UI.orderPanel());
+
     /* ---- the count ---- */
     wrap.appendChild(UI.quotaPanel());
 
@@ -231,6 +278,31 @@ var UI = {
       wrap.appendChild(UI.tallyPanel());
     }
     return wrap;
+  },
+
+  orderPanel: function () {
+    var ord = Factory.order();
+    var rar = RARITY[ord.rarity];
+    var p = UI.panel(T('order.heading'), 'order-panel');
+    p._head.appendChild(el('span', 'rarity rarity--' + ord.rarity, rar.label));
+    var b = p._body;
+
+    var head = el('div', 'order-head');
+    var ic = el('span', 'order-head__icon');
+    Art.into(ic, Art.icon(ord.icon, 40));
+    head.appendChild(ic);
+    var ht = el('div');
+    ht.appendChild(el('div', 'order-head__name', ord.name));
+    ht.appendChild(el('div', 'order-head__class rarity--' + ord.rarity, rar.label));
+    head.appendChild(ht);
+    b.appendChild(head);
+
+    b.appendChild(el('p', 'prose prose--dim', ord.line));
+    b.appendChild(UI.kv(T('order.worth'),
+      Economy.money(Math.round(STATION_DEF[S.factory.station].pieceRate * ord.value * 100)) + ' ' + T('order.per')));
+    b.appendChild(UI.kv(T('order.spoilage'), Economy.money(ord.spoil) + ' ' + T('order.each'),
+      ord.spoil >= 10 ? 'bad' : null));
+    return p;
   },
 
   quotaPanel: function () {
@@ -732,6 +804,14 @@ var UI = {
     g.appendChild(el('div', 'objective__text', T(goal.key, goal.params)));
     body.appendChild(g);
 
+    var w = Narrative.worldLine();
+    if (w) {
+      var wl = el('div', 'objective world-line');
+      wl.appendChild(el('span', 'objective__label', T('hud.theTown')));
+      wl.appendChild(el('div', 'objective__text', w));
+      body.appendChild(wl);
+    }
+
     var dl = Narrative.deadline();
     var d = el('div', 'objective deadline');
     d.appendChild(el('span', 'objective__label', T('hud.deadline')));
@@ -835,6 +915,37 @@ var UI = {
     body.appendChild(UI.kv(T('stats.workmates'), S.standing.workmates + ' · ' + standingBand(S.standing.workmates)));
     body.appendChild(UI.kv(T('stats.garrison'), S.standing.garrison + ' · ' + standingBand(S.standing.garrison)));
     body.appendChild(UI.kv(T('stats.notice'), S.standing.notice + ' · ' + Empire.band(), S.standing.notice > 50 ? 'bad' : null));
+    return p;
+  },
+
+  tracksPanel: function () {
+    var p = UI.panel(T('tracks.heading'), 'tracks-panel');
+    var b = p._body;
+    var t = S.tracks;
+    var any = false;
+    if (t.union.joined) {
+      any = true;
+      b.appendChild(UI.kv(T('tracks.union.name'), T('tracks.union.note', { n: t.union.dues, m: t.union.meetings })));
+    }
+    if (t.informant.joined) {
+      any = true;
+      b.appendChild(UI.kv(T('tracks.informant.name'), T('tracks.informant.note', { n: t.informant.names.length }), 'bad'));
+    }
+    if (t.enlist.joined) {
+      any = true;
+      b.appendChild(UI.kv(T('tracks.enlist.name'), T('tracks.enlist.note')));
+    }
+    if (t.emigrate.joined) {
+      any = true;
+      b.appendChild(UI.kv(T('tracks.emigrate.name'), T('tracks.emigrate.note', {
+        n: Economy.money(t.emigrate.saved), f: Economy.money(t.emigrate.fare)
+      })));
+    }
+    if (t.criminal.joined) {
+      any = true;
+      b.appendChild(UI.kv(T('tracks.criminal.name'), T('tracks.criminal.note', { n: t.criminal.jobs, c: t.criminal.caught })));
+    }
+    if (!any) b.appendChild(el('p', 'prose prose--dim', T('tracks.none')));
     return p;
   },
 
@@ -1014,22 +1125,74 @@ var UI = {
   /* ---- ending ---- */
   showEnding: function (endingId) {
     UI.closeAll();
-    var key = 'endings.' + (endingId || 'death_sick');
+    /* Build 1's four death ids all resolve to the one ending, with a cause */
+    if (DEATH_CAUSES[endingId]) {
+      S.endingCause = endingId;
+      endingId = 'broken';
+    }
+    var def = ENDINGS[endingId] || ENDINGS.the_machine;
+    var account = Endings.account();
+    S.ending = endingId;
+    S.endingId = endingId;
     var scrim;
-    var m = UI.modal(T(key + '.title'), function (body) {
-      body.appendChild(el('p', 'prose', T(key + '.text')));
-      body.appendChild(el('p', 'prose prose--dim', T(key + '.epitaph', { days: S.time.day })));
+
+    var m = UI.modal(def.title, function (body) {
+      var i;
+      for (i = 0; i < def.text.length; i++) body.appendChild(el('p', 'prose', def.text[i]));
+
+      /* the cause, for the ones that have one */
+      if (def.causes) {
+        var cause = DEATH_CAUSES[S.endingCause || ''] || (S.body.lastHarm || 'sick');
+        if (def.causes[cause]) body.appendChild(el('p', 'prose', def.causes[cause]));
+      }
+      /* the epilogue, for the ones that are resolved elsewhere */
+      if (def.epilogues) {
+        var ep = Endings.shillingEpilogue();
+        body.appendChild(el('p', 'prose', def.epilogues[ep]));
+      }
+      /* the day-one card, replayed from the top of the stair */
+      if (def.replay) {
+        body.appendChild(el('div', 'divider'));
+        for (i = 0; i < def.replay.length; i++) {
+          body.appendChild(el('p', 'prose prose--dim', def.replay[i]));
+        }
+      }
+
       body.appendChild(el('div', 'divider'));
-      body.appendChild(el('div', 'eyebrow', T('endings.summary')));
-      body.appendChild(UI.kv(T('endings.summaryDays'), String(S.time.day)));
-      body.appendChild(UI.kv(T('endings.summaryEarned'), Economy.money(S.ledger.grossTotal)));
-      body.appendChild(UI.kv(T('endings.summaryDeducted'), Economy.money(S.ledger.deductTotal)));
-      body.appendChild(UI.kv(T('endings.summaryDebt'), Economy.money(S.purse.debt)));
-      body.appendChild(UI.kv(T('endings.summaryDust'), String(S.body.dust)));
-      body.appendChild(UI.kv(T('endings.summaryTremor'), String(S.body.tremor)));
+      body.appendChild(el('div', 'eyebrow', T('endings.accountHeading')));
+
+      body.appendChild(UI.kv(T('endings.daysSurvived'), String(account.days)));
+      body.appendChild(UI.kv(T('endings.summaryEarned'), Economy.money(account.earned)));
+      body.appendChild(UI.kv(T('endings.summaryDeducted'), Economy.money(account.stopped)));
+      body.appendChild(UI.kv(T('endings.summaryDebt'), Economy.money(account.debt)));
+
+      body.appendChild(el('div', 'account-block'));
+      var dmg = el('div', 'account-block');
+      dmg.appendChild(el('div', 'account-block__label', T('endings.damageCarried')));
+      for (i = 0; i < account.damage.length; i++) dmg.appendChild(el('div', 'account-block__line', account.damage[i]));
+      body.appendChild(dmg);
+
+      var kinBox = el('div', 'account-block');
+      kinBox.appendChild(el('div', 'account-block__label', T('endings.kinFate')));
+      kinBox.appendChild(el('div', 'account-block__line', account.kin));
+      body.appendChild(kinBox);
+
+      var namesBox = el('div', 'account-block');
+      namesBox.appendChild(el('div', 'account-block__label', T('endings.namesGiven')));
+      if (!account.names.length) {
+        namesBox.appendChild(el('div', 'account-block__line', T('endings.namesNone')));
+      } else {
+        for (i = 0; i < account.names.length; i++) {
+          namesBox.appendChild(el('div', 'account-block__line account-block__line--named', account.names[i]));
+        }
+      }
+      body.appendChild(namesBox);
+
+      body.appendChild(el('p', 'closing-line', def.closing));
+
       body.appendChild(UI.actions([
         UI.button({
-          label: T('endings.again'), primary: true,
+          id: 'btn-again', label: T('endings.again'), primary: true,
           onClick: function () { UI.closeModal(scrim); Loop.restart(); }
         })
       ]));
@@ -1165,6 +1328,115 @@ var UI = {
       ]));
     });
     scrim = UI.openModal(m);
+  },
+
+  /* ------------------------------------------------------ the world turns */
+  showActCard: function (turn, onDone) {
+    var scrim;
+    var key = 'acts.' + turn.id;
+    var m = UI.modal(T(key + '.title'), function (body) {
+      body.appendChild(el('p', 'prose', T(key + '.text')));
+      if (turn.id === 'retooling' && turn.laid && turn.laid.length) {
+        body.appendChild(el('p', 'prose', T('acts.retooling.laid', { names: turn.laid.join(', ') })));
+      }
+      body.appendChild(el('p', 'prose prose--dim', T(key + '.after')));
+      body.appendChild(UI.actions([
+        UI.button({
+          id: 'btn-act-on', primary: true, label: T('ui.continueBtn'),
+          onClick: function () { UI.closeModal(scrim); if (onDone) onDone(); }
+        })
+      ]));
+    });
+    scrim = UI.openModal(m);
+    Audio.bell();
+  },
+
+  /* ------------------------------------------------- the garrison arrives */
+  showGarrison: function (g, onDone) {
+    var scrim;
+    var key = 'garrison.' + g.kind;
+    var m = UI.modal(T(key + '.title'), function (body) {
+      body.appendChild(el('p', 'prose', T(key + '.text')));
+      if (g.kind === 'searched') {
+        if (g.missed) body.appendChild(el('p', 'prose', T('garrison.missed')));
+        else if (g.found && g.found.length) body.appendChild(el('p', 'prose', T('garrison.searched.found')));
+        else body.appendChild(el('p', 'prose', T('garrison.searched.clean')));
+      }
+      body.appendChild(UI.actions([
+        UI.button({
+          id: 'btn-garrison', primary: true, label: T('ui.continueBtn'),
+          onClick: function () { UI.closeModal(scrim); if (onDone) onDone(); }
+        })
+      ]));
+    });
+    scrim = UI.openModal(m);
+  },
+
+  /* ------------------------------------------------ what became of them */
+  showFates: function (entries) {
+    if (!entries || !entries.length) return;
+    var scrim;
+    var m = UI.modal(T('fates.heading'), function (body) {
+      body.appendChild(el('p', 'prose prose--dim', T('fates.blurb')));
+      for (var i = 0; i < entries.length; i++) {
+        body.appendChild(el('p', 'prose', Endings.fateLine(entries[i])));
+        entries[i].shown = true;
+      }
+      body.appendChild(UI.actions([
+        UI.button({
+          id: 'btn-fates', primary: true, label: T('ui.continueBtn'),
+          onClick: function () { UI.closeModal(scrim); UI.render(); }
+        })
+      ]));
+    });
+    scrim = UI.openModal(m);
+  },
+
+  /* --------------------------------------------------------- the print */
+  showBroadsheet: function (aloud) {
+    var scrim;
+    var m = UI.modal(T('broadsheet.heading'), function (body) {
+      body.appendChild(el('p', 'prose prose--dim', aloud ? T('broadsheet.readAloud') : T('broadsheet.price')));
+      var lines = Empire.broadsheet();
+      for (var i = 0; i < lines.length; i++) {
+        body.appendChild(el('p', 'prose broadsheet__item', lines[i]));
+      }
+      body.appendChild(UI.actions([
+        UI.button({ label: T('app.close'), primary: true, onClick: function () { UI.closeModal(scrim); } })
+      ]));
+    });
+    scrim = UI.openModal(m, { dismissible: true });
+  },
+
+  /* --------------------------------------------------------- a name */
+  showInform: function () {
+    var scrim;
+    var m = UI.modal(T('informing.heading'), function (body) {
+      body.appendChild(el('p', 'prose', T('informing.blurb')));
+      body.appendChild(el('p', 'prose prose--dim', T('informing.pick')));
+      var people = Town.nameable();
+      var list = el('div', 'actions');
+      for (var i = 0; i < people.length; i++) {
+        (function (person) {
+          list.appendChild(UI.button({
+            label: person.name,
+            hint: T(person.note === 'cut' ? 'informing.cutNote' : 'informing.floorNote'),
+            reason: S.evening.ap < 1 ? T('disabled.noAp') : null,
+            onClick: function () {
+              var res = Town.giveName(person.name, person.note);
+              UI.closeModal(scrim);
+              if (res) UI.showResult(res, function () { UI.render(); });
+              else UI.render();
+            }
+          }));
+        })(people[i]);
+      }
+      body.appendChild(list);
+      body.appendChild(UI.actions([
+        UI.button({ label: T('informing.cancel'), onClick: function () { UI.closeModal(scrim); } })
+      ]));
+    });
+    scrim = UI.openModal(m, { dismissible: true });
   },
 
   /* ---------------------------------------------------------- the shift

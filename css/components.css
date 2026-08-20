@@ -706,3 +706,59 @@
 }
 .goods-row { display: flex; justify-content: space-between; gap: var(--sp-3); font-size: var(--fs-sm); }
 .goods-row__note { color: var(--text-faint); font-size: var(--fs-sm); }
+
+/* ==========================================================================
+   PRESSURE AND CONSEQUENCE — Build 4
+   ========================================================================== */
+.order-head { display: flex; gap: var(--sp-3); align-items: center; }
+.order-head__icon { line-height: 0; flex: 0 0 auto; }
+.order-head__name { font-family: var(--font-ui); font-size: var(--fs-md); font-weight: 700; color: var(--text); }
+.order-head__class { font-family: var(--font-ui); font-size: var(--fs-sm); letter-spacing: .18em; }
+
+.rarity {
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  letter-spacing: .18em;
+  font-weight: 700;
+}
+.rarity--COMMON    { color: var(--text-dim); }
+.rarity--UNCOMMON  { color: #9fbf8c; }
+.rarity--FINE      { color: #79b6c9; }
+.rarity--RARE      { color: var(--brass); }
+.rarity--PROTOTYPE { color: var(--blood); }
+#order-panel .panel__head .rarity--PROTOTYPE { animation: proto 2.4s ease-in-out infinite; }
+@keyframes proto { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+
+.world-line { border-left-color: var(--sick); }
+
+.broadsheet__item {
+  border-bottom: 1px dotted var(--line);
+  padding-bottom: var(--sp-2);
+  font-family: var(--font-body);
+}
+
+.account-block { margin-top: var(--sp-3); }
+.account-block__label {
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  letter-spacing: .18em;
+  color: var(--text-faint);
+  margin-bottom: 3px;
+}
+.account-block__line {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  padding: 2px 0 2px var(--sp-3);
+  border-left: 2px solid var(--line);
+}
+.account-block__line--named { border-left-color: var(--blood); color: var(--text); }
+.closing-line {
+  margin-top: var(--sp-5);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-body);
+  font-size: var(--fs-lg);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text);
+}

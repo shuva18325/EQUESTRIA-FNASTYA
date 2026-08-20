@@ -6,13 +6,19 @@ You are a floor hand at the Grimwick Small Arms Works in the year 312 of the Iro
 Concord. You fill percussion caps, cast ball, stamp helmet shells and grind
 bayonets. You are a cog. The game's job is to make being a cog feel like something.
 
-**Build 3 of 6 — GRIMWICK ITSELF.** The town is a node map of eleven places
-and you have two hours, and the works is an hour's walk from the square. The
+**Build 4 of 6 — PRESSURE AND CONSEQUENCE.** The world moves without you and
+then arrives at your door. Three acts, five roads out of the second one, nine
+endings, and an Ordnance Division that decides each morning whether you are
+making common ball or a breech block for a pattern that does not have a name. The
 factory's graphics and sound arrived in Build 2, brought forward at the
 designer's request — all of it drawn and synthesised at runtime, so there is
 still nothing to download and nothing that can fail on `file://`.
 
 ## Running it
+
+Double-click `index.html`. There is also a single-file build at
+`dist/grimwick-works.html` — same game, everything inlined — regenerated with
+`node tools/build-single-file.js` whenever the source changes.
 
 Double-click `index.html`. That is the whole procedure — no build step, no
 bundler, no server, no npm. Vanilla HTML/CSS/JS with plain `<script src>` tags
@@ -58,6 +64,65 @@ fact.
 The shift resolves as a short column of beat-lines — *"the ladle comes up full
 and the light off it is the best light in Grimwick"* — paced at under four
 seconds, skippable at any point, then the tally.
+
+## The world moving (Build 4)
+
+Four meters run the empire: **the Mountain War** against the Kelsgrave
+highlands, **scarcity**, **unrest**, and **the levy**. They tick every week
+and you never see a number for any of them. You see them three ways: the
+*Grimwick & County Advertiser*, which costs a penny and needs letters (or
+tuppence to have it read aloud on the corner); the tavern, where three
+rumours in ten are false and none of them are marked; and the town itself —
+more soldiers, emptier barrows, a press gang working the lodging houses,
+and one Sunday, carpenters in the square putting up something with a
+platform and a crossbeam.
+
+**Act 1 (days 1–20)** is the cog. It ends when the Works retools for the
+rifled musket — on the calendar, or early if the war forces it. The count
+doubles overnight and three floors go with their books at the gate.
+
+**Act 2 (days 21–45)** opens five roads, and you can walk more than one and
+be caught between them: **the Cut** (Sarrow Vane, dues, meetings, a strike),
+**Coom's retainer** (they pay for names, and you give a real one, by name),
+**the shilling** (attested, drilled, and gone to the depot), **passage**
+(two crowns for you and one for the child, saved with Serrel where the
+company store cannot reach it), and **the sidings** (bonded waggons, high
+coin, and the new scaffold at the end of a bad run).
+
+**Notice** runs 0–100 and the garrison meets you at every threshold:
+watched at 30, turned out at 55, taken up at 75, and the calendar at 90.
+Informing lowers yours and raises somebody else's, by name — and what
+happened to them is shown to you in-game and printed in the epilogue, every
+time, without exception.
+
+**Nine endings.** The Machine, Broken on the Floor, The Strike Holds, The
+Strike Breaks, Queen's Evidence, The Shilling, Passage, The Drop, and one
+hidden ending that replays the day-one card from the top of the stair. Every
+ending shows the same four things — days survived, damage carried, who was
+in the room with you, and the names you gave — and then one closing line.
+No score. No stars.
+
+## The day order
+
+The Ordnance Division sends down what it wants made, and it is not the same
+every day. Twelve articles across five classes, from common ball cartridge
+to a breech block for a pattern the Board has not approved, worth fourteen
+times the ball and charged at forty pence a piece if it fails the gauge.
+
+| Class | Article | Wage | Spoiled | Net at proper care | Net at meticulous |
+|---|---|---|---|---|---|
+| Common | Ball cartridge | 30.4d | 0.9d | **29.5d** | 27.0d |
+| Uncommon | Conical ball, expanding | 36.0d | 34.7d | 1.4d | **32.5d** |
+| Fine | Lock plates, rifled musket | 28.2d | 52.7d | −24.6d | **25.6d** |
+| Rare | Barrel blanks, rifled | 35.1d | 45.0d | −9.9d | **32.0d** |
+| Experimental | Breech blocks | 44.4d | 80.0d | 4.4d | **39.9d** |
+
+*(120 shifts each at skill 50. The Works allows four condemned in the
+hundred; everything above that is charged at the value of the article.)*
+On common work, speed pays and care wastes your day. On the experimental
+patterns, care is the only thing standing between the best wage in Grimwick
+and a docket that owes the Works money. The order changes every morning and
+you find out at the bell.
 
 ## The town (Build 3)
 
@@ -142,9 +207,8 @@ Both are generated at runtime and shipped as code, not assets:
 - **Tutorial**, five steps across days 1–2, interruptible, skippable, and
   replayable from the menu.
 
-Not yet: empire events and the Act 2 retooling for the rifled musket
-(Build 4), the full art and audio pass beyond the factory (Build 5), endings
-(Build 6).
+Not yet: the full art and audio pass beyond the factory (Build 5), and the
+final pass (Build 6).
 
 ## Shape of the thing
 
@@ -226,3 +290,18 @@ Verified by running the real thing in Chromium off `file://`
 | 8 | No event fires with unmet requirements | PASS — 550 hostile-state draws, 0 violations, asserted in the draw itself |
 | 9 | No folklore event produces a supernatural effect | PASS — every one carries its mundane explanation; no omen ever mends the body |
 | 10 | Builds 1–2 checks all still pass | PASS — all 21, re-run against this build |
+
+### Build 4
+
+| # | Check | Result |
+|---|-------|--------|
+| 1 | Empire meters tick weekly and move prices and events | PASS — 9 weeks: war 22→57, bread 5d→6d, prototype orders unlocked by the war |
+| 2 | No raw empire number is ever shown | PASS — `ui.js` never reads a meter; test values appear nowhere in the rendered page |
+| 3 | 30% of rumours false, unmarked | PASS — 31% over 800 draws; the object handed to the UI carries no truth value |
+| 4 | All 5 tracks enterable, 2 at once | PASS — union + informant held simultaneously |
+| 5 | Act transitions on schedule AND on trigger | PASS — Act 2 on day 21 and on war ≥55; Act 3 on day 46 and on a called strike |
+| 6 | All 8+ endings reachable | PASS — all 9 reached from real state, each showing the four required blocks |
+| 7 | Named informants get a shown fate | PASS — shown in-game once and printed in every epilogue |
+| 8 | Notice thresholds fire with visible consequences | PASS — 30/55/75/90, each with its own screen; arrest costs shifts and a warning |
+| 9 | Literacy gates the broadsheet and pamphlets | PASS — and paying the scribe is the way round it |
+| 10 | Builds 1–3 checks all still pass | PASS — all 31, re-run against this build |

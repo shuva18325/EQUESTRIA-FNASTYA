@@ -157,6 +157,9 @@ var Economy = {
       if (S.house.arrears <= 0) { S.house.arrears = 0; S.flags.rentAtSource = false; }
     }
 
+    /* condemned pieces, charged at the value of the article */
+    if (S.pending.spoilage > 0) add(CHARGES.spoilage.key, S.pending.spoilage);
+
     /* the week's count came up short */
     if (S.pending.quotaFine > 0) add(CHARGES.quotaFine.key, S.pending.quotaFine);
 
@@ -188,6 +191,7 @@ var Economy = {
       stationKey: 'shift.stations.' + S.factory.station + '.name',
       pieces: S.factory.shift ? S.factory.shift.good : 0,
       unitKey: 'shift.stations.' + S.factory.station + '.units',
+      orderId: S.factory.shift ? S.factory.shift.order : (S.factory.order || null),
       bonus: S.pending.bonus,
       kinWage: S.pending.kinWage,
       kinName: State.kin() ? State.kin().name : '',
@@ -235,6 +239,7 @@ var Economy = {
     S.pending.kinWage = 0;
     S.pending.bonus = 0;
     S.pending.quotaFine = 0;
+    S.pending.spoilage = 0;
     return docket;
   }
 };

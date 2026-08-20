@@ -128,8 +128,32 @@ function newState(seed) {
 
     standing: { foreman: 0, workmates: 6, garrison: 0, notice: 3 },
 
-    /* what the empire is doing somewhere else, and what it costs here */
-    empire: { war: 24, glut: 12, levy: 0, week: 0, lastNews: null },
+    /* The Mountain War, and what it costs here. The player never sees these
+       numbers. They see soldiers, prices, and a new gallows. */
+    empire: {
+      war: 22,          /* the Kelsgrave highlands campaign */
+      scarcity: 18,     /* what is on the shelves */
+      unrest: 14,       /* what the garrison expects to have to do */
+      levy: 8,          /* conscription pressure; press gangs work at 70 */
+      glut: 12,
+      week: 0,
+      gallows: false,
+      patrols: 1,
+      lastHeadlines: [],
+      seen: {}
+    },
+
+    /* The five roads out of Act 1. More than one may be walked at once. */
+    tracks: {
+      union:     { known: false, joined: false, dues: 0, meetings: 0, rank: 0, struck: false, broke: false },
+      informant: { known: false, joined: false, names: [], paid: 0, exposed: false },
+      enlist:    { known: false, joined: false, bounty: 0, day: 0 },
+      emigrate:  { known: false, joined: false, saved: 0, fare: 480, kinFare: 240, booked: false, kinBooked: false },
+      criminal:  { known: false, joined: false, jobs: 0, heat: 0, caught: 0 }
+    },
+
+    /* Everyone whose name you gave, and what became of them. */
+    informants: [],
 
     house: {
       cloth: 0,
@@ -155,6 +179,7 @@ function newState(seed) {
 
     factory: {
       station: 'CAP_BENCH',
+      order: null,             /* what the Works wants made today */
       pace: 'steady', care: 'proper', guard: 'on',
       skills: { CASTING: 12, CAP_BENCH: 50, GRINDING: 9, STAMPING: 18 },
       worked: false,
@@ -194,7 +219,7 @@ function newState(seed) {
     flags: {},
 
     /* accrued charges for tonight's docket, cleared each dawn */
-    pending: { fines: [], breakages: 0, extra: [], pieceWage: 0, kinWage: 0, bonus: 0, quotaFine: 0 },
+    pending: { fines: [], breakages: 0, extra: [], pieceWage: 0, kinWage: 0, bonus: 0, quotaFine: 0, spoilage: 0 },
 
     eventsSeen: {},
     eventsRecent: {},        /* id -> day fired; nothing repeats inside 15 days */
@@ -211,8 +236,10 @@ function newState(seed) {
 
     settings: { god: false, audio: true, volume: 0.7 },
 
+    arrest: null,            /* {day, daysHeld, charge} while the garrison has you */
     dead: false,
-    endingId: null
+    endingId: null,
+    ending: null
   };
   s.time.season = Util.seasonFor(1);
   s.time.act = Util.actFor(1);

@@ -87,6 +87,8 @@ var Loop = {
     Coom.tick();
     Loop.workhouseMorning();
     Factory.assignStation();
+    Factory.assignOrder();
+    Empire.releaseCheck();
     S.pending.pieceWage = 0;
 
     if (!isFirst) {
@@ -103,10 +105,108 @@ var Loop = {
       S.flags.spitedToStation = false;
       UI.log(T('foreman.spiteNotice'), 'bad');
     }
-    if (Coom.inspectorDue()) UI.showInspector();
+
+    /* the acts turn on the calendar or on the world, whichever comes first */
+    var turn = Acts.check();
+    if (turn) {
+      UI.showActCard(turn, function () {
+        Loop.morningPressure();
+        UI.render();
+      });
+      return;
+    }
+    Loop.morningPressure();
+  },
+
+  /* Everything the world does to you before you have had breakfast. */
+  morningPressure: function () {
+    if (S.dead) return;
+
+    /* the regiment leaves whether or not you are ready */
+    if (S.flags.enlisted && S.time.day >= S.flags.departureDay) {
+      S.endingId = 'the_shilling';
+      UI.showEnding('the_shilling');
+      return;
+    }
+
+    /* names you gave come back with what happened to them attached */
+    var fates = Endings.fatesToShow();
+    if (fates.length && (S.time.act >= 3 || S.time.day - fates[0].day >= 9)) {
+      Endings.assignFates();
+      UI.showFates(Endings.fatesToShow());
+    }
+
+    if (Coom.inspectorDue()) { UI.showInspector(); return; }
+
+    var g = Empire.garrisonDay();
+    if (!g) { UI.render(); return; }
+
+    if (g.kind === 'hanged') {
+      S.flags.condemned = true;
+      S.endingId = 'the_drop';
+      UI.showGarrison(g, function () { UI.showEnding('the_drop'); });
+      return;
+    }
+    if (g.kind === 'arrested') {
+      Empire.arrest(S.tracks.union.joined || S.flags.carryingPrint ? 'sedition' : 'suspicion');
+      UI.showGarrison(g, function () { UI.render(); });
+      return;
+    }
+    if (g.kind === 'searched') {
+      var found = g.found;
+      if (found.length) {
+        /* the floorboard trick is in a manual somewhere */
+        var hidden = S.flags.hasStash && Util.chance(0.45);
+        if (!hidden) {
+          State.applyStanding({ notice: 14, garrison: -10 });
+          State.addFine('talk');
+          S.flags.carryingPrint = false;
+          S.flags.holdingParcel = false;
+          S.flags.contrabandFound = true;
+        } else {
+          g.missed = true;
+        }
+      }
+      UI.showGarrison(g, function () { UI.render(); });
+      return;
+    }
+    if (g.kind === 'pressgang') {
+      S.tracks.enlist.joined = true;
+      S.tracks.enlist.known = true;
+      S.flags.enlisted = true;
+      S.flags.pressed = true;
+      S.flags.departureDay = S.time.day + 2;
+      UI.showGarrison(g, function () { UI.render(); });
+      return;
+    }
+    UI.showGarrison(g, function () { UI.render(); });
   },
 
   /* ---- shift ---------------------------------------------------------- */
+  /* Held. The day is spent, and the shifts are not made up. */
+  holdDay: function () {
+    if (!S.arrest) return;
+    S.factory.worked = false;
+    S.factory.lastOutcome = 'held';
+    State.applyBody({ hunger: 18, warmth: -8, fatigue: 4 });
+    State.applyMind({ resolve: -4 });
+    S.time.phase = 'NIGHT';
+    UI.log(T('garrison.arrested.cells'), 'bad');
+    UI.render();
+    Tutorial.onPhase('NIGHT');
+  },
+
+  /* Enlisted, and not gone yet. */
+  drill: function () {
+    if (!S.flags.enlisted || S.factory.lastOutcome === 'drill') return;
+    S.factory.worked = false;
+    S.factory.lastOutcome = 'drill';
+    State.applyBody({ fatigue: 16, hunger: -22, warmth: 6, health: 1 });
+    State.applyMind({ resolve: 2 });
+    S.flags.drilled = (S.flags.drilled || 0) + 1;
+    UI.showResult(T('enlist.drillResult'), function () { UI.render(); });
+  },
+
   work: function () {
     if (S.time.phase !== 'SHIFT' || S.factory.worked) return;
     if (Factory.canWork() !== true) return;
@@ -189,6 +289,9 @@ var Loop = {
       if (res.open === 'board') UI.showBoard();
       else if (res.open === 'ledger') UI.showLedger();
       else if (res.open === 'advice') UI.showAdvice();
+      else if (res.open === 'broadsheet') UI.showBroadsheet(false);
+      else if (res.open === 'broadsheetAloud') UI.showBroadsheet(true);
+      else if (res.open === 'inform') UI.showInform();
       else UI.showPawn(res.open);
       UI.render();
       return;
@@ -516,8 +619,8 @@ var Loop = {
 
   nextDay: function () {
     if (S.time.day >= 60) {
-      S.endingId = 'survived_winter';
-      UI.showEnding('survived_winter');
+      S.endingId = Endings.pick();
+      UI.showEnding(S.endingId);
       return;
     }
     var wasDay = S.time.day;
@@ -528,6 +631,7 @@ var Loop = {
 
   /* ---- death ---------------------------------------------------------- */
   checkDeath: function () {
+    if (S.flags.condemned && !S.dead) { S.endingId = 'the_drop'; return false; }
     if (S.dead) return true;
     if (S.settings.god) {
       if (S.body.health <= 0) S.body.health = 1;
@@ -546,6 +650,6 @@ var Loop = {
   restart: function () {
     UI.closeAll();
     S.log = [];
-    Loop.newGame();
+    UI.showCreation(function (kinId) { Loop.newGame(null, kinId); });
   }
 };
