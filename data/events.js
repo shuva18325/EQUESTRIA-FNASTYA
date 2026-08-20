@@ -20,7 +20,7 @@ var EVENTS = [
     id: 'e_shortMeasure',
     phase: 'SHIFT',
     weight: 10,
-    cond: function (S) { return S.job.employed && S.factory.station === 'CAPPING'; },
+    cond: function (S) { return S.job.employed && S.factory.station === 'CAP_BENCH'; },
     titleKey: 'events.e_shortMeasure.title',
     textKey: 'events.e_shortMeasure.text',
     choices: [
@@ -74,7 +74,7 @@ var EVENTS = [
     id: 'e_dampPowder',
     phase: 'SHIFT',
     weight: 8,
-    cond: function (S) { return S.job.employed && S.factory.station === 'CAPPING'; },
+    cond: function (S) { return S.job.employed && S.factory.station === 'CAP_BENCH'; },
     titleKey: 'events.e_dampPowder.title',
     textKey: 'events.e_dampPowder.text',
     choices: [

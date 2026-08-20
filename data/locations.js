@@ -11,7 +11,7 @@ var LOCATIONS = [
     id: 'market',
     nameKey: 'town.market.name',
     blurbKey: 'town.market.blurb',
-    actions: ['buyBread', 'buyCoal', 'buyPhysic', 'tick', 'readNotice']
+    actions: ['buyBread', 'buyCoal', 'buyPhysic', 'apothecary', 'tick', 'readNotice']
   },
   {
     id: 'tenement',

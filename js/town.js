@@ -63,6 +63,28 @@ var TOWN_ACTIONS = {
     }
   },
 
+  /* Costs more than a week's wage. That is the design, and it was the fact. */
+  apothecary: {
+    ap: 1,
+    labelKey: 'town.actions.apothecary',
+    hintKey: 'town.actions.apothecaryHint',
+    price: function () { return Economy.priceOf('apothecary'); },
+    enabled: function () { return Economy.canAfford(Economy.priceOf('apothecary')) ? true : 'disabled.noPennies'; },
+    run: function () {
+      Economy.spend(Economy.priceOf('apothecary'));
+      UI.log(T('log.spent', { amt: Economy.money(Economy.priceOf('apothecary')) }));
+      if (S.body.injury) {
+        S.flags.surgeonDay = S.time.day;
+        S.body.injury.infection = 0;
+        S.body.injury.fever = false;
+        State.applyBody({ health: 6 });
+        return 'town.results.apothecary';
+      }
+      State.applyBody({ health: 3 });
+      return 'town.results.apothecaryNoWound';
+    }
+  },
+
   readNotice: {
     ap: 1,
     labelKey: 'town.actions.readNotice',

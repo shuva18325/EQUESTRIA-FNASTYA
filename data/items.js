@@ -8,6 +8,7 @@ var ITEMS = {
   bread:  { id: 'bread',  labelKey: 'town.actions.buyBread',  price: 5,  meals: 2 },
   coal:   { id: 'coal',   labelKey: 'town.actions.buyCoal',   price: 7,  fuel: 2 },
   physic: { id: 'physic', labelKey: 'town.actions.buyPhysic', price: 14, doses: 1 },
+  apothecary: { id: 'apothecary', labelKey: 'town.actions.apothecary', price: 150 },
   beer:   { id: 'beer',   labelKey: 'town.actions.drink',     price: 2 }
 };
 
@@ -20,6 +21,8 @@ var CHARGES = {
   burialClub: { key: 'docket.lines.burialClub', base: 1, weeklyOn: 6 },
   chapelRate: { key: 'docket.lines.chapelRate', base: 1, weeklyOn: 0 },
   doctorsBook:{ key: 'docket.lines.doctorsBook',base: 0 },
+  quotaFine:  { key: 'docket.lines.quotaFine',  base: 0 },
+  coomCharge: { key: 'docket.lines.coomCharge', base: 0 },
   rentAtSource:{key: 'docket.lines.rentAtSource',base: 0 }
 };
 
@@ -31,8 +34,25 @@ var FINES = {
 };
 
 /* Wage constants. 26d a day gross is a floor hand's rate in Grimwick. */
+/* Invented charges Coom writes in when he has a use for you being poorer. */
+var COOM_SKIMS = [
+  { key: 'docket.lines.skimBench',  amount: 3 },
+  { key: 'docket.lines.skimApron',  amount: 2 },
+  { key: 'docket.lines.skimSweep',  amount: 2 },
+  { key: 'docket.lines.skimLight',  amount: 4 }
+];
+
+var QUOTA = {
+  startTarget: 5900,
+  ratchetPct: 7,        /* beat it and next week rises by at least this */
+  bonus: 14,            /* always smaller than you expected */
+  fine: 10,
+  warningsToDismissal: 3
+};
+
 var WAGE = {
   baseDay: 26,
+  dayFloor: 10,         /* the Works' day money: a ruined shift still pays this */
   hours: 12,
   goodDayBonus: 3,
   badDayPenalty: 4,

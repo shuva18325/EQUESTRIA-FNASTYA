@@ -33,7 +33,10 @@ var STR = {
   ui: {
     outcome: 'WHAT CAME OF IT',
     continueBtn: 'Go on',
-    dismiss: 'Leave it'
+    dismiss: 'Leave it',
+    soundOn: 'Sound on',
+    soundOff: 'Sound off',
+    soundHint: 'The Works, as it sounds from the inside.'
   },
 
   hud: {
@@ -65,6 +68,10 @@ var STR = {
     literacy: 'Letters',
     injury: 'Injury',
     injuryNone: 'none, for now',
+    wound: 'The wound',
+    infection: 'turning \u2014',
+    fever: 'FEVER \u2014',
+    scars: 'Carried for good',
     kinStatus: {
       WELL: 'well enough',
       AILING: 'ailing',
@@ -107,6 +114,7 @@ var STR = {
     warmth: 'Warmth',
     dust: 'Dust',
     tremor: 'Tremor',
+    lead: 'Lead',
     resolve: 'Resolve',
     literacy: 'Letters',
     foreman: 'Foreman',
@@ -124,6 +132,8 @@ var STR = {
     hunger: ['fed', 'peckish', 'hungry', 'gnawing', 'starving'],
     warmth: ['frozen', 'chilled', 'cool', 'warm enough', 'warm'],
     dust: ['clear', 'a catch in it', 'a rattle', 'a bad chest', 'stone lung'],
+    lead: ['clean', 'a taste of it', 'the blue line', 'the colic', 'the palsy of it'],
+    skill: ['new to it', 'learning', 'handy', 'good', 'the best on the floor'],
     tremor: ['steady', 'a flicker', 'a shake', 'a bad shake', 'the palsy'],
     resolve: ['broken', 'low', 'bearing it', 'set', 'hard'],
     standing: ['hated', 'disliked', 'nothing to them', 'tolerated', 'well thought of'],
@@ -133,43 +143,251 @@ var STR = {
   shift: {
     heading: 'THE FLOOR',
     stations: {
-      CAPPING: {
-        name: 'Cap filling',
-        line: 'Fulminate of mercury, measured by hand into copper cups. The girls who do this for ten years cannot hold a cup of tea by twenty-five.'
-      },
       CASTING: {
-        name: 'Ball casting',
-        line: 'Lead comes off the ladle in a bright rope. The fumes are sweetish. Nobody mentions it.'
+        name: 'Casting floor',
+        short: 'Casting',
+        line: 'Lead comes off the ladle in a bright rope. It is the best light in Grimwick and the sweetish smell in the back of the throat is the price of it. Best paid floor in the Works, and there is a reason for that.',
+        hazard: 'Scalds. And lead, which does not leave.',
+        unit: 'ball',
+        units: 'balls'
       },
-      STAMPING: {
-        name: 'Helmet stamping',
-        line: 'The press comes down whether or not your hand has finished its business under it.'
+      CAP_BENCH: {
+        name: 'Cap bench',
+        short: 'Cap bench',
+        line: 'Fulminate of mercury measured by hand into copper cups. Fourteen women and girls down the bench because their hands are smaller and their wage is two thirds of yours. The Works has never pretended otherwise.',
+        hazard: 'The shake. And the flash, which takes whoever is nearest.',
+        unit: 'cap',
+        units: 'caps'
       },
       GRINDING: {
-        name: 'Bayonet grinding',
-        line: 'The wheel throws a fan of sparks and a fog of stone. You breathe the wheel. Slowly, the wheel is inside you.'
+        name: 'Grinding shed',
+        short: 'Grinding',
+        line: 'Bayonet edges on a sandstone wheel turning at speed. You breathe the wheel. Slowly, over years, the wheel comes to live inside you and there is a name for it and the name is not encouraging.',
+        hazard: 'Stone in the lung. And a wheel that bursts.',
+        unit: 'blade',
+        units: 'blades'
+      },
+      STAMPING: {
+        name: 'Stamping shop',
+        short: 'Stamping',
+        line: 'Helmet shells and lock plates under a drop press that weighs a ton and a quarter. No skill in it worth the name. The press comes down whether or not your hand has finished its business underneath.',
+        hazard: 'The press. It does not know you are there.',
+        unit: 'shell',
+        units: 'shells'
       }
     },
+
+    dials: {
+      heading: 'HOW YOU MEAN TO WORK IT',
+      pace: 'Pace',
+      care: 'Care',
+      guard: 'Guards',
+      paceOpts: {
+        slow:   { label: 'Slow',   hint: 'Save yourself. The count will show it and so will the docket.' },
+        steady: { label: 'Steady', hint: 'The pace a body can hold for twelve hours. Roughly.' },
+        driven: { label: 'Driven', hint: 'Everything you have, from the bell to the bell.' }
+      },
+      careOpts: {
+        sloppy:     { label: 'Sloppy',     hint: 'More through your hands. More of it sent back at inspection.' },
+        proper:     { label: 'Proper',     hint: 'The way you were shown, by a man who is dead now.' },
+        meticulous: { label: 'Meticulous', hint: 'Almost nothing rejected. Almost nothing made.' }
+      },
+      guardOpts: {
+        on:  { label: 'Guards on',  hint: 'The cage, the screen, the stop-bar. Fitted for a reason nobody will tell you.' },
+        off: { label: 'Guards off', hint: 'Quicker. Coom prefers it and does not write down that he prefers it.' }
+      }
+    },
+
     work: 'Work the shift',
-    workHint: 'Twelve hours. Twenty-six pence gross, less charges.',
+    workHint: 'Twelve hours at the bench, as you have set it.',
     abstain: 'Stay abed',
-    abstainHint: 'No wage. The charges are taken anyway. The foreman writes your name down.',
+    abstainHint: 'No wage, no count. The charges are taken anyway and Coom keeps a book.',
     already: 'The shift is over. The gate is shut behind you.',
     workedFor: 'Worked {h} hours at {station}.',
     abstained: 'You did not go in. The bell went without you.',
-    foremanNotes: 'Hollick makes a mark in the book beside your name.',
+    foremanNotes: 'Coom makes a mark in the book beside your name.',
     offRoll: 'You are off the roll. The gate opens at five for other men now. There is a hiring crowd at the timber yard and it is never shorter than eleven.',
     gateWait: 'Stand at the gate for a day\u2019s hiring',
-    gateWaitHint: 'Casual work, if the foreman points at you. Most days he does not.',
+    gateWaitHint: 'Casual work, if the gang boss points at you. Most days he does not.',
     leaveGate: 'Out at seven',
     leaveGateHint: 'The bell, the yard, the street, the evening.',
-    casualGot: 'A gang boss wants four hands for the coal wharf and you are one of the four. It is paid in coin at the end of it, which is the only good thing about it.',
+    casualGot: 'A gang boss wants four hands for the coal wharf and you are one of the four. Paid in coin at the end of it, which is the only good thing about it.',
     casualNone: 'You stand from six until noon. He points at other men. At noon you stop pretending and go home.',
+    skipBeats: 'Skip to the tally',
+
+    tally: {
+      heading: 'THE TALLY',
+      made: 'Made',
+      rejected: 'Sent back',
+      passed: 'Passed',
+      credit: 'To the count',
+      wage: 'Earned at piece rate',
+      dayMoney: 'Day money',
+      skill: 'Hand at this bench',
+      skillUp: '+{n} to the hand',
+      hours: 'Hours',
+      quotaAfter: 'Week\u2019s count',
+      nothing: 'Nothing. The bench stood idle and the charges did not.',
+      done: 'Out at seven'
+    },
+
+    quota: {
+      heading: 'THE COUNT',
+      week: 'Week {n}',
+      required: 'Required',
+      made: 'Made',
+      remaining: 'Still wanted',
+      shiftsLeft: '{n} shifts left in the week',
+      beaten: 'THE COUNT IS BEATEN',
+      beatenText: 'You made {made} against {target}. The Works pays a bonus of {bonus} and sets the new figure at {next}. Nobody announces the second part.',
+      missed: 'THE COUNT IS SHORT',
+      missedText: 'You made {made} against {target}. That is a fine of {fine} and a warning entered against your number. The figure stands where it is.',
+      ratchet: 'Last week {old}   \u2192   this week {next}',
+      warning: 'Warning {n} of {max}.',
+      dismissal: 'Coom reads it off a card he did not write. You are off the roll from the end of the shift. Your tools are the property of the Works and always were.',
+      warningsLabel: 'Warnings'
+    },
+
+    transfer: {
+      request: 'Ask Coom for a transfer',
+      requestHint: 'A different bench, a different way to be worn out.',
+      heading: 'ASK FOR A TRANSFER',
+      pick: 'Which bench?',
+      current: 'Now: {station}, hand {skill} of 100',
+      target: 'Asking for: {station}, hand {skill} of 100',
+      costLine: 'Your {from} hand does not travel. At the {to} bench you begin at {skill} and you will be poorer for weeks while it comes up.',
+      wageLine: 'A steady shift there today: about {wage}, against about {now} where you stand.',
+      hazardLine: 'What it takes off you: {hazard}',
+      confirm: 'Ask him',
+      cancel: 'Leave it',
+      granted: 'Coom looks at you for longer than the question needs, and says yes, and writes it down in a way that means he has not forgotten being asked.',
+      refused: 'He says the bench is full. The bench is not full.',
+      needStanding: 'Coom will not hear it from you. Not at present.',
+      alreadyThere: 'You are already at that bench.',
+      pending: 'You have asked already today.'
+    },
+
     outcomes: {
       normal: 'The day goes the way days go: no one dies, nothing is finished, the bell rings.',
-      good: 'The line runs sweet for once. You make your count before the four o’clock bell and no one says a word about it.',
+      good: 'The line runs sweet for once. You make your count before the four o\u2019clock bell and no one says a word about it.',
       bad: 'A belt slips and the whole bench loses an hour. The hour comes out of you, not the Works.',
-      hurt: 'Something goes wrong at speed, the way it always does — too fast to see, too slow to stop.'
+      hurt: 'Something goes wrong at speed, the way it always does \u2014 too fast to see, too slow to stop.'
+    },
+
+    beats: {
+      open: {
+        CASTING: 'five o\u2019clock. the crucible is already going and the shed is orange.',
+        CAP_BENCH: 'five o\u2019clock. fourteen down the bench, the youngest of them nine.',
+        GRINDING: 'five o\u2019clock. the wheel comes up to speed with a noise like held breath.',
+        STAMPING: 'five o\u2019clock. the press is cold and takes four blows to wake.'
+      },
+      pace: {
+        slow: 'you work at the pace of a man who intends to be alive in ten years.',
+        steady: 'you find the pace and sit inside it.',
+        driven: 'you go at it. by seven your shirt is through and it is a long way to seven at night.'
+      },
+      care: {
+        sloppy: 'you stop looking at what leaves your hands.',
+        proper: 'you work the way you were shown, by a man who is dead now.',
+        meticulous: 'you check each one. the bench notices you checking each one.'
+      },
+      guard: {
+        on: 'the stop-bar is down. it costs you a half-second a piece and you pay it.',
+        off: 'the guard is folded back against the frame. nobody asked you to. nobody stopped you.'
+      },
+      CASTING: [
+        'the ladle comes up full and the light off it is the best light in Grimwick.',
+        'lead goes into the mould and the mould hisses at it.',
+        'the fumes are sweetish. everyone knows about the fumes. everyone breathes them.',
+        'a bead of sweat falls in and is gone before it is anything.',
+        'you tap out the sprue and the ball drops grey and perfect.',
+        'Teague has been on this floor eleven years and his hands shake when he lifts his tea.'
+      ],
+      CAP_BENCH: [
+        'the scoop, the cup, the tap. four thousand times, and it is not noon.',
+        'Anne Corrie is eleven and faster than you and it is not close.',
+        'the fulminate is grey and looks like nothing at all.',
+        'somebody down the bench is singing under her breath, and stops.',
+        'your thumb goes numb at the second knuckle and stays numb.',
+        'Lisbet counts hers out loud so as not to lose the place.'
+      ],
+      GRINDING: [
+        'the blade goes on and the wheel throws a fan of sparks the length of the shed.',
+        'the stone dust hangs in the shaft of light. you are standing in the light.',
+        'the wheel eats a sixteenth of an inch off the stone and something off you.',
+        'you spit and it comes out grey and you do not look at it.',
+        'Barrow works with a rag over his mouth. Barrow is fifty-one and looks seventy.',
+        'the edge comes up bright. it will be in a crate by Friday and in a man by spring.'
+      ],
+      STAMPING: [
+        'the ram comes down. the shell comes out. your hand is elsewhere, and must be.',
+        'the shop shakes on the third blow and the dust comes off the roof beams.',
+        'lock plates, then shells, then lock plates. no skill in it worth the name.',
+        'Wickes is seventeen and has stopped flinching, which is the wrong lesson.',
+        'the brass rings when it drops in the bin. it is the only clean sound in here.',
+        'you count the strokes without meaning to and lose the count at four hundred.'
+      ],
+      common: [
+        'Coom walks the line with his hands behind his back and says nothing to anyone.',
+        'the four o\u2019clock bell. six hours gone, six to go.',
+        'somebody\u2019s child brings in the dinner cans and is sent out again.',
+        'the gas goes up at half past four and the shed turns yellow.',
+        'a soldier crosses the yard with a caplock slung and does not look in.',
+        'the belt slips on the main shaft and everything stops for eleven minutes.'
+      ],
+      nearMiss: {
+        CASTING: 'the ladle catches the lip of the mould. hot lead goes past your wrist and onto the flags. you look at the flags for a while.',
+        CAP_BENCH: 'a cup goes over. grey powder on the bench. everyone within four feet stops breathing until it is swept.',
+        GRINDING: 'the blade snatches and goes out of your hand across the shed. it stands in the door frame.',
+        STAMPING: 'the ram comes down early. you are not under it. you were under it a half-second before.'
+      },
+      hurt: 'and then \u2014',
+      close: {
+        good: 'the seven o\u2019clock bell. you have beaten the bench today and nobody has said so.',
+        normal: 'the seven o\u2019clock bell. you put your things down where you always put them.',
+        bad: 'the seven o\u2019clock bell. you are short and you know exactly how short.',
+        hurt: 'they let you off at seven with the rest. there is no arrangement for anything else.'
+      }
+    },
+
+    catastrophe: {
+      flash: {
+        title: 'THE FLASH',
+        text: 'A cup goes over at the far end and takes the bench with it in a white line that arrives before the sound does. When you can see again the shed is full of a smell like a struck match the size of a room, and there is a shape on the floor where {name} was sitting. {name} was {age} years old.',
+        survived: 'You are burned across the hands and the side of the face. Your hands will not be steady again.'
+      },
+      burst: {
+        title: 'THE WHEEL',
+        text: 'The stone lets go at speed. A wheel of that size does not break, it becomes shrapnel with a direction. Half of it goes through the shed wall. The other half goes through {name}, who was {age} years old, and who had been at that wheel since before you were born.',
+        survived: 'A splinter of the stone takes you above the eye. You keep the eye. Not all of it.'
+      },
+      cruciblespill: {
+        title: 'THE CRUCIBLE',
+        text: 'The trunnion gives. Two hundredweight of molten lead goes across the floor of the shed, finding the low places, the way water does. {name}, who was {age} years old, could not get up onto the bench in time.',
+        survived: 'It goes over your boot. The boot is not the problem. What is under the boot is the problem.'
+      },
+      press: {
+        title: 'THE PRESS',
+        text: 'The stop-bar was folded back. The ram came down on the return stroke, which it is not supposed to do, which everyone says it is not supposed to do. {name} was reaching in. {name} was {age} years old.',
+        survived: 'You get your hand back. Not all of your hand.'
+      },
+      neighbourDied: '{name} is carried out through the yard on a door. The shift resumes at twenty past.',
+      worksResponse: 'The Works posts a notice within the hour. It uses the word regrettable and the word carelessness in the same sentence.',
+      resumed: 'The bench is working again by twenty past the hour. There is a queue of eleven men at the gate and everybody on the floor can count.'
+    },
+
+    injuryHappened: 'YOU ARE HURT',
+    injuryLine: '{what}. {detail}',
+    injuryDetail: {
+      scald: 'Molten lead across the forearm. The skin is not where it was.',
+      burn: 'A burn along the inside of the hand, dressed with nothing.',
+      cutArm: 'A cut to the forearm, deep, with grit in it.',
+      back: 'Something in the low back lets go and does not come back.',
+      hernia: 'A rupture in the groin, which is what lifting does to a man eventually.',
+      crushedHand: 'The press catches the hand across the back. The bones are in the wrong arrangement.',
+      lostFingers: 'Two fingers and the top of a third. They are somewhere under the press.',
+      wheelSplinter: 'A splinter of grinding stone above the eye, driven in by a wheel doing eight hundred turns a minute.',
+      fulminateFlash: 'Burns across both hands and the side of the face, and a shake that starts that night and does not stop.'
     }
   },
 
@@ -208,6 +426,8 @@ var STR = {
       drinkHint: 'Beer, and the noise of other people.',
       listen: 'Listen at the bar',
       listenHint: 'Talk of the Works, the garrison, and what is coming down the line.',
+      apothecary: 'The apothecary on Kell Street \u2014 {price}',
+      apothecaryHint: 'A surgeon\u2019s dressing and a proper draught. More than a week\u2019s wage, which is the arrangement.',
       readNotice: 'Read the posted notice',
       readNoticeHint: 'Print on a board. You would have to be able to read it.',
       endEvening: 'Turn in',
@@ -226,6 +446,8 @@ var STR = {
       mended: 'A bad seam, well hidden. It will hold through the frost.',
       drank: 'It is thin, and it helps, and that is the trouble with it.',
       listened: 'Men who know nothing repeat it with confidence. Some of it is true.',
+      apothecary: 'He cuts away what is dead, dresses it properly, and charges you what he charges. It is the first competent thing done to your body since you came to Grimwick.',
+      apothecaryNoWound: 'He sells you a draught for the chest and tells you to leave the grinding shed, which is advice for a different man with a different rent.',
       readNotice: 'You read it twice to be sure of it.',
       cannotRead: 'The letters sit there being letters.'
     }
@@ -278,6 +500,8 @@ var STR = {
     owed: 'BALANCE OWED',
     noDeductions: 'No charges this day.',
     stamp: 'CHECKED',
+    pieces: 'Passed at inspection',
+    bonusLine: 'Count bonus',
     press: 'Press on',
     clerkNote: 'Errors to be reported within the day. They are not corrected.',
     lines: {
@@ -293,7 +517,14 @@ var STR = {
       fineAbsent: 'Fine — absent without leave',
       rentAtSource: 'Rent, stopped at source',
       doctorsBook: 'Doctor’s book',
-      dustAllowance: 'Wheel allowance'
+      dustAllowance: 'Wheel allowance',
+      bonusLine: 'Count bonus',
+      quotaFine: 'Fine \u2014 count short of the week',
+      coomCharge: 'Overlooker\u2019s charge',
+      skimBench: 'Bench hire',
+      skimApron: 'Apron and gloves',
+      skimSweep: 'Sweeping of the shed',
+      skimLight: 'Light and heat, apportioned'
     },
     bodyNotes: {
       default: 'You go home with the taste of brass in your mouth.',
@@ -307,6 +538,52 @@ var STR = {
       idle: 'A day not worked still costs. That is the arrangement.',
       broke: 'You count it twice on the stairs. It is the same the second time.'
     }
+  },
+
+  foreman: {
+    name: 'Overseer Halbrecht Coom',
+    heading: 'THE OVERSEER',
+    standing: 'How he has you',
+    blurbGood: 'Coom is civil to you this week, in the way a man is civil to a tool that has not yet broken.',
+    blurbFlat: 'Coom knows your number and not your name, and that is the arrangement he prefers.',
+    blurbBad: 'Coom has a use for you being poorer. He has had it for some days now.',
+    blurbSpite: 'Coom has put you where the work is worst, and he has done it in front of the bench so that it is understood.',
+    endure: 'Say nothing',
+    endureHint: 'Cost nothing. Change nothing.',
+    flatter: 'Take your cap off to him',
+    flatterHint: 'It works, a little, and you will feel it later.',
+    bribe: 'Put a shilling in his hand \u2014 {amt}',
+    bribeHint: 'It buys about a week. It has never once bought more.',
+    report: 'Write to the Factory Inspector',
+    reportHint: 'The Ten Hours Act is law here. Nobody has ever seen it enforced in Grimwick.',
+    scribe: 'Pay the scribe to write it \u2014 {amt}',
+    scribeHint: 'You cannot write it yourself and you know it.',
+    r_endure: 'You say nothing. He goes down the line. That is the whole of it.',
+    r_flatter: 'You take your cap off and say the thing he likes to hear. He accepts it as his due, which it is not, and the bench sees you do it.',
+    r_bribe: 'The coin goes from your hand into his without either of you looking at it. He is easier with you for a week and dearer with you after.',
+    r_report: 'You send it. There is no receipt for such a letter and no way to know it arrived, until it has.',
+    skimNotice: 'There are charges on your docket tonight that were not on anybody else\u2019s.',
+    spiteNotice: 'Coom puts you at the worst bench in the Works and does it where the floor can hear.',
+    informant: 'Coom offers you a bargain about the men who talk. Not today \u2014 he wants you to know it exists.'
+  },
+
+  inspector: {
+    heading: 'THE FACTORY INSPECTOR',
+    sent: 'The letter goes to the Inspectorate at the county town. It takes three days and it is out of your hands the moment it leaves them.',
+    arrival: 'A gentleman from the Inspectorate is in the yard at nine with a notebook and clean boots.',
+    visit: 'The shed has been swept since four in the morning. The guards are all fitted and oiled. The children are not on the floor \u2014 they are in the timber yard, in the rain, and will be there until he leaves.',
+    findsNothing: 'He finds the works to be in substantial compliance. He writes substantial compliance in the book and closes the book. He is not a liar. He is simply a man who has been shown a different factory.',
+    aftermath: 'Everyone on the floor knows who wrote the letter by the afternoon. Nobody says a word to you. That is the punishment; there is no other one coming.',
+    workmates: 'The bench turns its back. You eat your dinner alone against the wall of the shed.',
+    coomKnows: 'Coom says nothing at all about it, which is how you learn that he knows.'
+  },
+
+  fever: {
+    onset: 'The wound is hot and the heat has gone up into the arm. You are shivering in a warm room.',
+    burning: 'The fever has you. You are not entirely sure which day it is and you go to the bench anyway.',
+    breaking: 'The fever turns in the night. You wake soaked and weak and alive.',
+    worsening: 'It is worse. There is a smell to the dressing now.',
+    tooLate: 'The red line is above the elbow.'
   },
 
   events: {
@@ -503,6 +780,9 @@ var STR = {
 
   goals: {
     act1_survive: 'Work the week out and keep the rent paid.',
+    act1_quota: 'The week\u2019s count wants {n} more, and there are {d} shifts left to make it in.',
+    act1_fever: 'The wound has turned and the fever is on you. A surgeon, or it finishes the way it finishes.',
+    deadline_quota: 'The count, day {d} \u2014 {n} wanted',
     act1_rent: 'Find {amt} for Mr. Kell before the rent day.',
     act1_kin: 'Tamsin is ill. Get physic into her or a doctor up the stair.',
     act1_debt: 'The store book is at {amt} and it grows on Sundays.',
@@ -554,7 +834,14 @@ var STR = {
     alreadyRested: 'You have already sat in the dark this evening.',
     tickCapped: 'The grocer will not put another penny in the book.',
     dead: 'You are dead.',
-    noDebt: 'You owe the store nothing.'
+    noDebt: 'You owe the store nothing.',
+    noWound2: 'Nothing on you needs a surgeon.',
+    foremanCold: 'Coom will not hear it from you.',
+    askedAlready: 'You have asked him once today. Twice is a different conversation.',
+    dialsLocked: 'The shift is set. The bell has gone.',
+    noScribe: 'You cannot write, and the scribe wants paying.',
+    reportedAlready: 'The letter is already sent.',
+    sacked: 'You are off the roll.'
   },
 
   log: {
@@ -574,9 +861,15 @@ var STR = {
   },
 
   injuries: {
-    crushedHand: 'a crushed hand',
+    scald: 'a scalding',
     burn: 'a lead burn',
     cutArm: 'a cut to the forearm',
+    back: 'a ruined back',
+    hernia: 'a rupture',
+    crushedHand: 'a crushed hand',
+    lostFingers: 'two fingers gone',
+    wheelSplinter: 'stone in the eye',
+    fulminateFlash: 'flash burns',
     brokenRib: 'a broken rib',
     lungFever: 'a fever on the chest'
   },
@@ -593,6 +886,10 @@ var STR = {
     kill: 'Set health 0',
     apply: 'Apply',
     filter: 'Filter fields',
+    monteCarlo: '200-shift Monte Carlo',
+    monteDone: 'Monte Carlo: {n} shifts per setting, printed to the console.',
+    permCheck: 'Assert permanent stats',
+    permOk: 'PERMANENCE: dust, tremor and lead cannot be reduced.',
     passed: 'ROUND TRIP: identical.',
     failed: 'ROUND TRIP: DIFFERS — see console.'
   }

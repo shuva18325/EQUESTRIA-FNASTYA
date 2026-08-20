@@ -25,6 +25,7 @@ var Economy = {
     var item = ITEMS[id];
     if (!item) return 0;
     var p = item.price;
+    if (id === 'apothecary') return p;
     if (id === 'coal' && (S.time.season === 'WINTER' || S.time.season === 'AUTUMN')) p += 2;
     if (id === 'bread' && S.time.season === 'WINTER') p += 1;
     return p;
@@ -55,16 +56,10 @@ var Economy = {
     var hours = worked ? WAGE.hours : 0;
     var gross = 0;
 
-    if (worked) {
-      gross = WAGE.baseDay;
-      if (S.factory.lastOutcome === 'good') gross += WAGE.goodDayBonus;
-      if (S.factory.lastOutcome === 'bad') gross -= WAGE.badDayPenalty;
-      if (S.factory.lastOutcome === 'hurt') gross -= 2;
-      /* a shaking hand fills fewer caps and the tally does not care why */
-      gross -= Math.floor(S.body.tremor / 25);
-      gross -= Math.floor(S.body.fatigue / 45);
-      gross = Math.max(0, gross);
-    }
+    /* Piece work. The count you made is the wage you get, and the day money
+       is the floor beneath a ruined shift. */
+    if (worked) gross = Math.max(WAGE.dayFloor, S.pending.pieceWage || 0);
+    if (S.pending.bonus > 0) gross += S.pending.bonus;
 
     var lines = [];
     function add(key, amount, params) {
@@ -108,6 +103,13 @@ var Economy = {
       if (S.house.arrears <= 0) { S.house.arrears = 0; S.flags.rentAtSource = false; }
     }
 
+    /* the week's count came up short */
+    if (S.pending.quotaFine > 0) add(CHARGES.quotaFine.key, S.pending.quotaFine);
+
+    /* charges Coom writes in because he can */
+    var skims = Coom.skims();
+    for (var k = 0; k < skims.length; k++) add(skims[k].key, skims[k].amount);
+
     /* the company store takes its cut off the top */
     if (S.purse.debt > 0) {
       var take = Math.max(2, Math.round(gross * 0.15));
@@ -130,6 +132,9 @@ var Economy = {
       worked: worked,
       hours: hours,
       stationKey: 'shift.stations.' + S.factory.station + '.name',
+      pieces: S.factory.shift ? S.factory.shift.good : 0,
+      unitKey: 'shift.stations.' + S.factory.station + '.units',
+      bonus: S.pending.bonus,
       gross: gross,
       lines: lines,
       deducted: deducted,
@@ -170,6 +175,9 @@ var Economy = {
     S.pending.fines = [];
     S.pending.breakages = 0;
     S.pending.extra = [];
+    S.pending.pieceWage = 0;
+    S.pending.bonus = 0;
+    S.pending.quotaFine = 0;
     return docket;
   }
 };

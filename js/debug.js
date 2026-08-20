@@ -46,6 +46,57 @@ var Debug = {
     node[parts[parts.length - 1]] = value;
   },
 
+  /* 200 shifts per dial setting, printed to the console. The point is to see
+     that pace, care and guard actually bend the curves in different directions. */
+  monteCarlo: function (n) {
+    n = n || 200;
+    var keep = Util.deepClone(S);
+    var quietLog = UI.log;
+    UI.log = function () {};
+    var rows = [];
+
+    function trial(station, pace, care, guard) {
+      var o = 0, g = 0, w = 0, c = 0, hurt = 0, cat = 0, fat = 0;
+      /* each row gets its own seed stream, or every row draws the same dice
+         and the rare events look identical when they are not */
+      var seedBase = 9000 + rows.length * 104729;
+      for (var i = 0; i < n; i++) {
+        S = newState(seedBase + i * 13);
+        S.settings.audio = false;
+        S.factory.station = station;
+        S.factory.skills[station] = 50;
+        S.factory.pace = pace; S.factory.care = care; S.factory.guard = guard;
+        var f0 = S.body.fatigue;
+        var rec = Factory.resolveShift();
+        o += rec.output; g += rec.good; w += rec.wage; c += rec.credits;
+        fat += S.body.fatigue - f0;
+        if (rec.injury) hurt++;
+        if (rec.catastrophe) cat++;
+      }
+      rows.push({
+        station: station, dials: pace + '/' + care + '/' + guard,
+        made: Math.round(o / n), passed: Math.round(g / n),
+        wage: Math.round(w / n * 10) / 10, count: Math.round(c / n),
+        fatigue: Math.round(fat / n),
+        injuryPct: Math.round(hurt / n * 1000) / 10,
+        catPct: Math.round(cat / n * 1000) / 10
+      });
+    }
+
+    var st, i;
+    for (i = 0; i < STATIONS.length; i++) trial(STATIONS[i], 'steady', 'proper', 'on');
+    for (i = 0; i < 3; i++) trial('STAMPING', ['slow', 'steady', 'driven'][i], 'proper', 'on');
+    for (i = 0; i < 3; i++) trial('STAMPING', 'steady', ['sloppy', 'proper', 'meticulous'][i], 'on');
+    trial('STAMPING', 'steady', 'proper', 'off');
+
+    S = keep;
+    UI.log = quietLog;
+    if (console.table) console.table(rows); else console.log(rows);
+    UI.log(T('debug.monteDone', { n: n }), 'good');
+    UI.render();
+    return rows;
+  },
+
   build: function () {
     var wrap = el('div', 'debug');
     var head = el('div', 'debug__head');
@@ -112,6 +163,20 @@ var Debug = {
           console.warn(T('debug.failed'), diff);
           UI.log(T('debug.failed'), 'bad');
         }
+      }
+    }));
+    tools.appendChild(UI.button({
+      small: true, label: T('debug.monteCarlo'),
+      onClick: function () { Debug.monteCarlo(200); }
+    }));
+    tools.appendChild(UI.button({
+      small: true, label: T('debug.permCheck'),
+      onClick: function () {
+        var before = State.permanentSnapshot();
+        State.applyBody({ dust: -50, tremor: -50, lead: -50 });
+        var v = State.assertPermanents(before);
+        console.log(v.length ? 'PERMANENCE VIOLATED: ' + v.join(', ') : T('debug.permOk'));
+        UI.log(v.length ? T('debug.failed') : T('debug.permOk'), v.length ? 'bad' : 'good');
       }
     }));
     tools.appendChild(UI.button({

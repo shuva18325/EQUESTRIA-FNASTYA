@@ -30,7 +30,52 @@ var WEATHERS = {
 /* Warmth cost per night by weather. Winter is not a mood, it is arithmetic. */
 var WEATHER_BITE = { soot: 4, still: 3, rain: 8, fog: 6, wind: 10, sleet: 14, frost: 16 };
 
-var STATIONS = ['CAPPING', 'CASTING', 'STAMPING', 'GRINDING'];
+var STATIONS = ['CASTING', 'CAP_BENCH', 'GRINDING', 'STAMPING'];
+
+/* The four ways the floor takes something off you. Output is per twelve-hour
+   shift at skill 50, steady pace, proper care, guards on. */
+var STATION_DEF = {
+  CASTING:  { baseOutput: 230, quotaWeight: 5.00, pieceRate: 0.145, accident: 0.045,
+              wear: { fatigue: 19, health: -2, lead: 2, dust: 0, tremor: 0 },
+              injuries: ['scald', 'burn', 'back'], catastrophe: 'cruciblespill', catRisk: 0.0035 },
+  CAP_BENCH:{ baseOutput: 950, quotaWeight: 1.20, pieceRate: 0.032, accident: 0.032,
+              wear: { fatigue: 16, health: -1, lead: 0, dust: 0, tremor: 2 },
+              injuries: ['burn', 'cutArm', 'back'], catastrophe: 'flash', catRisk: 0.0040 },
+  GRINDING: { baseOutput: 95,  quotaWeight: 12.0, pieceRate: 0.300, accident: 0.040,
+              wear: { fatigue: 18, health: -2, lead: 0, dust: 3, tremor: 0 },
+              injuries: ['cutArm', 'wheelSplinter', 'back'], catastrophe: 'burst', catRisk: 0.0030 },
+  STAMPING: { baseOutput: 160, quotaWeight: 7.15, pieceRate: 0.165, accident: 0.062,
+              wear: { fatigue: 21, health: -1, lead: 0, dust: 0, tremor: 1 },
+              injuries: ['crushedHand', 'back', 'hernia'], catastrophe: 'press', catRisk: 0.0028 }
+};
+
+var PACE  = {
+  slow:   { output: 0.82, fatigue: 0.75, accident: 0.60, foreman: -2 },
+  steady: { output: 1.00, fatigue: 1.00, accident: 1.00, foreman: 0 },
+  driven: { output: 1.28, fatigue: 1.45, accident: 1.90, foreman: 2 }
+};
+var CARE  = {
+  sloppy:     { output: 1.12, reject: 0.115, accident: 1.25, foreman: 0 },
+  proper:     { output: 1.00, reject: 0.050, accident: 1.00, foreman: 0 },
+  meticulous: { output: 0.86, reject: 0.015, accident: 0.85, foreman: 1 }
+};
+var GUARD = {
+  on:  { output: 1.00, accident: 1.00, foreman: 0 },
+  off: { output: 1.15, accident: 2.60, foreman: 2 }
+};
+
+/* Typed, visible, and often permanent. */
+var INJURY_DEF = {
+  scald:         { severity: 3, days: 6,  health: -10, output: 0.10 },
+  burn:          { severity: 2, days: 4,  health: -5,  output: 0.05 },
+  cutArm:        { severity: 2, days: 3,  health: -5,  output: 0.05 },
+  back:          { severity: 2, days: 9,  health: -6,  output: 0.08 },
+  hernia:        { severity: 2, days: 12, health: -8,  output: 0.10 },
+  crushedHand:   { severity: 3, days: 8,  health: -12, output: 0.16 },
+  lostFingers:   { severity: 4, days: 10, health: -16, output: 0.16, permanent: true, scar: { output: 0.09 } },
+  wheelSplinter: { severity: 4, days: 7,  health: -14, output: 0.12, permanent: true, scar: { output: 0.07, eye: true } },
+  fulminateFlash:{ severity: 4, days: 9,  health: -18, output: 0.14, tremor: 18, permanent: true, scar: { output: 0.05 } }
+};
 
 var Util = {
   clamp: function (v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); },
@@ -71,8 +116,9 @@ function newState(seed) {
 
     body: {
       health: 76, fatigue: 24, hunger: 34, warmth: 58,
-      dust: 5, tremor: 2,
+      dust: 5, tremor: 8, lead: 3,
       injury: null,
+      scars: [],
       lastHarm: null
     },
 
@@ -96,7 +142,29 @@ function newState(seed) {
 
     job: { employed: true, shiftsMissed: 0, warnings: 0 },
 
-    factory: { station: 'CAPPING', worked: false, lastOutcome: null, tally: 0 },
+    factory: {
+      station: 'CAP_BENCH',
+      pace: 'steady', care: 'proper', guard: 'on',
+      skills: { CASTING: 12, CAP_BENCH: 50, GRINDING: 9, STAMPING: 18 },
+      worked: false,
+      lastOutcome: null,
+      shift: null,
+      transfer: null,
+      guardsOffShifts: 0,
+      quota: { week: 1, target: 5900, made: 0, lastTarget: 0, weeksBeaten: 0, weeksMissed: 0, lastResult: null, lastMade: 0, unseen: false },
+      floor: []
+    },
+
+    foreman: {
+      standingKnown: true,
+      skimUntil: 0,
+      spiteUntil: 0,
+      flatterCooldown: 0,
+      bribedUntil: 0,
+      reported: false,
+      inspectorDay: 0,
+      inspectorVisited: false
+    },
 
     evening: { ap: 2, ended: false, rested: false },
 
@@ -106,7 +174,7 @@ function newState(seed) {
     flags: {},
 
     /* accrued charges for tonight's docket, cleared each dawn */
-    pending: { fines: [], breakages: 0, extra: [] },
+    pending: { fines: [], breakages: 0, extra: [], pieceWage: 0, bonus: 0, quotaFine: 0 },
 
     eventsSeen: {},
     lastEventId: null,
@@ -120,14 +188,14 @@ function newState(seed) {
 
     tutorial: { active: true, step: 0, done: false },
 
-    settings: { god: false, audio: false },
+    settings: { god: false, audio: true, volume: 0.7 },
 
     dead: false,
     endingId: null
   };
   s.time.season = Util.seasonFor(1);
   s.time.act = Util.actFor(1);
-  s.factory.station = STATIONS[0];
+  s.factory.floor = Util.deepClone(FLOOR_HANDS);
   return s;
 }
 
@@ -140,8 +208,9 @@ var State = {
     for (k in d) {
       if (!Object.prototype.hasOwnProperty.call(d, k)) continue;
       if (k === 'injury' || k === 'lastHarm') continue;
-      if (k === 'dust' || k === 'tremor') {
-        /* permanent damage. it never goes down, whatever anyone promises. */
+      if (k === 'dust' || k === 'tremor' || k === 'lead') {
+        /* permanent damage. it never goes down, whatever anyone promises,
+           whatever the debug panel does, whatever an event tries to give back. */
         b[k] = Util.clamp100(b[k] + Math.max(0, d[k]));
       } else {
         b[k] = Util.clamp100(b[k] + d[k]);
@@ -190,7 +259,34 @@ var State = {
     if (FINES[id]) S.pending.fines.push(id);
   },
   kin: function () { return S.house.kin.length ? S.house.kin[0] : null; },
-  isDead: function () { return S.dead || S.body.health <= 0; }
+  isDead: function () { return S.dead || S.body.health <= 0; },
+
+  /* Everything a scar takes off your output, forever. */
+  scarPenalty: function () {
+    var p = 0;
+    for (var i = 0; i < S.body.scars.length; i++) p += S.body.scars[i].output || 0;
+    return Math.min(0.45, p);
+  },
+
+  addScar: function (type, def) {
+    S.body.scars.push({ type: type, output: def.output || 0, eye: !!def.eye, day: S.time.day });
+  },
+
+  /* The three that never go down. */
+  permanentSnapshot: function () {
+    return { dust: S.body.dust, tremor: S.body.tremor, lead: S.body.lead };
+  },
+
+  /* Returns a list of violations; empty is the only acceptable answer. */
+  assertPermanents: function (before) {
+    var out = [], keys = ['dust', 'tremor', 'lead'], i;
+    for (i = 0; i < keys.length; i++) {
+      if (S.body[keys[i]] < before[keys[i]]) {
+        out.push(keys[i] + ': ' + before[keys[i]] + ' -> ' + S.body[keys[i]]);
+      }
+    }
+    return out;
+  }
 };
 
 /* One entry point for every effect object in data/*.js. */

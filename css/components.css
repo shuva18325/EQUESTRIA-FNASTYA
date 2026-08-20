@@ -122,9 +122,21 @@
   margin-left: 4px;
 }
 
-.kv { display: flex; justify-content: space-between; gap: var(--sp-3); font-size: var(--fs-sm); }
-.kv__k { color: var(--text-dim); font-family: var(--font-ui); letter-spacing: .04em; }
-.kv__v { font-family: var(--font-mono); color: var(--text); text-align: right; }
+.kv {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+  flex-wrap: wrap;
+}
+.kv__k { color: var(--text-dim); font-family: var(--font-ui); letter-spacing: .04em; min-width: 0; }
+.kv__v {
+  font-family: var(--font-mono);
+  color: var(--text);
+  text-align: right;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .kv__v--bad { color: var(--blood); }
 .kv__v--good { color: var(--good); }
 
@@ -379,4 +391,220 @@
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ==========================================================================
+   THE SHIFT — Build 2
+   ========================================================================== */
+
+/* ---- the works, over the top of the floor ---- */
+.works-banner {
+  position: relative;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  background: #100d0a;
+  line-height: 0;
+}
+.works-banner .gw-svg { width: 100%; height: 168px; display: block; }
+.works-banner__plate {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  background: linear-gradient(180deg, rgba(10,8,6,0), rgba(10,8,6,.92) 60%);
+  line-height: 1.4;
+}
+.works-banner__name {
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  letter-spacing: .18em;
+  font-weight: 700;
+  color: var(--brass);
+}
+.works-banner__dept {
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  letter-spacing: .1em;
+  color: var(--text-dim);
+}
+
+/* ---- station illustration ---- */
+.station-art {
+  border: 1px solid var(--line-soft);
+  background: #171310;
+  line-height: 0;
+  overflow: hidden;
+}
+.station-art .gw-svg { width: 100%; height: auto; max-height: 240px; display: block; }
+
+.hazard-line { display: flex; gap: var(--sp-2); align-items: baseline; }
+.hazard-line__label { color: var(--blood); }
+
+/* ---- the dials ---- */
+.dial { display: grid; grid-template-columns: 86px minmax(0, 1fr); gap: var(--sp-3); align-items: start; }
+.dial + .dial { margin-top: var(--sp-3); }
+.dial__name {
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  letter-spacing: .14em;
+  color: var(--text-dim);
+  padding-top: 12px;
+}
+.dial__seg { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+.dial__opt { flex: 1 1 150px; }
+.dial__opt--on {
+  border-color: var(--rust);
+  background: var(--panel-3);
+  box-shadow: inset 3px 0 0 var(--rust);
+}
+.dial__opt--on .btn__label { color: var(--focus); font-weight: 700; }
+.dial__opt--off.dial__opt--on { box-shadow: inset 3px 0 0 var(--blood); border-color: var(--blood-deep); }
+
+.forecast {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  margin-top: var(--sp-4);
+  padding: var(--sp-3);
+  border: 1px dashed var(--line);
+  background: #171412;
+}
+.forecast__icon { line-height: 0; flex: 0 0 auto; }
+.forecast__text { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--text); }
+.forecast__sub { color: var(--text-dim); }
+
+/* ---- the count ---- */
+.quota-bar {
+  height: 14px;
+  background: #0d0b09;
+  border: 1px solid var(--line-soft);
+  position: relative;
+  overflow: hidden;
+}
+.quota-bar__fill { position: absolute; inset: 0 auto 0 0; background: var(--rust-deep); }
+.quota-bar__fill--met { background: #4a6b46; }
+.ratchet {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--brass);
+  border-top: 1px dotted var(--line);
+  padding-top: var(--sp-2);
+}
+.ratchet-big {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  padding: var(--sp-4) 0;
+}
+.ratchet-big__box {
+  border: 1px solid var(--line);
+  padding: var(--sp-3) var(--sp-4);
+  text-align: center;
+  min-width: 120px;
+}
+.ratchet-big__box--new { border-color: var(--rust); background: #241a13; }
+.ratchet-big__label {
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  letter-spacing: .12em;
+  color: var(--text-dim);
+}
+.ratchet-big__num { font-family: var(--font-mono); font-size: var(--fs-xl); color: var(--text); }
+.ratchet-big__box--new .ratchet-big__num { color: var(--focus); }
+.ratchet-big__arrow { font-size: var(--fs-xl); color: var(--rust); }
+
+/* ---- the resolution column ---- */
+.modal--shift { max-width: 660px; }
+.beats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  max-height: 44vh;
+  overflow-y: auto;
+  padding-right: var(--sp-2);
+}
+.beat {
+  font-size: var(--fs-md);
+  line-height: 1.45;
+  color: var(--text-dim);
+  border-left: 2px solid var(--line);
+  padding: 2px 0 2px var(--sp-3);
+  animation: beatIn .22s ease-out;
+}
+.beat--bad { color: var(--text); border-left-color: var(--brass); }
+.beat--good { color: var(--good); border-left-color: var(--good); }
+.beat--hurt, .beat--cat {
+  color: var(--blood);
+  border-left-color: var(--blood);
+  font-size: var(--fs-lg);
+  letter-spacing: .06em;
+}
+@keyframes beatIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+.catastrophe {
+  border: 1px solid var(--blood-deep);
+  border-left-width: 4px;
+  background: #1e1310;
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.catastrophe__title {
+  font-family: var(--font-ui);
+  font-size: var(--fs-lg);
+  letter-spacing: .2em;
+  font-weight: 700;
+  color: var(--blood);
+}
+.injury-note {
+  border: 1px solid var(--blood-deep);
+  background: #1c1512;
+  padding: var(--sp-3) var(--sp-4);
+}
+.injury-note__title {
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  letter-spacing: .2em;
+  font-weight: 700;
+  color: var(--blood);
+  margin-bottom: var(--sp-2);
+}
+
+/* ---- tally ---- */
+.tally-head { display: flex; align-items: center; gap: var(--sp-4); }
+.tally-head__icon { line-height: 0; }
+.tally-head__big { font-family: var(--font-mono); font-size: var(--fs-xl); color: var(--text); }
+.tally-head__sub {
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  letter-spacing: .16em;
+  color: var(--text-dim);
+}
+.tally-mini {
+  display: flex;
+  gap: var(--sp-4);
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding-top: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+.tally-mini__rows { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+
+.transfer-cost { border-left: 3px solid var(--brass); padding-left: var(--sp-3); }
+
+/* ---- icons ---- */
+.gw-icon { height: 34px; width: auto; display: block; }
+.gw-icon--musket { height: 26px; }
+
+@media (max-width: 620px) {
+  .dial { grid-template-columns: minmax(0, 1fr); }
+  .dial__name { padding-top: 0; }
+  .works-banner .gw-svg { height: 120px; }
+  .ratchet-big__arrow { transform: rotate(90deg); }
 }

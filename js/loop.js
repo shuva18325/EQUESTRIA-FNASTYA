@@ -41,7 +41,9 @@ var Loop = {
     if (S.time.day % 7 === 1) S.house.coatMended = false;
 
     Empire.tick();
+    Coom.tick();
     Factory.assignStation();
+    S.pending.pieceWage = 0;
 
     if (!isFirst) {
       UI.log(T('log.dayBegins', {
@@ -53,14 +55,41 @@ var Loop = {
     UI.log(T('log.phaseShift'));
     UI.render();
     Tutorial.onPhase('SHIFT');
+    if (S.flags.spitedToStation) {
+      S.flags.spitedToStation = false;
+      UI.log(T('foreman.spiteNotice'), 'bad');
+    }
+    if (Coom.inspectorDue()) UI.showInspector();
   },
 
   /* ---- shift ---------------------------------------------------------- */
   work: function () {
     if (S.time.phase !== 'SHIFT' || S.factory.worked) return;
-    Factory.workShift();
-    Audio.thunk();
-    Loop.afterShiftAction();
+    if (Factory.canWork() !== true) return;
+    var rec = Factory.resolveShift();
+    Audio.shiftStart(rec.station);
+    UI.playShift(rec, function () {
+      Audio.shiftEnd();
+      Loop.checkDeath();
+      if (S.dead) { UI.showEnding(S.endingId); return; }
+      Loop.afterShiftAction();
+    });
+  },
+
+  setDial: function (kind, value) {
+    if (Factory.setDial(kind, value)) UI.render();
+  },
+
+  askTransfer: function (to) {
+    var res = Factory.requestTransfer(to);
+    UI.showResult(T(res.key), function () { UI.render(); });
+    Audio.dial();
+  },
+
+  foremanChoice: function (id) {
+    var key = Coom.choose(id);
+    if (!key) { UI.render(); return; }
+    UI.showResult(T(key), function () { UI.render(); });
   },
 
   skip: function () {
@@ -210,24 +239,48 @@ var Loop = {
     }
     UI.log(T(rest >= 28 ? 'night.slept' : 'night.sleptBadly'));
 
-    /* --- the wound --- */
+    /* --- the wound, and what gets into it --- */
     if (S.body.injury) {
       var inj = S.body.injury;
-      var infectionRisk = 0.14 + (S.body.warmth < 30 ? 0.1 : 0) + (S.body.hunger > 70 ? 0.1 : 0)
-        + (S.house.physic > 0 ? -0.04 : 0)
-        - (S.flags.dressedToday ? S.flags.dressedToday * 0.06 : 0);
-      if (Util.chance(infectionRisk)) {
-        inj.severity += 1;
-        inj.daysLeft += 2;
-        State.applyBody({ health: -9 });
+      if (typeof inj.infection !== 'number') inj.infection = 0;
+
+      if (S.flags.surgeonDay === S.time.day) {
+        /* the apothecary cut away what was dead and dressed it properly */
+        inj.infection = 0;
+        inj.fever = false;
+        inj.daysLeft = Math.max(1, inj.daysLeft - 2);
+      } else {
+        var care = S.flags.dressedToday || 0;          /* 0 nothing, 1 rag, 2 bottle */
+        var gain = Util.rndInt(12, 22) - care * 8;
+        if (S.house.physic > 0) gain -= 2;
+        if (S.body.warmth < 30) gain += 5;
+        if (S.body.hunger > 70) gain += 5;
+        if (inj.severity >= 4) gain += 4;
+        inj.infection = Util.clamp(inj.infection + gain, 0, 100);
+      }
+
+      if (!inj.fever && inj.infection >= 55) {
+        inj.fever = true;
+        UI.log(T('fever.onset'), 'bad');
+      } else if (inj.fever && inj.infection < 35) {
+        inj.fever = false;
+        UI.log(T('fever.breaking'), 'good');
+      }
+
+      if (inj.fever) {
+        State.applyBody({ health: -7, fatigue: 8 });
+        State.applyMind({ resolve: -3 });
+        S.body.lastHarm = 'injury';
+        UI.log(T(inj.infection >= 85 ? 'fever.tooLate' : 'fever.burning'), 'bad');
+      } else if (inj.infection >= 30) {
+        State.applyBody({ health: -2 });
         S.body.lastHarm = 'injury';
         UI.log(T('night.woundWorse'), 'bad');
       } else {
         inj.daysLeft -= 1;
-        State.applyBody({ health: -2 });
         if (inj.daysLeft <= 0) {
           UI.log(T('log.healed', { what: T('injuries.' + inj.type) }), 'good');
-          if (inj.permanent || inj.severity >= 4) State.applyBody({ tremor: 6 });
+          if (inj.permanent) State.applyBody({ tremor: 4 });
           S.body.injury = null;
         }
       }
@@ -283,6 +336,9 @@ var Loop = {
       if (added > 0) UI.log(T('log.debtUp', { amt: Economy.money(S.purse.debt) }), 'bad');
     }
 
+    /* --- the week's count, every seventh night --- */
+    if (S.time.day % 7 === 0 && S.job.employed) Factory.quotaRollover();
+
     S.night.resolved = true;
     Loop.checkDeath();
     Loop.issueDocket();
@@ -294,6 +350,15 @@ var Loop = {
     if (!S.dead) Save.autosave();
     UI.showDocket(docket, function () {
       if (S.dead) { UI.showEnding(S.endingId); return; }
+      if (S.factory.quota.unseen && S.factory.quota.lastResult) {
+        var q = S.factory.quota.lastResult;
+        S.factory.quota.unseen = false;
+        UI.showQuota(q, function () {
+          if (q.dismissed) { UI.showResult(T('shift.quota.dismissal'), function () { Loop.nextDay(); }); }
+          else Loop.nextDay();
+        });
+        return;
+      }
       Loop.nextDay();
     });
   },

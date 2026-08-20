@@ -25,6 +25,7 @@ var Narrative = {
   goal: function () {
     var k = State.kin();
     if (!S.job.employed) return { key: 'goals.act1_sacked' };
+    if (S.body.injury && S.body.injury.fever) return { key: 'goals.act1_fever' };
     if (S.body.injury) return { key: 'goals.act1_hurt' };
     if (k && k.status === 'FEVERED') return { key: 'goals.act1_kin' };
     if (S.house.larder <= 0) return { key: 'goals.act1_hungry' };
@@ -35,6 +36,10 @@ var Narrative = {
       return { key: 'goals.act1_rent', params: { amt: Economy.money(S.house.rentAmount - S.purse.pennies) } };
     }
     if (S.purse.debt >= 60) return { key: 'goals.act1_debt', params: { amt: Economy.money(S.purse.debt) } };
+    var q = Factory.quotaProgress();
+    if (S.job.employed && q.remaining > 0) {
+      return { key: 'goals.act1_quota', params: { n: q.remaining, d: q.shiftsLeft } };
+    }
     if (S.time.act === 2) return { key: 'goals.act2_retool' };
     if (S.time.act === 3) return { key: 'goals.act3_end' };
     return { key: 'goals.act1_survive' };
@@ -54,6 +59,16 @@ var Narrative = {
       var nextSunday = S.time.day + (7 - (S.time.day % 7)) % 7;
       if (nextSunday <= S.time.day) nextSunday += 7;
       candidates.push({ day: nextSunday, key: 'goals.deadline_debt', params: { d: nextSunday } });
+    }
+    if (S.job.employed) {
+      var qd = S.time.day + (7 - (S.time.day % 7)) % 7;
+      if (qd < S.time.day) qd += 7;
+      if (qd === S.time.day - 0 && S.time.day % 7 !== 0) qd += 7;
+      candidates.push({
+        day: qd,
+        key: 'goals.deadline_quota',
+        params: { d: qd, n: Math.max(0, S.factory.quota.target - S.factory.quota.made) }
+      });
     }
     if (S.time.act === 1) {
       candidates.push({ day: 21, key: 'goals.deadline_act', params: { d: 21 } });

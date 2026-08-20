@@ -46,6 +46,7 @@ var UI = {
       b.dataset.acts = '1';
       b.addEventListener('click', function (ev) {
         ev.preventDefault();
+        Audio.unlock();          /* browsers keep the sound locked until a click */
         opts.onClick();
       });
     }
@@ -102,6 +103,10 @@ var UI = {
 
     var tools = el('div', 'topbar__tools');
     tools.appendChild(UI.button({
+      label: T(S.settings.audio ? 'ui.soundOn' : 'ui.soundOff'), small: true,
+      onClick: function () { Audio.setEnabled(!S.settings.audio); Audio.dial(); UI.render(); }
+    }));
+    tools.appendChild(UI.button({
       label: T('app.menu'), small: true,
       onClick: function () { UI.showMenu(); }
     }));
@@ -145,57 +150,229 @@ var UI = {
   },
 
   shiftPanel: function () {
-    var p = UI.panel(T('shift.heading'), 'shift-panel');
-    var body = p._body;
+    var wrap = el('div', 'column');
     var resolved = S.factory.lastOutcome !== null;
 
+    /* the works itself, over everything */
+    var banner = el('div', 'works-banner');
+    Art.into(banner, Art.works());
+    var plate = el('div', 'works-banner__plate');
+    plate.appendChild(el('span', 'works-banner__name', T('docket.works')));
+    plate.appendChild(el('span', 'works-banner__dept', T('docket.dept')));
+    banner.appendChild(plate);
+    wrap.appendChild(banner);
+
     if (!S.job.employed) {
-      body.appendChild(el('p', 'prose', T('shift.offRoll')));
+      var off = UI.panel(T('shift.heading'), 'shift-panel');
+      off._body.appendChild(el('p', 'prose', T('shift.offRoll')));
       if (!resolved) {
-        body.appendChild(UI.actions([
+        off._body.appendChild(UI.actions([
           UI.button({
             id: 'btn-work', primary: true,
             label: T('shift.gateWait'), hint: T('shift.gateWaitHint'),
             onClick: function () { Loop.gateWait(); }
           })
         ]));
-      }
-    } else {
-      body.appendChild(el('p', 'eyebrow', T(Narrative.stationNameKey())));
-      body.appendChild(el('p', 'prose', T(Narrative.stationLineKey())));
-      if (!resolved) {
-        body.appendChild(el('p', 'prose prose--dim', T('phases.shiftBlurb')));
-        body.appendChild(UI.actions([
+      } else {
+        off._body.appendChild(el('p', 'prose', T('shift.' + (S.factory.lastOutcome === 'casual' ? 'casualNone' : 'casualGot'))));
+        off._body.appendChild(UI.actions([
           UI.button({
-            id: 'btn-work', primary: true,
-            label: T('shift.work'), hint: T('shift.workHint'),
-            onClick: function () { Loop.work(); }
-          }),
-          UI.button({
-            id: 'btn-abstain',
-            label: T('shift.abstain'), hint: T('shift.abstainHint'),
-            onClick: function () { Loop.skip(); }
+            id: 'btn-leave-gate', primary: true,
+            label: T('shift.leaveGate'), hint: T('shift.leaveGateHint'),
+            onClick: function () { Loop.toEvening(); }
           })
         ]));
       }
+      wrap.appendChild(off);
+      return wrap;
     }
 
-    if (resolved) {
-      var key = 'shift.outcomes.normal';
-      if (S.factory.lastOutcome === 'good') key = 'shift.outcomes.good';
-      else if (S.factory.lastOutcome === 'bad') key = 'shift.outcomes.bad';
-      else if (S.factory.lastOutcome === 'hurt') key = 'shift.outcomes.hurt';
-      else if (S.factory.lastOutcome === 'absent') key = 'shift.abstained';
-      else if (S.factory.lastOutcome === 'casual_got' || S.factory.lastOutcome === 'casual') key = 'shift.casualGot';
-      body.appendChild(el('p', 'prose', T(key)));
-      body.appendChild(UI.actions([
+    var st = S.factory.station;
+
+    /* ---- the floor you are on ---- */
+    var floor = UI.panel(T('shift.heading'), 'shift-panel');
+    floor._head.appendChild(el('span', null, T('shift.stations.' + st + '.name')));
+    var art = el('div', 'station-art');
+    Art.into(art, Art.station(st));
+    floor._body.appendChild(art);
+    floor._body.appendChild(el('p', 'prose', T('shift.stations.' + st + '.line')));
+    var haz = el('p', 'prose prose--dim hazard-line');
+    haz.appendChild(el('span', 'hazard-line__label', T('shift.stations.' + st + '.hazard')));
+    floor._body.appendChild(haz);
+    floor._body.appendChild(UI.kv(T('shift.tally.skill'),
+      Math.round(Factory.skill(st)) + ' · ' + band(Factory.skill(st), 'skill')));
+    wrap.appendChild(floor);
+
+    /* ---- the count ---- */
+    wrap.appendChild(UI.quotaPanel());
+
+    if (!resolved) {
+      /* ---- the dials ---- */
+      wrap.appendChild(UI.dialsPanel());
+      /* ---- Coom ---- */
+      wrap.appendChild(UI.foremanPanel());
+
+      var go = UI.panel(T('phases.SHIFT'), 'shift-go');
+      go._body.appendChild(el('p', 'prose prose--dim', T('phases.shiftBlurb')));
+      go._body.appendChild(UI.actions([
         UI.button({
-          id: 'btn-leave-gate', primary: true,
-          label: T('shift.leaveGate'), hint: T('shift.leaveGateHint'),
-          onClick: function () { Loop.toEvening(); }
+          id: 'btn-work', primary: true,
+          label: T('shift.work'), hint: T('shift.workHint'),
+          onClick: function () { Loop.work(); }
+        }),
+        UI.button({
+          id: 'btn-abstain',
+          label: T('shift.abstain'), hint: T('shift.abstainHint'),
+          onClick: function () { Loop.skip(); }
         })
       ]));
+      wrap.appendChild(go);
+    } else {
+      wrap.appendChild(UI.tallyPanel());
     }
+    return wrap;
+  },
+
+  quotaPanel: function () {
+    var q = Factory.quotaProgress();
+    var p = UI.panel(T('shift.quota.heading'), 'quota-panel');
+    p._head.appendChild(el('span', null, T('shift.quota.week', { n: q.week })));
+    var b = p._body;
+
+    var bar = el('div', 'quota-bar');
+    var fill = el('div', 'quota-bar__fill');
+    fill.style.width = Util.clamp(Math.round(q.made / Math.max(1, q.target) * 100), 0, 100) + '%';
+    if (q.made >= q.target) fill.className += ' quota-bar__fill--met';
+    bar.appendChild(fill);
+    b.appendChild(bar);
+
+    b.appendChild(UI.kv(T('shift.quota.required'), String(q.target)));
+    b.appendChild(UI.kv(T('shift.quota.made'), String(q.made), q.made >= q.target ? 'good' : null));
+    b.appendChild(UI.kv(T('shift.quota.remaining'), String(q.remaining), q.remaining > 0 ? 'bad' : 'good'));
+    b.appendChild(UI.kv(T('shift.quota.shiftsLeft', { n: q.shiftsLeft }), ''));
+    if (q.lastTarget) {
+      b.appendChild(el('div', 'ratchet', T('shift.quota.ratchet', { old: q.lastTarget, next: q.target })));
+    }
+    if (S.job.warnings > 0) {
+      b.appendChild(UI.kv(T('shift.quota.warningsLabel'),
+        S.job.warnings + ' / ' + QUOTA.warningsToDismissal, 'bad'));
+    }
+    return p;
+  },
+
+  dialsPanel: function () {
+    var p = UI.panel(T('shift.dials.heading'), 'dials-panel');
+    var b = p._body;
+
+    function row(kind, optsKey, table, current) {
+      var r = el('div', 'dial');
+      r.appendChild(el('div', 'dial__name', T('shift.dials.' + kind)));
+      var seg = el('div', 'dial__seg');
+      for (var key in table) {
+        if (!Object.prototype.hasOwnProperty.call(table, key)) continue;
+        (function (k) {
+          var copy = T('shift.dials.' + optsKey + '.' + k);
+          var btn = UI.button({
+            small: true,
+            label: copy.label,
+            hint: copy.hint,
+            onClick: function () { Loop.setDial(kind, k); }
+          });
+          btn.className += ' dial__opt' + (current === k ? ' dial__opt--on' : '');
+          btn.setAttribute('aria-pressed', current === k ? 'true' : 'false');
+          if (kind === 'guard' && k === 'off') btn.className += ' dial__opt--off';
+          seg.appendChild(btn);
+        })(key);
+      }
+      r.appendChild(seg);
+      return r;
+    }
+
+    b.appendChild(row('pace', 'paceOpts', PACE, S.factory.pace));
+    b.appendChild(row('care', 'careOpts', CARE, S.factory.care));
+    b.appendChild(row('guard', 'guardOpts', GUARD, S.factory.guard));
+
+    /* the forecast tells you output and money. it does not tell you the odds
+       of losing a hand, because nobody on the floor is told that either. */
+    var est = Factory.estimate();
+    var f = el('div', 'forecast');
+    var icon = el('span', 'forecast__icon');
+    Art.into(icon, Art.icon(Art.unitIcon(S.factory.station), 30));
+    f.appendChild(icon);
+    var ftext = el('div', 'forecast__text');
+    ftext.appendChild(el('div', null, est.good + ' ' + T('shift.stations.' + S.factory.station + '.units')
+      + ' · ' + Economy.money(est.wage)));
+    ftext.appendChild(el('div', 'forecast__sub', T('shift.tally.credit') + ' ' + est.credits));
+    f.appendChild(ftext);
+    b.appendChild(f);
+    return p;
+  },
+
+  foremanPanel: function () {
+    var p = UI.panel(T('foreman.heading'), 'foreman-panel');
+    p._head.appendChild(el('span', null, T('foreman.name')));
+    var b = p._body;
+    b.appendChild(el('p', 'prose', T(Coom.moodKey())));
+    b.appendChild(UI.kv(T('foreman.standing'),
+      S.standing.foreman + ' · ' + standingBand(S.standing.foreman),
+      S.standing.foreman < -25 ? 'bad' : (S.standing.foreman > 25 ? 'good' : null)));
+
+    var opts = Coom.options();
+    var list = el('div', 'actions');
+    for (var i = 0; i < opts.length; i++) {
+      (function (o) {
+        list.appendChild(UI.button({
+          label: T(o.labelKey, o.params),
+          hint: T(o.hintKey),
+          reason: o.reason ? T(o.reason) : null,
+          onClick: function () { Loop.foremanChoice(o.id); }
+        }));
+      })(opts[i]);
+    }
+    list.appendChild(UI.button({
+      label: T('shift.transfer.request'),
+      hint: T('shift.transfer.requestHint'),
+      reason: (S.factory.transfer && S.factory.transfer.day === S.time.day) ? T('shift.transfer.pending') : null,
+      onClick: function () { UI.showTransfer(); }
+    }));
+    b.appendChild(list);
+    return p;
+  },
+
+  tallyPanel: function () {
+    var sh = S.factory.shift;
+    var p = UI.panel(T('shift.tally.heading'), 'tally-panel');
+    var b = p._body;
+
+    if (!sh) {
+      b.appendChild(el('p', 'prose', T(S.factory.lastOutcome === 'absent' ? 'shift.abstained' : 'shift.tally.nothing')));
+    } else {
+      var head = el('div', 'tally-head');
+      var ic = el('span', 'tally-head__icon');
+      Art.into(ic, Art.icon(Art.unitIcon(sh.station), 44));
+      head.appendChild(ic);
+      var ht = el('div');
+      ht.appendChild(el('div', 'tally-head__big', String(sh.good) + ' ' + T('shift.stations.' + sh.station + '.units')));
+      ht.appendChild(el('div', 'tally-head__sub', T('shift.tally.passed')));
+      head.appendChild(ht);
+      b.appendChild(head);
+
+      b.appendChild(UI.kv(T('shift.tally.made'), String(sh.output)));
+      b.appendChild(UI.kv(T('shift.tally.rejected'), String(sh.rejects), sh.rejects > sh.output * 0.09 ? 'bad' : null));
+      b.appendChild(UI.kv(T('shift.tally.credit'), String(sh.credits), 'good'));
+      b.appendChild(UI.kv(T('shift.tally.wage'), Economy.money(sh.wage)));
+      b.appendChild(UI.kv(T('shift.tally.hours'), String(sh.hours)));
+      if (sh.skillGain) b.appendChild(UI.kv(T('shift.tally.skill'), T('shift.tally.skillUp', { n: sh.skillGain })));
+      b.appendChild(el('p', 'prose', T('shift.outcomes.' + (sh.outcome === 'absent' ? 'normal' : sh.outcome))));
+    }
+
+    b.appendChild(UI.actions([
+      UI.button({
+        id: 'btn-leave-gate', primary: true,
+        label: T('shift.leaveGate'), hint: T('shift.leaveGateHint'),
+        onClick: function () { Loop.toEvening(); }
+      })
+    ]));
     return p;
   },
 
@@ -343,6 +520,7 @@ var UI = {
     stats.appendChild(UI.statRow('stats.warmth', b.warmth, 'warmth', { fillClass: b.warmth < 30 ? 'bad' : 'good' }));
     stats.appendChild(UI.statRow('stats.dust', b.dust, 'dust', { fillClass: 'perm', permanent: true }));
     stats.appendChild(UI.statRow('stats.tremor', b.tremor, 'tremor', { fillClass: 'perm', permanent: true }));
+    stats.appendChild(UI.statRow('stats.lead', b.lead, 'lead', { fillClass: 'perm', permanent: true }));
     stats.appendChild(UI.statRow('stats.resolve', S.mind.resolve, 'resolve', { fillClass: 'warn' }));
     body.appendChild(stats);
 
@@ -352,6 +530,16 @@ var UI = {
       b.injury ? T('injuries.' + b.injury.type) : T('hud.injuryNone'),
       b.injury ? 'bad' : null
     ));
+    if (b.injury) {
+      body.appendChild(UI.kv(T('hud.wound'),
+        (b.injury.fever ? T('hud.fever') : T('hud.infection')) + ' ' + Math.round(b.injury.infection || 0),
+        (b.injury.fever || (b.injury.infection || 0) > 50) ? 'bad' : null));
+    }
+    if (b.scars.length) {
+      var names = [];
+      for (var si = 0; si < b.scars.length; si++) names.push(T('injuries.' + b.scars[si].type));
+      body.appendChild(UI.kv(T('hud.scars'), names.join(', '), 'bad'));
+    }
     return p;
   },
 
@@ -493,7 +681,12 @@ var UI = {
       return row;
     }
 
+    if (docket.pieces) {
+      d.appendChild(metaRow(T('docket.pieces'), String(docket.pieces) + ' ' + T(docket.unitKey)));
+    }
+    d.appendChild(el('div', 'docket__rule'));
     d.appendChild(item(T('docket.gross'), docket.gross));
+    if (docket.bonus) d.appendChild(item(T('docket.bonusLine'), docket.bonus));
     d.appendChild(el('div', 'docket__section', T('docket.deductions')));
 
     if (docket.lines.length === 0) {
@@ -698,6 +891,238 @@ var UI = {
         UI.button({
           label: T('app.newGame'), hint: T('app.dateline'),
           onClick: function () { UI.closeModal(scrim); Loop.newGame(); }
+        })
+      ]));
+    });
+    scrim = UI.openModal(m);
+  },
+
+  /* ---------------------------------------------------------- the shift
+     A short column of beat-lines, paced, then the tally. Skippable at any
+     point. It should read like a bad day, not a spreadsheet.
+     ------------------------------------------------------------------- */
+  playShift: function (rec, onDone) {
+    var scrim, col, skipBtn, finished = false;
+    var timers = [];
+    var STEP = 380;
+
+    var m = el('div', 'modal modal--shift');
+    var head = el('div', 'modal__head');
+    head.appendChild(el('span', null, T('shift.stations.' + rec.station + '.name')));
+    m.appendChild(head);
+    var body = el('div', 'modal__body');
+    col = el('div', 'beats');
+    col.setAttribute('aria-live', 'polite');
+    body.appendChild(col);
+    var footer = el('div', 'actions');
+    skipBtn = UI.button({
+      id: 'btn-skip-beats', small: true,
+      label: T('shift.skipBeats'),
+      onClick: function () { finish(); }
+    });
+    footer.appendChild(skipBtn);
+    body.appendChild(footer);
+    m.appendChild(body);
+    scrim = UI.openModal(m);
+
+    function line(beat) {
+      var txt = beat.text || T(beat.key);
+      var node = el('div', 'beat' + (beat.kind ? ' beat--' + beat.kind : ''), txt);
+      col.appendChild(node);
+      col.scrollTop = col.scrollHeight;
+      Audio.beat(beat.kind);
+    }
+
+    for (var i = 0; i < rec.beats.length; i++) {
+      (function (idx) {
+        timers.push(setTimeout(function () {
+          if (finished) return;
+          line(rec.beats[idx]);
+          if (idx === rec.beats.length - 1) timers.push(setTimeout(finish, 520));
+        }, idx * STEP));
+      })(i);
+    }
+
+    function finish() {
+      if (finished) return;
+      finished = true;
+      for (var t = 0; t < timers.length; t++) clearTimeout(timers[t]);
+      /* anything not yet shown lands at once */
+      clear(col);
+      for (var b = 0; b < rec.beats.length; b++) {
+        var beat = rec.beats[b];
+        col.appendChild(el('div', 'beat' + (beat.kind ? ' beat--' + beat.kind : ''), beat.text || T(beat.key)));
+      }
+      clear(footer);
+      UI.shiftAftermath(body, rec, function () {
+        UI.closeModal(scrim);
+        if (onDone) onDone();
+      });
+      body.scrollTop = body.scrollHeight;
+    }
+  },
+
+  shiftAftermath: function (body, rec, onDone) {
+    /* the catastrophe, if the shed had one */
+    if (rec.catastrophe) {
+      var cat = el('div', 'catastrophe');
+      cat.appendChild(el('div', 'catastrophe__title', T('shift.catastrophe.' + rec.catastrophe + '.title')));
+      cat.appendChild(el('p', 'prose', T('shift.catastrophe.' + rec.catastrophe + '.text', {
+        name: rec.died ? rec.died.name : T('hud.nothing'),
+        age: rec.died ? rec.died.age : ''
+      })));
+      cat.appendChild(el('p', 'prose', T('shift.catastrophe.' + rec.catastrophe + '.survived')));
+      if (rec.died) cat.appendChild(el('p', 'prose prose--dim', T('shift.catastrophe.neighbourDied', { name: rec.died.name })));
+      cat.appendChild(el('p', 'prose prose--dim', T('shift.catastrophe.worksResponse')));
+      cat.appendChild(el('p', 'prose prose--dim', T('shift.catastrophe.resumed')));
+      body.appendChild(cat);
+    } else if (rec.injury) {
+      var inj = el('div', 'injury-note');
+      inj.appendChild(el('div', 'injury-note__title', T('shift.injuryHappened')));
+      inj.appendChild(el('p', 'prose', T('shift.injuryLine', {
+        what: T('injuries.' + rec.injury),
+        detail: T('shift.injuryDetail.' + rec.injury)
+      })));
+      body.appendChild(inj);
+    }
+
+    /* the tally */
+    var t = el('div', 'tally-mini');
+    var ic = el('span', 'tally-head__icon');
+    Art.into(ic, Art.icon(Art.unitIcon(rec.station), 40));
+    t.appendChild(ic);
+    var rows = el('div', 'tally-mini__rows');
+    rows.appendChild(UI.kv(T('shift.tally.made'), String(rec.output)));
+    rows.appendChild(UI.kv(T('shift.tally.rejected'), String(rec.rejects), rec.rejects > rec.output * 0.09 ? 'bad' : null));
+    rows.appendChild(UI.kv(T('shift.tally.passed'), String(rec.good), 'good'));
+    rows.appendChild(UI.kv(T('shift.tally.credit'), String(rec.credits)));
+    rows.appendChild(UI.kv(T('shift.tally.wage'), Economy.money(rec.wage)));
+    t.appendChild(rows);
+    body.appendChild(t);
+
+    body.appendChild(UI.actions([
+      UI.button({
+        id: 'btn-shift-done', primary: true,
+        label: T('shift.tally.done'),
+        onClick: onDone
+      })
+    ]));
+  },
+
+  /* ---------------------------------------------------------- the ratchet */
+  showQuota: function (result, onDone) {
+    var scrim;
+    var m = UI.modal(T(result.beaten ? 'shift.quota.beaten' : 'shift.quota.missed'), function (body) {
+      body.appendChild(el('p', 'prose', T(result.beaten ? 'shift.quota.beatenText' : 'shift.quota.missedText', {
+        made: result.made,
+        target: result.target,
+        bonus: Economy.money(result.bonus),
+        fine: Economy.money(result.fine),
+        next: result.next
+      })));
+
+      var rat = el('div', 'ratchet-big');
+      var oldBox = el('div', 'ratchet-big__box');
+      oldBox.appendChild(el('div', 'ratchet-big__label', T('shift.quota.week', { n: result.week })));
+      oldBox.appendChild(el('div', 'ratchet-big__num', String(result.target)));
+      var arrow = el('div', 'ratchet-big__arrow', '\u2192');
+      var newBox = el('div', 'ratchet-big__box ratchet-big__box--new');
+      newBox.appendChild(el('div', 'ratchet-big__label', T('shift.quota.week', { n: result.week + 1 })));
+      newBox.appendChild(el('div', 'ratchet-big__num', String(result.next)));
+      rat.appendChild(oldBox);
+      rat.appendChild(arrow);
+      rat.appendChild(newBox);
+      body.appendChild(rat);
+
+      if (!result.beaten) {
+        body.appendChild(el('p', 'prose prose--dim',
+          T('shift.quota.warning', { n: result.warnings, max: QUOTA.warningsToDismissal })));
+      }
+      body.appendChild(UI.actions([
+        UI.button({
+          id: 'btn-quota-on', primary: true, label: T('ui.continueBtn'),
+          onClick: function () { UI.closeModal(scrim); if (onDone) onDone(); }
+        })
+      ]));
+    });
+    scrim = UI.openModal(m);
+    Audio.paper();
+  },
+
+  /* --------------------------------------------------------- the transfer */
+  showTransfer: function () {
+    var scrim;
+    var m = UI.modal(T('shift.transfer.heading'), function (body) {
+      body.appendChild(el('p', 'prose prose--dim', T('shift.transfer.pick')));
+      body.appendChild(el('div', 'kv', T('shift.transfer.current', {
+        station: T('shift.stations.' + S.factory.station + '.name'),
+        skill: Math.round(Factory.skill(S.factory.station))
+      })));
+      var opts = Factory.transferOptions();
+      var list = el('div', 'actions');
+      for (var i = 0; i < opts.length; i++) {
+        (function (o) {
+          list.appendChild(UI.button({
+            label: T('shift.stations.' + o.station + '.name'),
+            hint: T('shift.stations.' + o.station + '.hazard'),
+            reason: o.reason ? T(o.reason) : null,
+            onClick: function () { UI.closeModal(scrim); UI.showTransferPreview(o.station); }
+          }));
+        })(opts[i]);
+      }
+      body.appendChild(list);
+      body.appendChild(UI.actions([
+        UI.button({ label: T('shift.transfer.cancel'), onClick: function () { UI.closeModal(scrim); } })
+      ]));
+    });
+    scrim = UI.openModal(m, { dismissible: true });
+  },
+
+  /* The cost is shown before the player can agree to it. */
+  showTransferPreview: function (to) {
+    var pv = Factory.transferPreview(to);
+    var scrim;
+    var m = UI.modal(T('shift.transfer.heading'), function (body) {
+      body.appendChild(el('div', 'kv', T('shift.transfer.target', {
+        station: T('shift.stations.' + to + '.name'), skill: pv.toSkill
+      })));
+      body.appendChild(el('p', 'prose transfer-cost', T('shift.transfer.costLine', {
+        from: T('shift.stations.' + pv.from + '.short'),
+        to: T('shift.stations.' + to + '.short'),
+        skill: pv.toSkill
+      })));
+      body.appendChild(el('p', 'prose', T('shift.transfer.wageLine', {
+        wage: Economy.money(pv.wageThere), now: Economy.money(pv.wageNow)
+      })));
+      body.appendChild(el('p', 'prose prose--dim', T('shift.transfer.hazardLine', {
+        hazard: T(pv.hazardKey)
+      })));
+      body.appendChild(UI.actions([
+        UI.button({
+          id: 'btn-transfer-confirm', primary: true,
+          label: T('shift.transfer.confirm'),
+          onClick: function () { UI.closeModal(scrim); Loop.askTransfer(to); }
+        }),
+        UI.button({ label: T('shift.transfer.cancel'), onClick: function () { UI.closeModal(scrim); } })
+      ]));
+    });
+    scrim = UI.openModal(m, { dismissible: true });
+  },
+
+  /* -------------------------------------------------------- the Inspector */
+  showInspector: function () {
+    var scrim;
+    var m = UI.modal(T('inspector.heading'), function (body) {
+      body.appendChild(el('p', 'prose', T('inspector.arrival')));
+      body.appendChild(el('p', 'prose', T('inspector.visit')));
+      body.appendChild(el('p', 'prose', T('inspector.findsNothing')));
+      body.appendChild(el('p', 'prose', T('inspector.aftermath')));
+      body.appendChild(el('p', 'prose prose--dim', T('inspector.workmates')));
+      body.appendChild(el('p', 'prose prose--dim', T('inspector.coomKnows')));
+      body.appendChild(UI.actions([
+        UI.button({
+          id: 'btn-inspector', primary: true, label: T('ui.continueBtn'),
+          onClick: function () { UI.closeModal(scrim); Coom.inspectorVisit(); UI.render(); }
         })
       ]));
     });
